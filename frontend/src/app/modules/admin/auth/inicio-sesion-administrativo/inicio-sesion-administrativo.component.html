@@ -1,0 +1,177 @@
+<div class="contenedor-login min-vh-100">
+  <div class="row g-0 min-vh-100">
+    
+    <!-- Panel Izquierdo - Branding -->
+    <div class="col-lg-6 d-none d-lg-flex panel-branding">
+      <div class="contenido-branding">
+        <div class="logo-container mb-4">
+          <img 
+            src="assets/images/logo_empresa.png" 
+            alt="Logo Tienda Virtual" 
+            class="logo-principal">
+        </div>
+        <h2 class="titulo-branding">Panel de Administracion</h2>
+        <p class="descripcion-branding">
+          Gestiona tu tienda virtual de manera eficiente. 
+          Controla inventario, pedidos, clientes y mucho mas.
+        </p>
+        <div class="caracteristicas mt-5">
+          <div class="caracteristica">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span>Estadisticas en tiempo real</span>
+          </div>
+          <div class="caracteristica">
+            <i class="bi bi-box-seam"></i>
+            <span>Control de inventario</span>
+          </div>
+          <div class="caracteristica">
+            <i class="bi bi-people"></i>
+            <span>Gestion de clientes</span>
+          </div>
+        </div>
+      </div>
+      <div class="overlay-pattern"></div>
+    </div>
+
+    <!-- Panel Derecho - Formulario -->
+    <div class="col-12 col-lg-6 panel-formulario">
+      <div class="contenedor-formulario">
+        
+        <!-- Logo movil -->
+        <div class="logo-movil d-lg-none text-center mb-4">
+          <img 
+            src="assets/images/logo_empresa.png" 
+            alt="Logo Tienda Virtual" 
+            class="logo-sm">
+        </div>
+
+        <!-- Card de Login -->
+        <div class="card-login">
+          <!-- Header -->
+          <div class="login-header text-center">
+             
+            <h1 class="titulo-login">Bienvenido</h1>
+            <p class="subtitulo-login">Ingresa tus credenciales para acceder al panel</p>
+          </div>
+
+          <!-- Mensaje de Error -->
+          @if (mensajeError) {
+            <div class="alerta-error">
+              <i class="bi bi-exclamation-octagon-fill"></i>
+              <span>{{ mensajeError }}</span>
+            </div>
+          }
+
+          <!-- Formulario -->
+          <form [formGroup]="formularioInicioSesion" (ngSubmit)="iniciarSesion()" class="formulario-login">
+            
+            <!-- Campo Correo -->
+            <div class="campo-formulario">
+              <label for="correo" class="etiqueta-campo">
+                Correo electronico
+              </label>
+              <div class="input-wrapper" [class.input-error]="correo?.invalid && correo?.touched" [class.input-focus]="correoEnfocado">
+                <i class="bi bi-envelope icono-input"></i>
+                <input 
+                  type="email" 
+                  id="correo" 
+                  formControlName="correo"
+                  placeholder="admin@tiendavirtual.com"
+                  autocomplete="email"
+                  (focus)="correoEnfocado = true"
+                  (blur)="correoEnfocado = false">
+              </div>
+              @if (correo?.invalid && correo?.touched) {
+                <div class="mensaje-error">
+                  @if (correo?.errors?.['required']) {
+                    <i class="bi bi-info-circle"></i> El correo electronico es requerido
+                  } @else if (correo?.errors?.['email']) {
+                    <i class="bi bi-info-circle"></i> Ingresa un correo electronico valido
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Campo Contrasena -->
+            <div class="campo-formulario">
+              <label for="contrasena" class="etiqueta-campo">
+                Contrasena
+              </label>
+              <div class="input-wrapper" [class.input-error]="contrasena?.invalid && contrasena?.touched" [class.input-focus]="contrasenaEnfocado">
+                <i class="bi bi-key icono-input"></i>
+                <input 
+                  [type]="mostrarContrasena ? 'text' : 'password'" 
+                  id="contrasena" 
+                  formControlName="contrasena"
+                  placeholder="Ingresa tu contrasena"
+                  autocomplete="current-password"
+                  (focus)="contrasenaEnfocado = true"
+                  (blur)="contrasenaEnfocado = false">
+                <button 
+                  class="btn-mostrar-contrasena" 
+                  type="button"
+                  (click)="alternarVisibilidadContrasena()"
+                  tabindex="-1">
+                  <i class="bi" [class.bi-eye]="!mostrarContrasena" [class.bi-eye-slash]="mostrarContrasena"></i>
+                </button>
+              </div>
+              @if (contrasena?.invalid && contrasena?.touched) {
+                <div class="mensaje-error">
+                  @if (contrasena?.errors?.['required']) {
+                    <i class="bi bi-info-circle"></i> La contrasena es requerida
+                  } @else if (contrasena?.errors?.['minlength']) {
+                    <i class="bi bi-info-circle"></i> La contrasena debe tener al menos 8 caracteres
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Recordar y Olvide contrasena -->
+            <div class="opciones-extras">
+              <label class="checkbox-recordar">
+                <input type="checkbox" formControlName="recordarme">
+                <span class="checkmark"></span>
+                Recordarme
+              </label>
+              <a href="#" class="enlace-olvide">Olvidaste tu contrasena?</a>
+            </div>
+
+            <!-- Boton de Inicio de Sesion -->
+            <button 
+              type="submit" 
+              class="btn-iniciar-sesion"
+              [disabled]="cargando"
+              [class.cargando]="cargando">
+              @if (cargando) {
+                <span class="spinner"></span>
+                <span>Verificando...</span>
+              } @else {
+                <span>Iniciar Sesion</span>
+                <i class="bi bi-arrow-right"></i>
+              }
+            </button>
+          </form>
+
+          <!-- Separador -->
+          <div class="separador">
+            <span>o</span>
+          </div>
+
+          <!-- Enlace para regresar -->
+          <a routerLink="/" class="btn-volver">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver a la tienda</span>
+          </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-login">
+          <p>
+            <i class="bi bi-shield-check"></i>
+            Conexion segura - Tienda Virtual 2026
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

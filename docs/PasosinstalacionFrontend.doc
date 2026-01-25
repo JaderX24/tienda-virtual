@@ -1,0 +1,357 @@
+# Guía de Instalación del Frontend - Tienda Virtual
+
+**Proyecto:** Tienda Virtual
+**Fecha:** 24 de enero de 2026
+**Autor:** Equipo de Desarrollo
+
+---
+
+## Prerrequisitos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- **Node.js** versión 18+ LTS (recomendado: Node.js 22 LTS)
+- **npm** versión 9+ (viene incluido con Node.js)
+- **Git** para control de versiones
+
+### Verificar Instalación de Prerrequisitos
+
+```bash
+# Verificar versión de Node.js
+node --version
+
+# Verificar versión de npm
+npm --version
+```
+
+---
+
+## Paso 1: Instalar Angular CLI Globalmente
+
+Angular CLI es la herramienta de línea de comandos para crear y gestionar proyectos Angular.
+
+```bash
+npm install -g @angular/cli@19
+```
+
+### Verificar Instalación
+
+```bash
+ng version
+```
+
+**Nota:** Si el comando `ng` no es reconocido después de la instalación, cierra y vuelve a abrir la terminal para que se actualice el PATH.
+
+---
+
+## Paso 2: Crear el Proyecto Angular
+
+Navega a la carpeta del proyecto y crea la aplicación Angular:
+
+```bash
+cd c:\Users\works\Projects\tienda-virtual
+
+# Crear nuevo proyecto Angular
+npx @angular/cli@19 new frontend --style=scss --routing=true --skip-git=true --skip-tests=false --ssr=false
+```
+
+### Parámetros Explicados
+
+| Parámetro | Descripción |
+|-----------|-------------|
+| `--style=scss` | Usar SCSS como preprocesador de estilos |
+| `--routing=true` | Incluir módulo de enrutamiento |
+| `--skip-git=true` | No inicializar repositorio git (ya existe uno) |
+| `--skip-tests=false` | Incluir archivos de pruebas |
+| `--ssr=false` | Sin Server-Side Rendering |
+
+---
+
+## Paso 3: Instalar Bootstrap 5 y Dependencias
+
+Navega a la carpeta del frontend e instala Bootstrap:
+
+```bash
+cd frontend
+
+# Instalar Bootstrap 5.3, Bootstrap Icons y Popper.js
+npm install bootstrap@5.3 bootstrap-icons @popperjs/core
+```
+
+### Paquetes Instalados
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| bootstrap | 5.3.8 | Framework CSS principal |
+| bootstrap-icons | 1.13.1 | Librería de iconos |
+| @popperjs/core | 2.11.8 | Posicionamiento de elementos |
+
+---
+
+## Paso 4: Instalar Librerías de UI/UX
+
+```bash
+# Instalar ngx-toastr para notificaciones y SweetAlert2 para modales
+npm install ngx-toastr@18 sweetalert2
+```
+
+### Paquetes Instalados
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| ngx-toastr | 18.0.0 | Notificaciones toast globales |
+| sweetalert2 | 11.26.17 | Modales y alertas elegantes |
+
+---
+
+## Paso 5: Configurar angular.json
+
+Editar el archivo `angular.json` para incluir los estilos y scripts de Bootstrap.
+
+### Ubicación del Archivo
+```
+frontend/angular.json
+```
+
+### Modificaciones Necesarias
+
+Buscar la sección `"styles"` y `"scripts"` dentro de `architect > build > options` y reemplazar con:
+
+```json
+"styles": [
+  "node_modules/bootstrap/scss/bootstrap.scss",
+  "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+  "node_modules/ngx-toastr/toastr.css",
+  "src/styles.scss"
+],
+"scripts": [
+  "node_modules/@popperjs/core/dist/umd/popper.min.js",
+  "node_modules/bootstrap/dist/js/bootstrap.min.js"
+]
+```
+
+**Importante:** Hacer lo mismo para la sección de `test` si se van a ejecutar pruebas unitarias.
+
+---
+
+## Paso 6: Verificar la Instalación
+
+### Compilar el Proyecto
+
+```bash
+npm run build
+```
+
+Si la compilación es exitosa, verás un mensaje similar a:
+
+```
+Application bundle generation complete. [X.XXX seconds]
+Output location: C:\...\frontend\dist\frontend
+```
+
+### Iniciar Servidor de Desarrollo
+
+```bash
+npm start
+```
+
+El servidor estará disponible en: `http://localhost:4200`
+
+---
+
+## Paso 7: Verificar Dependencias Instaladas
+
+```bash
+npm list --depth=0
+```
+
+### Resultado Esperado
+
+```
+frontend@0.0.0
+├── @angular/cli@19.2.19
+├── @angular/common@19.2.18
+├── @angular/core@19.2.18
+├── @popperjs/core@2.11.8
+├── bootstrap@5.3.8
+├── bootstrap-icons@1.13.1
+├── ngx-toastr@18.0.0
+├── sweetalert2@11.26.17
+├── typescript@5.7.3
+└── ... (otras dependencias)
+```
+
+---
+
+## Resumen de Comandos
+
+```bash
+# 1. Instalar Angular CLI globalmente
+npm install -g @angular/cli@19
+
+# 2. Crear proyecto (desde carpeta raíz del proyecto)
+cd c:\Users\works\Projects\tienda-virtual
+npx @angular/cli@19 new frontend --style=scss --routing=true --skip-git=true --skip-tests=false --ssr=false
+
+# 3. Navegar al frontend
+cd frontend
+
+# 4. Instalar Bootstrap y dependencias
+npm install bootstrap@5.3 bootstrap-icons @popperjs/core
+
+# 5. Instalar librerías de UI
+npm install ngx-toastr@18 sweetalert2
+
+# 6. Verificar compilación
+npm run build
+
+# 7. Iniciar servidor de desarrollo
+npm start
+```
+
+---
+
+## Estructura de Archivos Creada
+
+```
+frontend/
+├── angular.json          # Configuración de Angular
+├── package.json          # Dependencias del proyecto
+├── tsconfig.json         # Configuración de TypeScript
+├── src/
+│   ├── main.ts           # Punto de entrada
+│   ├── index.html        # HTML principal
+│   ├── styles.scss       # Estilos globales
+│   └── app/
+│       ├── app.component.ts
+│       ├── app.config.ts
+│       └── app.routes.ts
+└── public/
+    └── favicon.ico
+```
+
+---
+
+## Solución de Problemas Comunes
+
+### Error: 'ng' no es reconocido
+
+**Solución:** Cerrar y volver a abrir la terminal, o usar npx:
+```bash
+npx ng version
+```
+
+### Error de compatibilidad con ngx-toastr
+
+**Solución:** Usar la versión 18 que es compatible con Angular 19:
+```bash
+npm install ngx-toastr@18
+```
+
+### Warnings de SCSS/Sass
+
+Los warnings sobre funciones deprecadas de Sass son normales y vienen de Bootstrap. No afectan la funcionalidad.
+
+### Node.js versión impar
+
+Si usas Node.js v25 (versión impar), verás un warning. Para producción, se recomienda usar Node.js 22 LTS.
+
+### Error: "No se puede encontrar el archivo de definición de tipo para 'jasmine'"
+
+Este error aparece en VS Code cuando los tipos de Jasmine no están correctamente vinculados.
+
+**Solución 1:** Reiniciar el servidor de TypeScript en VS Code:
+1. Presiona `Ctrl+Shift+P`
+2. Escribe: `TypeScript: Restart TS Server`
+3. Presiona Enter
+
+**Solución 2:** Verificar que @types/jasmine está instalado:
+```bash
+npm list @types/jasmine
+```
+
+Si no está instalado:
+```bash
+npm install --save-dev @types/jasmine
+```
+
+### Error: Líneas rojas en tsconfig.json por comentarios
+
+Los archivos `tsconfig.json` de Angular contienen comentarios, pero VS Code los marca como error porque JSON no soporta comentarios.
+
+**Solución:** Crear o editar el archivo `.vscode/settings.json`:
+```json
+{
+  "files.associations": {
+    "tsconfig.json": "jsonc",
+    "tsconfig.*.json": "jsonc"
+  }
+}
+```
+
+---
+
+## Paso 8: Configurar VS Code (Opcional pero Recomendado)
+
+Crear el archivo `.vscode/settings.json` para evitar errores visuales:
+
+```json
+{
+  "files.associations": {
+    "tsconfig.json": "jsonc",
+    "tsconfig.*.json": "jsonc"
+  }
+}
+```
+
+Este archivo ya debería existir en `frontend/.vscode/settings.json`.
+
+---
+
+## Próximos Pasos
+
+1. Configurar la estructura de módulos del proyecto
+2. Crear componentes compartidos (navbar, footer, modal global, toast global)
+3. Configurar interceptores HTTP
+4. Configurar guards de autenticación
+5. Crear servicios base
+
+---
+
+**Documento creado el:** 24 de enero de 2026
+**Versión:** 1.1
+
+---
+
+## Descarga de Node.js 22 LTS (Recomendado)
+
+### Enlace de descarga directa para Windows (64-bit):
+
+🔗 https://nodejs.org/dist/v22.13.1/node-v22.13.1-x64.msi
+
+### Página oficial de descargas:
+
+🔗 https://nodejs.org/en/download/
+
+### Pasos para Instalar
+
+1. Descarga el instalador `.msi` del enlace
+2. Ejecuta el instalador
+3. Sigue el asistente (Next, Next, Finish)
+4. Reinicia la terminal o VS Code
+5. Verifica la instalación:
+
+```bash
+node --version
+# Debería mostrar: v22.13.1
+```
+
+### ¿Por qué Node.js 22 LTS?
+
+| Versión | Tipo | Soporte | Recomendación |
+|---------|------|---------|---------------|
+| v25.x | Current (impar) | Sin LTS | ❌ Solo desarrollo/pruebas |
+| v22.x | **LTS** | Hasta abril 2027 | ✅ **Producción** |
+| v20.x | LTS | Hasta abril 2026 | ✅ Producción (anterior) |
+
+**LTS = Long Term Support** (soporte a largo plazo con correcciones de seguridad garantizadas)

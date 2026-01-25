@@ -1,0 +1,134 @@
+# Versiones de Herramientas - Frontend
+
+**Proyecto:** Tienda Virtual
+**Fecha de Actualización:** 24 de enero de 2026
+**Ambiente:** Desarrollo
+
+---
+
+## Entorno de Desarrollo
+
+| Herramienta | Versión | Descripción |
+|-------------|---------|-------------|
+| Node.js | v25.0.0 | Runtime de JavaScript |
+| npm | 11.6.2 | Gestor de paquetes |
+| Sistema Operativo | Windows | Desarrollo local |
+
+---
+
+## Framework Principal
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| @angular/core | 19.2.18 | Framework principal de Angular |
+| @angular/cli | 19.2.19 | Herramienta de línea de comandos |
+| @angular/common | 19.2.18 | Funcionalidades comunes de Angular |
+| @angular/compiler | 19.2.18 | Compilador de Angular |
+| @angular/compiler-cli | 19.2.18 | CLI del compilador |
+| @angular/forms | 19.2.18 | Manejo de formularios |
+| @angular/router | 19.2.18 | Enrutamiento de la aplicación |
+| @angular/platform-browser | 19.2.18 | Plataforma del navegador |
+| @angular/platform-browser-dynamic | 19.2.18 | Bootstrap dinámico |
+
+---
+
+## UI Framework y Estilos
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| Bootstrap | 5.3.8 | Framework CSS (OBLIGATORIO según requisitos) |
+| Bootstrap Icons | 1.13.1 | Iconografía oficial de Bootstrap |
+| @popperjs/core | 2.11.8 | Posicionamiento de elementos (dropdowns, tooltips) |
+
+---
+
+## Librerías de UI/UX
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| ngx-toastr | 18.0.0 | Notificaciones toast globales |
+| sweetalert2 | 11.26.17 | Modales y alertas elegantes |
+
+---
+
+## Herramientas de Desarrollo
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| @angular-devkit/build-angular | 19.2.19 | Builder de Angular |
+| TypeScript | 5.7.3 | Lenguaje de programación tipado |
+| RxJS | 7.8.2 | Programación reactiva |
+| tslib | 2.8.1 | Helpers de TypeScript |
+| zone.js | 0.15.1 | Detección de cambios de Angular |
+
+---
+
+## Testing
+
+| Paquete | Versión | Descripción |
+|---------|---------|-------------|
+| Karma | 6.4.4 | Test runner |
+| Jasmine Core | 5.6.0 | Framework de testing |
+| karma-jasmine | 5.1.0 | Adaptador Jasmine para Karma |
+| karma-chrome-launcher | 3.2.0 | Lanzador de Chrome para tests |
+| karma-coverage | 2.2.1 | Reporte de cobertura de código |
+| karma-jasmine-html-reporter | 2.1.0 | Reporter HTML |
+| @types/jasmine | 5.1.15 | Tipos de TypeScript para Jasmine |
+
+---
+
+## Configuraciones Importantes
+
+### Estilos
+- **Preprocesador:** SCSS
+- **Framework CSS:** Bootstrap 5.3 (obligatorio)
+- **Iconos:** Bootstrap Icons
+
+### Archivos Configurados en angular.json
+```
+Estilos incluidos:
+- node_modules/bootstrap/scss/bootstrap.scss
+- node_modules/bootstrap-icons/font/bootstrap-icons.css
+- node_modules/ngx-toastr/toastr.css
+- src/styles.scss
+
+Scripts incluidos:
+- node_modules/@popperjs/core/dist/umd/popper.min.js
+- node_modules/bootstrap/dist/js/bootstrap.min.js
+```
+
+---
+
+## Comandos Útiles
+
+```bash
+# Iniciar servidor de desarrollo
+npm start
+
+# Compilar para producción
+npm run build
+
+# Ejecutar tests
+npm test
+
+# Verificar versiones instaladas
+npm list --depth=0
+```
+
+---
+
+## Notas de Compatibilidad
+
+1. **Angular 19** es la versión más reciente estable (supera el requisito mínimo de Angular 17+)
+2. **Bootstrap 5.3.8** cumple con el requisito obligatorio de Bootstrap 5.3+
+3. **ngx-toastr 18** es compatible con Angular 19
+4. **Node.js v25** es una versión impar (no LTS) - considerar usar Node.js 22 LTS para producción
+
+---
+
+## Historial de Cambios
+
+| Fecha | Versión | Cambios |
+|-------|---------|---------|
+| 24/01/2026 | 1.0.0 | Instalación inicial del proyecto |
+

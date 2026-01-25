@@ -1,0 +1,61 @@
+<div class="contenedor-principal min-vh-100 d-flex flex-column">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand fw-bold" routerLink="/">
+        <i class="bi bi-shop me-2"></i>{{ titulo }}
+      </a>
+    </div>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <main class="flex-grow-1 d-flex align-items-center">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+          <div class="card shadow-lg border-0">
+            <div class="card-body p-5 text-center">
+              <!-- Logo o Icono -->
+              <div class="mb-4">
+                <i class="bi bi-shop display-1 text-primary"></i>
+              </div>
+              
+              <!-- Titulo -->
+              <h1 class="card-title h2 mb-3">Bienvenido a {{ titulo }}</h1>
+              <p class="text-muted mb-4">
+                Selecciona el área a la que deseas acceder aa
+              </p>
+
+              <!-- Botones de Navegación -->
+              <div class="d-grid gap-3">
+                <a routerLink="/tienda" class="btn btn-primary btn-lg">
+                  <i class="bi bi-bag me-2"></i>Parte Pública
+                </a>
+                <a routerLink="/admin" class="btn btn-outline-secondary btn-lg">
+                  <i class="bi bi-gear me-2"></i>Parte Administrativa
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información adicional -->
+          <div class="text-center mt-4">
+            <small class="text-muted">
+              <i class="bi bi-shield-check me-1"></i>
+              Sistema seguro - Todos los derechos reservados {{ anioActual }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-light py-3">
+    <div class="container text-center">
+      <small class="text-muted">
+        {{ titulo }} v1.0 | Desarrollado con Angular y Bootstrap
+      </small>
+    </div>
+  </footer>
+</div>

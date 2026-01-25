@@ -1,0 +1,40 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+build/
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Test
+coverage/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Uploads (archivos subidos por usuarios)
+uploads/
+
+# Temporal
+tmp/
+temp/
