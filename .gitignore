@@ -1,0 +1,50 @@
+# ========================================
+# ARCHIVOS IGNORADOS - TIENDA VIRTUAL
+# ========================================
+
+# --- Variables de Entorno (CRÍTICO - NUNCA subir) ---
+.env
+.env.local
+.env.*.local
+*.env
+
+# --- Dependencias ---
+node_modules/
+.pnp/
+.pnp.js
+
+# --- Build y Distribución ---
+dist/
+build/
+.angular/
+coverage/
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+
+# --- IDE y Editores ---
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Testing ---
+coverage/
+.nyc_output/
+
+# --- Caché ---
+.cache/
+.eslintcache
+.npm/
+
+# --- Uploads (archivos subidos por usuarios) ---
+uploads/
+!uploads/.gitkeep
+
+# --- Prisma ---
+prisma/*.db
+prisma/*.db-journal
