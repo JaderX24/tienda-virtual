@@ -1,0 +1,289 @@
+<div class="pagina-usuarios">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-info">
+            <h1 class="pagina-titulo">
+                <i class="bi bi-people-fill"></i>
+                Gestión de Usuarios
+            </h1>
+            <p class="pagina-subtitulo">
+                Administra los usuarios del sistema y sus permisos de acceso
+            </p>
+        </div>
+        <div class="header-acciones">
+            <a routerLink="nuevo" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>
+                Nuevo Usuario
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card filtros-card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            placeholder="Nombre o correo..."
+                            [ngModel]="busqueda()"
+                            (ngModelChange)="busqueda.set($event)"
+                            (keyup.enter)="buscar()">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Rol</label>
+                    <select 
+                        class="form-select"
+                        [ngModel]="rolSeleccionado()"
+                        (ngModelChange)="rolSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos los roles</option>
+                        @for (rol of roles(); track rol.id) {
+                            <option [ngValue]="rol.id">{{ rol.nombre }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select 
+                        class="form-select"
+                        [ngModel]="estadoSeleccionado()"
+                        (ngModelChange)="estadoSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos</option>
+                        <option [ngValue]="true">Activos</option>
+                        <option [ngValue]="false">Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary flex-grow-1" (click)="buscar()">
+                            <i class="bi bi-search me-1"></i> Buscar
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido -->
+    @if (cargando()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando usuarios...</p>
+                </div>
+            </div>
+        </div>
+    } @else {
+        <!-- Resumen -->
+        <div class="resumen-bar mb-3">
+            <span class="resumen-texto">
+                <strong>{{ totalUsuarios() }}</strong> usuarios encontrados
+            </span>
+            <div class="resumen-paginacion">
+                Mostrando {{ (paginaActual() - 1) * limite() + 1 }} - 
+                {{ paginaActual() * limite() > totalUsuarios() ? totalUsuarios() : paginaActual() * limite() }}
+            </div>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="card tabla-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="th-usuario">Usuario</th>
+                            <th class="th-rol">Rol</th>
+                            <th class="th-estado">Estado</th>
+                            <th class="th-acceso">Último Acceso</th>
+                            <th class="th-acciones text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (usuario of usuarios(); track usuario.id) {
+                            <tr>
+                                <td>
+                                    <div class="usuario-info">
+                                        <div class="usuario-avatar" [class.inactivo]="!usuario.activo">
+                                            @if (usuario.avatar) {
+                                                <img [src]="usuario.avatar" [alt]="usuario.nombre">
+                                            } @else {
+                                                <span>{{ obtenerIniciales(usuario.nombre) }}</span>
+                                            }
+                                        </div>
+                                        <div class="usuario-datos">
+                                            <span class="usuario-nombre">{{ usuario.nombre }}</span>
+                                            <span class="usuario-correo">{{ usuario.correo }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-rol" [attr.data-rol]="usuario.rol?.codigo">
+                                        {{ usuario.rol?.nombre || 'Sin rol' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span 
+                                        class="badge-estado"
+                                        [class.activo]="usuario.activo"
+                                        [class.inactivo]="!usuario.activo">
+                                        <i class="bi" [class.bi-check-circle-fill]="usuario.activo" [class.bi-x-circle-fill]="!usuario.activo"></i>
+                                        {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="texto-fecha">
+                                        {{ formatearFecha(usuario.ultimoAcceso) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="acciones-celda">
+                                        <a 
+                                            [routerLink]="[usuario.id, 'editar']" 
+                                            class="btn-accion"
+                                            title="Editar usuario">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button 
+                                            class="btn-accion"
+                                            [class.activar]="!usuario.activo"
+                                            [class.desactivar]="usuario.activo"
+                                            [title]="usuario.activo ? 'Desactivar usuario' : 'Activar usuario'"
+                                            (click)="abrirModalEstado(usuario)">
+                                            <i class="bi" [class.bi-toggle-on]="usuario.activo" [class.bi-toggle-off]="!usuario.activo"></i>
+                                        </button>
+                                        <button 
+                                            class="btn-accion eliminar"
+                                            title="Eliminar usuario"
+                                            (click)="abrirModalEliminar(usuario)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="bi bi-people"></i>
+                                        <h5>No se encontraron usuarios</h5>
+                                        <p>Intenta cambiar los filtros de búsqueda o crea un nuevo usuario</p>
+                                        <a routerLink="nuevo" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg me-2"></i>
+                                            Crear Usuario
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPaginas() > 1) {
+            <nav class="paginacion-nav mt-4">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item" [class.disabled]="paginaActual() === 1">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual() - 1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    </li>
+                    @for (pagina of obtenerPaginas(); track pagina) {
+                        <li class="page-item" [class.active]="pagina === paginaActual()">
+                            <button class="page-link" (click)="cambiarPagina(pagina)">
+                                {{ pagina }}
+                            </button>
+                        </li>
+                    }
+                    <li class="page-item" [class.disabled]="paginaActual() === totalPaginas()">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual() + 1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+</div>
+
+<!-- Modal Eliminar -->
+@if (mostrarModalEliminar()) {
+    <div class="modal-overlay" (click)="cerrarModalEliminar()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+            <div class="modal-header-custom eliminar">
+                <div class="modal-icono">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h5>Eliminar Usuario</h5>
+            </div>
+            <div class="modal-body-custom">
+                <p>¿Estás seguro de que deseas eliminar al usuario <strong>{{ usuarioSeleccionado()?.nombre }}</strong>?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer y se perderán todos los datos asociados.</p>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn btn-secondary" (click)="cerrarModalEliminar()" [disabled]="procesando()">
+                    Cancelar
+                </button>
+                <button class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="procesando()">
+                    @if (procesando()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal Cambiar Estado -->
+@if (mostrarModalEstado()) {
+    <div class="modal-overlay" (click)="cerrarModalEstado()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+            <div class="modal-header-custom" [class.activar]="!usuarioSeleccionado()?.activo" [class.desactivar]="usuarioSeleccionado()?.activo">
+                <div class="modal-icono">
+                    <i class="bi" [class.bi-toggle-on]="!usuarioSeleccionado()?.activo" [class.bi-toggle-off]="usuarioSeleccionado()?.activo"></i>
+                </div>
+                <h5>{{ usuarioSeleccionado()?.activo ? 'Desactivar' : 'Activar' }} Usuario</h5>
+            </div>
+            <div class="modal-body-custom">
+                @if (usuarioSeleccionado()?.activo) {
+                    <p>¿Estás seguro de que deseas desactivar al usuario <strong>{{ usuarioSeleccionado()?.nombre }}</strong>?</p>
+                    <p class="text-muted small">El usuario no podrá acceder al sistema hasta que se reactive su cuenta.</p>
+                } @else {
+                    <p>¿Deseas activar al usuario <strong>{{ usuarioSeleccionado()?.nombre }}</strong>?</p>
+                    <p class="text-muted small">El usuario podrá acceder nuevamente al sistema.</p>
+                }
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn btn-secondary" (click)="cerrarModalEstado()" [disabled]="procesando()">
+                    Cancelar
+                </button>
+                <button 
+                    class="btn" 
+                    [class.btn-success]="!usuarioSeleccionado()?.activo"
+                    [class.btn-warning]="usuarioSeleccionado()?.activo"
+                    (click)="confirmarCambioEstado()" 
+                    [disabled]="procesando()">
+                    @if (procesando()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    {{ usuarioSeleccionado()?.activo ? 'Desactivar' : 'Activar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+}

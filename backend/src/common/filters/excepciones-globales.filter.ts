@@ -28,7 +28,7 @@ export class FiltroExcepcionesGlobal implements ExceptionFilter {
         const request = ctx.getRequest<Request>();
 
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
-        let mensaje = MENSAJES_ERROR.ERROR_INTERNO;
+        let mensaje: string = MENSAJES_ERROR.ERROR_INTERNO;
         let codigo = 'ERROR_INTERNO';
         let errores: string[] | undefined;
 

@@ -8,7 +8,7 @@ export class CrearProductoDto {
     @IsString()
     @MinLength(VALIDACIONES.NOMBRE_LONGITUD_MINIMA)
     @MaxLength(VALIDACIONES.NOMBRE_LONGITUD_MAXIMA)
-    nombre: string;
+    nombre!: string;
 
     @ApiProperty({ description: 'Código SKU único' })
     @IsString()
@@ -17,7 +17,7 @@ export class CrearProductoDto {
     @Matches(VALIDACIONES.SKU_REGEX, {
         message: 'El SKU solo puede contener letras mayúsculas, números, guiones y guiones bajos',
     })
-    sku: string;
+    sku!: string;
 
     @ApiPropertyOptional({ description: 'Descripción corta' })
     @IsOptional()
@@ -36,7 +36,7 @@ export class CrearProductoDto {
     @Min(VALIDACIONES.PRECIO_MINIMO)
     @Max(VALIDACIONES.PRECIO_MAXIMO)
     @Type(() => Number)
-    precio: number;
+    precio!: number;
 
     @ApiPropertyOptional({ description: 'Precio de comparación (precio anterior)' })
     @IsOptional()
@@ -55,7 +55,7 @@ export class CrearProductoDto {
     @ApiProperty({ description: 'ID de la categoría' })
     @IsNumber()
     @Type(() => Number)
-    categoriaId: number;
+    categoriaId!: number;
 
     @ApiPropertyOptional({ description: 'ID de la marca' })
     @IsOptional()

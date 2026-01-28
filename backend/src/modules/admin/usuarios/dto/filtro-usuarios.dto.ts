@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, IsBoolean, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
-import { VALIDACIONES } from '../../../common/constants';
+import { VALIDACIONES } from '../../../../common/constants';
 
 export class FiltroUsuariosDto {
     @ApiPropertyOptional({ description: 'Buscar por nombre o correo' })

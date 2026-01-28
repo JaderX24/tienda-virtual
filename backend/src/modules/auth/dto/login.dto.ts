@@ -9,7 +9,7 @@ export class LoginDto {
     })
     @IsEmail({}, { message: 'El correo electrónico no tiene un formato válido' })
     @MaxLength(VALIDACIONES.CORREO_LONGITUD_MAXIMA)
-    correo: string;
+    correo!: string;
 
     @ApiProperty({
         description: 'Contraseña del usuario',
@@ -19,5 +19,5 @@ export class LoginDto {
     @MinLength(VALIDACIONES.CONTRASENA_LONGITUD_MINIMA, {
         message: `La contraseña debe tener al menos ${VALIDACIONES.CONTRASENA_LONGITUD_MINIMA} caracteres`,
     })
-    contrasena: string;
+    contrasena!: string;
 }

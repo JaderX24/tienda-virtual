@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AuthAdminService } from '../services/auth-admin.service';
 
 @Component({
   selector: 'app-inicio-sesion-administrativo',
@@ -10,7 +11,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './inicio-sesion-administrativo.component.html',
   styleUrl: './inicio-sesion-administrativo.component.scss'
 })
-export class InicioSesionAdministrativoComponent {
+export class InicioSesionAdministrativoComponent implements OnInit {
   formularioInicioSesion: FormGroup;
   cargando = false;
   mostrarContrasena = false;
@@ -18,12 +19,22 @@ export class InicioSesionAdministrativoComponent {
   correoEnfocado = false;
   contrasenaEnfocado = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthAdminService,
+    private router: Router,
+  ) {
     this.formularioInicioSesion = this.fb.group({
       correo: ['', [Validators.required, Validators.email]],
-      contrasena: ['', [Validators.required, Validators.minLength(8)]],
+      contrasena: ['', [Validators.required, Validators.minLength(12)]],
       recordarme: [false]
     });
+  }
+
+  ngOnInit(): void {
+    if (this.authService.estaAutenticado()) {
+      this.router.navigate(['/admin/dashboard']);
+    }
   }
 
   get correo() {
@@ -47,13 +58,29 @@ export class InicioSesionAdministrativoComponent {
     this.cargando = true;
     this.mensajeError = '';
 
-    const credenciales = this.formularioInicioSesion.value;
+    const credenciales = {
+      correo: this.formularioInicioSesion.value.correo,
+      contrasena: this.formularioInicioSesion.value.contrasena,
+    };
     
-    // TODO: Implementar llamada al servicio de autenticación
-    console.log('Credenciales:', credenciales);
-    
-    setTimeout(() => {
-      this.cargando = false;
-    }, 1500);
+    this.authService.iniciarSesion(credenciales).subscribe({
+      next: (respuesta) => {
+        this.cargando = false;
+        if (respuesta.exito) {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          // Manejar errores que vienen como respuesta exitosa HTTP pero con exito: false
+          if (respuesta.errores && Array.isArray(respuesta.errores)) {
+            this.mensajeError = respuesta.errores.join('. ');
+          } else {
+            this.mensajeError = respuesta.mensaje || 'Error al iniciar sesión';
+          }
+        }
+      },
+      error: (error) => {
+        this.cargando = false;
+        this.mensajeError = error.mensaje || 'Error de conexión con el servidor';
+      }
+    });
   }
 }

@@ -1,0 +1,35 @@
+<div class="layout-admin" [class.sidebar-colapsado]="sidebarColapsado()">
+    <!-- Sidebar -->
+    <app-sidebar
+        [colapsado]="sidebarColapsado()"
+        [mostrarMobile]="sidebarMobileMostrar()"
+        [usuario]="usuario()"
+        (toggleColapsado)="toggleSidebar()"
+        (cerrarMobile)="cerrarSidebarMobile()"
+    />
+    
+    <!-- Overlay móvil -->
+    @if (sidebarMobileMostrar()) {
+        <div class="sidebar-overlay" (click)="cerrarSidebarMobile()"></div>
+    }
+    
+    <!-- Contenedor principal -->
+    <div class="layout-main">
+        <!-- Header -->
+        <app-header-admin
+            [sidebarColapsado]="sidebarColapsado()"
+            (toggleSidebar)="toggleSidebar()"
+            (toggleSidebarMobile)="toggleSidebarMobile()"
+        />
+        
+        <!-- Contenido -->
+        <main class="layout-content">
+            <div class="content-wrapper">
+                <router-outlet />
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <app-footer-admin />
+    </div>
+</div>

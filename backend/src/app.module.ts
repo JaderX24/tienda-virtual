@@ -19,7 +19,6 @@ import { CorrelacionIdMiddleware } from './common/middlewares';
 import { JwtAuthGuard } from './common/guards';
 
 import { AuthModule } from './modules/auth';
-import { UsuariosModule } from './modules/usuarios';
 import { ProductosModule } from './modules/productos';
 import { CategoriasModule } from './modules/categorias';
 import { InventarioModule } from './modules/inventario';
@@ -53,7 +52,6 @@ import { AdminModule } from './modules/admin';
         PrismaModule,
 
         AuthModule,
-        UsuariosModule,
         ProductosModule,
         CategoriasModule,
         InventarioModule,

@@ -1,0 +1,269 @@
+<div class="pagina-formulario">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-navegacion">
+            <a routerLink="/admin/usuarios" class="btn-volver">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div class="header-info">
+                <h1 class="pagina-titulo">{{ titulo() }}</h1>
+                <p class="pagina-subtitulo">
+                    {{ esEdicion() ? 'Modifica los datos del usuario' : 'Completa el formulario para crear un nuevo usuario' }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @if (cargando()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando información...</p>
+                </div>
+            </div>
+        </div>
+    } @else {
+        <div class="row g-4">
+            <!-- Formulario principal -->
+            <div class="col-lg-8">
+                <form [formGroup]="formulario" (ngSubmit)="guardar()">
+                    <!-- Información básica -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="bi bi-person me-2"></i>Información Personal</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="nombre"
+                                        placeholder="Ej: Juan Carlos Pérez"
+                                        [class.is-invalid]="tieneError('nombre')">
+                                    @if (tieneError('nombre')) {
+                                        <div class="invalid-feedback">{{ obtenerError('nombre') }}</div>
+                                    }
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="email" 
+                                        class="form-control" 
+                                        formControlName="correo"
+                                        placeholder="correo@ejemplo.com"
+                                        [class.is-invalid]="tieneError('correo')">
+                                    @if (tieneError('correo')) {
+                                        <div class="invalid-feedback">{{ obtenerError('correo') }}</div>
+                                    }
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Teléfono</label>
+                                    <input 
+                                        type="tel" 
+                                        class="form-control" 
+                                        formControlName="telefono"
+                                        placeholder="+504 9999-0000">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Rol <span class="text-danger">*</span></label>
+                                    <select 
+                                        class="form-select" 
+                                        formControlName="rolId"
+                                        [class.is-invalid]="tieneError('rolId')">
+                                        <option [ngValue]="null">Selecciona un rol</option>
+                                        @for (rol of roles(); track rol.id) {
+                                            <option [ngValue]="rol.id">{{ rol.nombre }}</option>
+                                        }
+                                    </select>
+                                    @if (tieneError('rolId')) {
+                                        <div class="invalid-feedback">{{ obtenerError('rolId') }}</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>
+                                <i class="bi bi-shield-lock me-2"></i>
+                                {{ esEdicion() ? 'Cambiar Contraseña' : 'Contraseña' }}
+                            </h5>
+                            @if (esEdicion()) {
+                                <span class="badge bg-secondary">Opcional</span>
+                            }
+                        </div>
+                        <div class="card-body">
+                            @if (esEdicion()) {
+                                <p class="text-muted small mb-3">
+                                    Deja estos campos vacíos si no deseas cambiar la contraseña del usuario.
+                                </p>
+                            }
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Contraseña 
+                                        @if (!esEdicion()) {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </label>
+                                    <div class="input-group">
+                                        <input 
+                                            [type]="mostrarContrasena() ? 'text' : 'password'" 
+                                            class="form-control" 
+                                            formControlName="contrasena"
+                                            placeholder="Mínimo 12 caracteres"
+                                            [class.is-invalid]="tieneError('contrasena')">
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-outline-secondary"
+                                            (click)="toggleContrasena()">
+                                            <i class="bi" [class.bi-eye]="!mostrarContrasena()" [class.bi-eye-slash]="mostrarContrasena()"></i>
+                                        </button>
+                                    </div>
+                                    @if (tieneError('contrasena')) {
+                                        <div class="text-danger small mt-1">{{ obtenerError('contrasena') }}</div>
+                                    }
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Confirmar Contraseña
+                                        @if (!esEdicion()) {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </label>
+                                    <input 
+                                        [type]="mostrarContrasena() ? 'text' : 'password'" 
+                                        class="form-control" 
+                                        formControlName="confirmarContrasena"
+                                        placeholder="Repite la contraseña"
+                                        [class.is-invalid]="!contrasenasCoinciden() && formulario.get('confirmarContrasena')?.touched">
+                                    @if (!contrasenasCoinciden() && formulario.get('confirmarContrasena')?.touched) {
+                                        <div class="text-danger small mt-1">Las contraseñas no coinciden</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="requisitos-contrasena mt-3">
+                                <span class="requisitos-titulo">Requisitos de la contraseña:</span>
+                                <ul class="mb-0">
+                                    <li>Mínimo 12 caracteres</li>
+                                    <li>Al menos una mayúscula y una minúscula</li>
+                                    <li>Al menos un número</li>
+                                    <li>Al menos un carácter especial (!&#64;#$%^&*)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="bi bi-toggles me-2"></i>Estado de la Cuenta</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    id="activo" 
+                                    formControlName="activo">
+                                <label class="form-check-label" for="activo">
+                                    <strong>Usuario Activo</strong>
+                                    <span class="d-block text-muted small">
+                                        Los usuarios inactivos no pueden acceder al sistema
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="form-acciones">
+                        <button type="button" class="btn btn-secondary" (click)="cancelar()">
+                            <i class="bi bi-x-lg me-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+                            @if (guardando()) {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                Guardando...
+                            } @else {
+                                <i class="bi bi-check-lg me-2"></i>
+                                {{ esEdicion() ? 'Guardar Cambios' : 'Crear Usuario' }}
+                            }
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Panel lateral -->
+            <div class="col-lg-4">
+                <!-- Vista previa -->
+                <div class="card card-preview">
+                    <div class="card-header">
+                        <h6><i class="bi bi-eye me-2"></i>Vista Previa</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="preview-avatar">
+                            <span>{{ obtenerIniciales(formulario.get('nombre')?.value || '') }}</span>
+                        </div>
+                        <h5 class="preview-nombre mt-3">
+                            {{ formulario.get('nombre')?.value || 'Nombre del usuario' }}
+                        </h5>
+                        <p class="preview-correo">
+                            {{ formulario.get('correo')?.value || 'correo@ejemplo.com' }}
+                        </p>
+                        @if (formulario.get('rolId')?.value) {
+                            @for (rol of roles(); track rol.id) {
+                                @if (rol.id === formulario.get('rolId')?.value) {
+                                    <span class="badge-rol-preview">{{ rol.nombre }}</span>
+                                }
+                            }
+                        }
+                        <div class="preview-estado mt-3">
+                            <span 
+                                class="badge-estado-preview"
+                                [class.activo]="formulario.get('activo')?.value"
+                                [class.inactivo]="!formulario.get('activo')?.value">
+                                <i class="bi" 
+                                    [class.bi-check-circle-fill]="formulario.get('activo')?.value" 
+                                    [class.bi-x-circle-fill]="!formulario.get('activo')?.value"></i>
+                                {{ formulario.get('activo')?.value ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información adicional en edición -->
+                @if (esEdicion() && usuario()) {
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-info-circle me-2"></i>Información Adicional</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-item">
+                                <span class="info-label">Creado</span>
+                                <span class="info-valor">{{ usuario()?.creadoEn | date:'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Última actualización</span>
+                                <span class="info-valor">{{ usuario()?.actualizadoEn | date:'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Último acceso</span>
+                                <span class="info-valor">
+                                    {{ usuario()?.ultimoAcceso ? (usuario()?.ultimoAcceso | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

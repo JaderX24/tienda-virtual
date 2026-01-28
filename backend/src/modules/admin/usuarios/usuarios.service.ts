@@ -2,13 +2,19 @@ import {
     Injectable,
     NotFoundException,
     ConflictException,
+    BadRequestException,
     Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CrearUsuarioDto, ActualizarUsuarioDto, FiltroUsuariosDto } from './dto';
-import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../common/constants';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { 
+    CrearUsuarioDto, 
+    ActualizarUsuarioDto, 
+    FiltroUsuariosDto,
+    CambiarContrasenaDto 
+} from './dto';
+import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
 
 @Injectable()
 export class UsuariosService {
@@ -30,6 +36,16 @@ export class UsuariosService {
             throw new ConflictException(MENSAJES_ERROR.USUARIO_YA_EXISTE);
         }
 
+        if (rolId) {
+            const rolExiste = await this.prisma.rol.findUnique({
+                where: { id: rolId },
+            });
+
+            if (!rolExiste) {
+                throw new BadRequestException('El rol especificado no existe');
+            }
+        }
+
         const bcryptRounds = this.configService.get<number>('seguridad.bcryptRounds') || 12;
         const contrasenaHash = await bcrypt.hash(contrasena, bcryptRounds);
 
@@ -47,6 +63,8 @@ export class UsuariosService {
             },
         });
 
+        this.logger.log(`Usuario creado: ${usuario.correo}`);
+
         return {
             mensaje: MENSAJES_EXITO.CREADO_EXITOSAMENTE,
             usuario: this.excluirCamposSensibles(usuario),
@@ -54,7 +72,7 @@ export class UsuariosService {
     }
 
     async obtenerTodos(filtros: FiltroUsuariosDto) {
-        const { busqueda, rolId, activo, pagina = 1, limite = 20, ordenarPor, orden } = filtros;
+        const { busqueda, rolId, activo, pagina = 1, limite = 10, ordenarPor, orden } = filtros;
 
         const where: Record<string, unknown> = {};
 
@@ -85,13 +103,11 @@ export class UsuariosService {
         ]);
 
         return {
-            datos: usuarios.map(this.excluirCamposSensibles),
-            meta: {
-                total,
-                pagina,
-                limite,
-                totalPaginas: Math.ceil(total / limite),
-            },
+            datos: usuarios.map(u => this.excluirCamposSensibles(u)),
+            total,
+            pagina,
+            limite,
+            totalPaginas: Math.ceil(total / limite),
         };
     }
 
@@ -125,11 +141,76 @@ export class UsuariosService {
             }
         }
 
+        if (actualizarUsuarioDto.rolId) {
+            const rolExiste = await this.prisma.rol.findUnique({
+                where: { id: actualizarUsuarioDto.rolId },
+            });
+
+            if (!rolExiste) {
+                throw new BadRequestException('El rol especificado no existe');
+            }
+        }
+
         const usuarioActualizado = await this.prisma.usuario.update({
             where: { id },
             data: actualizarUsuarioDto,
             include: { rol: true },
         });
+
+        this.logger.log(`Usuario actualizado: ${usuarioActualizado.correo}`);
+
+        return {
+            mensaje: MENSAJES_EXITO.ACTUALIZADO_EXITOSAMENTE,
+            usuario: this.excluirCamposSensibles(usuarioActualizado),
+        };
+    }
+
+    async cambiarContrasena(id: number, cambiarContrasenaDto: CambiarContrasenaDto) {
+        const usuario = await this.prisma.usuario.findUnique({ where: { id } });
+
+        if (!usuario) {
+            throw new NotFoundException(MENSAJES_ERROR.USUARIO_NO_ENCONTRADO);
+        }
+
+        const bcryptRounds = this.configService.get<number>('seguridad.bcryptRounds') || 12;
+        const contrasenaHash = await bcrypt.hash(cambiarContrasenaDto.nuevaContrasena, bcryptRounds);
+
+        await this.prisma.usuario.update({
+            where: { id },
+            data: { contrasenaHash },
+        });
+
+        // Invalidar todas las sesiones del usuario
+        await this.prisma.sesion.deleteMany({
+            where: { usuarioId: id },
+        });
+
+        this.logger.log(`Contraseña cambiada para usuario ID: ${id}`);
+
+        return { mensaje: MENSAJES_EXITO.CONTRASENA_CAMBIADA };
+    }
+
+    async cambiarEstado(id: number, activo: boolean) {
+        const usuario = await this.prisma.usuario.findUnique({ where: { id } });
+
+        if (!usuario) {
+            throw new NotFoundException(MENSAJES_ERROR.USUARIO_NO_ENCONTRADO);
+        }
+
+        const usuarioActualizado = await this.prisma.usuario.update({
+            where: { id },
+            data: { activo },
+            include: { rol: true },
+        });
+
+        // Si se desactiva, invalidar sesiones
+        if (!activo) {
+            await this.prisma.sesion.deleteMany({
+                where: { usuarioId: id },
+            });
+        }
+
+        this.logger.log(`Estado de usuario ${id} cambiado a: ${activo ? 'activo' : 'inactivo'}`);
 
         return {
             mensaje: MENSAJES_EXITO.ACTUALIZADO_EXITOSAMENTE,
@@ -144,12 +225,27 @@ export class UsuariosService {
             throw new NotFoundException(MENSAJES_ERROR.USUARIO_NO_ENCONTRADO);
         }
 
+        // Eliminar sesiones primero
+        await this.prisma.sesion.deleteMany({
+            where: { usuarioId: id },
+        });
+
+        // Soft delete: desactivar el usuario
         await this.prisma.usuario.update({
             where: { id },
             data: { activo: false },
         });
 
+        this.logger.log(`Usuario eliminado (desactivado): ${usuario.correo}`);
+
         return { mensaje: MENSAJES_EXITO.ELIMINADO_EXITOSAMENTE };
+    }
+
+    async obtenerPorCorreo(correo: string) {
+        return this.prisma.usuario.findUnique({
+            where: { correo },
+            include: { rol: true },
+        });
     }
 
     private excluirCamposSensibles(usuario: Record<string, unknown>) {

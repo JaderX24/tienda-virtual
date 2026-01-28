@@ -6,5 +6,5 @@ export class RefreshTokenDto {
         description: 'Token de actualización',
     })
     @IsString()
-    refreshToken: string;
+    refreshToken!: string;
 }

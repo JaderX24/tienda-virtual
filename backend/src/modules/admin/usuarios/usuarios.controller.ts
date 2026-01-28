@@ -3,22 +3,29 @@ import {
     Get,
     Post,
     Put,
+    Patch,
     Delete,
     Body,
     Param,
     Query,
     UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { UsuariosService } from './usuarios.service';
-import { CrearUsuarioDto, ActualizarUsuarioDto, FiltroUsuariosDto } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../common/guards';
-import { Roles, ApiOperacionProtegida } from '../../common/decorators';
-import { ParsearIdPipe } from '../../common/pipes';
-import { ROLES } from '../../common/constants';
+import { 
+    CrearUsuarioDto, 
+    ActualizarUsuarioDto, 
+    FiltroUsuariosDto,
+    CambiarContrasenaDto,
+    CambiarEstadoDto 
+} from './dto';
+import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { Roles, ApiOperacionProtegida, UsuarioActual } from '../../../common/decorators';
+import { ParsearIdPipe } from '../../../common/pipes';
+import { ROLES } from '../../../common/constants';
 
-@ApiTags('Usuarios')
-@Controller('usuarios')
+@ApiTags('Admin - Usuarios')
+@Controller('admin/usuarios')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsuariosController {
     constructor(private readonly usuariosService: UsuariosService) {}
@@ -49,7 +56,7 @@ export class UsuariosController {
         return this.usuariosService.obtenerPorId(id);
     }
 
-    @Put(':id')
+    @Patch(':id')
     @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
     @ApiOperacionProtegida('Actualizar usuario', 'Actualiza los datos de un usuario')
     @ApiResponse({ status: 200, description: 'Usuario actualizado' })
@@ -61,9 +68,33 @@ export class UsuariosController {
         return this.usuariosService.actualizar(id, actualizarUsuarioDto);
     }
 
+    @Patch(':id/contrasena')
+    @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
+    @ApiOperacionProtegida('Cambiar contraseña', 'Cambia la contraseña de un usuario')
+    @ApiResponse({ status: 200, description: 'Contraseña actualizada' })
+    @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+    async cambiarContrasena(
+        @Param('id', ParsearIdPipe) id: number,
+        @Body() cambiarContrasenaDto: CambiarContrasenaDto,
+    ) {
+        return this.usuariosService.cambiarContrasena(id, cambiarContrasenaDto);
+    }
+
+    @Patch(':id/estado')
+    @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
+    @ApiOperacionProtegida('Cambiar estado', 'Activa o desactiva un usuario')
+    @ApiResponse({ status: 200, description: 'Estado actualizado' })
+    @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+    async cambiarEstado(
+        @Param('id', ParsearIdPipe) id: number,
+        @Body() cambiarEstadoDto: CambiarEstadoDto,
+    ) {
+        return this.usuariosService.cambiarEstado(id, cambiarEstadoDto.activo);
+    }
+
     @Delete(':id')
     @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
-    @ApiOperacionProtegida('Eliminar usuario', 'Desactiva un usuario del sistema')
+    @ApiOperacionProtegida('Eliminar usuario', 'Elimina un usuario del sistema')
     @ApiResponse({ status: 200, description: 'Usuario eliminado' })
     @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
     async eliminar(@Param('id', ParsearIdPipe) id: number) {

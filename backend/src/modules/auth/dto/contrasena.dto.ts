@@ -7,7 +7,7 @@ export class CambiarContrasenaDto {
         description: 'Contraseña actual',
     })
     @IsString()
-    contrasenaActual: string;
+    contrasenaActual!: string;
 
     @ApiProperty({
         description: 'Nueva contraseña',
@@ -18,7 +18,7 @@ export class CambiarContrasenaDto {
     @Matches(VALIDACIONES.CONTRASENA_REGEX, {
         message: 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial',
     })
-    nuevaContrasena: string;
+    nuevaContrasena!: string;
 }
 
 export class RecuperarContrasenaDto {
@@ -27,7 +27,7 @@ export class RecuperarContrasenaDto {
         example: 'usuario@ejemplo.com',
     })
     @IsEmail({}, { message: 'El correo electrónico no tiene un formato válido' })
-    correo: string;
+    correo!: string;
 }
 
 export class RestablecerContrasenaDto {
@@ -35,7 +35,7 @@ export class RestablecerContrasenaDto {
         description: 'Token de restablecimiento',
     })
     @IsString()
-    token: string;
+    token!: string;
 
     @ApiProperty({
         description: 'Nueva contraseña',
@@ -46,5 +46,5 @@ export class RestablecerContrasenaDto {
     @Matches(VALIDACIONES.CONTRASENA_REGEX, {
         message: 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial',
     })
-    nuevaContrasena: string;
+    nuevaContrasena!: string;
 }

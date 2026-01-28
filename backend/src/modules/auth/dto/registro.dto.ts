@@ -10,7 +10,7 @@ export class RegistroDto {
     @IsString()
     @MinLength(VALIDACIONES.NOMBRE_LONGITUD_MINIMA)
     @MaxLength(VALIDACIONES.NOMBRE_LONGITUD_MAXIMA)
-    nombre: string;
+    nombre!: string;
 
     @ApiProperty({
         description: 'Correo electrónico del usuario',
@@ -18,7 +18,7 @@ export class RegistroDto {
     })
     @IsEmail({}, { message: 'El correo electrónico no tiene un formato válido' })
     @MaxLength(VALIDACIONES.CORREO_LONGITUD_MAXIMA)
-    correo: string;
+    correo!: string;
 
     @ApiProperty({
         description: 'Contraseña del usuario (mínimo 12 caracteres, mayúscula, minúscula, número y carácter especial)',
@@ -32,7 +32,7 @@ export class RegistroDto {
     @Matches(VALIDACIONES.CONTRASENA_REGEX, {
         message: 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial',
     })
-    contrasena: string;
+    contrasena!: string;
 
     @ApiProperty({
         description: 'Teléfono del usuario (formato Honduras)',

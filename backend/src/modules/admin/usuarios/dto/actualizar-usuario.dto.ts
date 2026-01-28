@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsEmail, IsOptional, MinLength, MaxLength, Matches, IsBoolean, IsNumber } from 'class-validator';
-import { VALIDACIONES } from '../../../common/constants';
+import { VALIDACIONES } from '../../../../common/constants';
 
 export class ActualizarUsuarioDto {
     @ApiPropertyOptional({ description: 'Nombre completo del usuario' })

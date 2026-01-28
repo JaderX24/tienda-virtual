@@ -1,0 +1,224 @@
+<header class="header-admin" [class.sidebar-colapsado]="sidebarColapsado">
+    <div class="header-content">
+        <!-- Botón móvil -->
+        <button type="button" class="btn-menu-mobile d-lg-none" (click)="toggleSidebarMobile.emit()">
+            <i class="bi bi-list"></i>
+        </button>
+        
+        <!-- Botón toggle sidebar desktop -->
+        <button type="button" class="btn-toggle-sidebar d-none d-lg-flex" (click)="toggleSidebar.emit()">
+            <i class="bi" [class.bi-chevron-left]="!sidebarColapsado" [class.bi-chevron-right]="sidebarColapsado"></i>
+        </button>
+        
+        <!-- Breadcrumb / Título -->
+        <div class="header-title d-none d-md-block">
+            <h5 class="mb-0">Panel de Administración</h5>
+        </div>
+        
+        <!-- Buscador -->
+        <div class="header-search d-none d-lg-flex">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    placeholder="Buscar productos, pedidos, clientes..."
+                >
+                <span class="search-shortcut">Ctrl+K</span>
+            </div>
+        </div>
+        
+        <!-- Spacer -->
+        <div class="flex-grow-1"></div>
+        
+        <!-- Acciones del header -->
+        <div class="header-actions">
+            <!-- Botón búsqueda móvil -->
+            <button type="button" class="btn-action d-lg-none">
+                <i class="bi bi-search"></i>
+            </button>
+            
+            <!-- Notificaciones -->
+            <div class="dropdown-wrapper">
+                <button 
+                    type="button"
+                    class="btn-action"
+                    [class.activo]="mostrarNotificaciones"
+                    (click)="alternarNotificaciones()">
+                    <i class="bi bi-bell"></i>
+                    @if (notificacionesSinLeer > 0) {
+                        <span class="badge-notification">{{ notificacionesSinLeer }}</span>
+                    }
+                </button>
+                
+                @if (mostrarNotificaciones) {
+                    <div class="dropdown-panel dropdown-notificaciones">
+                        <div class="dropdown-panel-header">
+                            <h6>Notificaciones</h6>
+                            @if (notificacionesSinLeer > 0) {
+                                <button type="button" class="btn-link-small" (click)="marcarTodasComoLeidas()">
+                                    Marcar todas como leídas
+                                </button>
+                            }
+                        </div>
+                        
+                        <div class="dropdown-panel-body">
+                            @for (notificacion of notificaciones; track notificacion.id) {
+                                <div 
+                                    class="notificacion-item"
+                                    [class.no-leida]="!notificacion.leida"
+                                    (click)="marcarComoLeida(notificacion)">
+                                    <div class="notificacion-icono" [ngClass]="'tipo-' + notificacion.tipo">
+                                        <i class="bi" [ngClass]="notificacion.icono"></i>
+                                    </div>
+                                    <div class="notificacion-contenido">
+                                        <p class="notificacion-titulo">{{ notificacion.titulo }}</p>
+                                        <p class="notificacion-mensaje">{{ notificacion.mensaje }}</p>
+                                        <span class="notificacion-tiempo">{{ obtenerTiempoRelativo(notificacion.fecha) }}</span>
+                                    </div>
+                                </div>
+                            } @empty {
+                                <div class="dropdown-panel-empty">
+                                    <i class="bi bi-bell-slash"></i>
+                                    <p>No hay notificaciones</p>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="dropdown-panel-footer">
+                            <a routerLink="/admin/notificaciones" class="btn-link-ver-todas" (click)="cerrarDropdowns()">
+                                Ver todas las notificaciones
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <!-- Mensajes -->
+            <div class="dropdown-wrapper d-none d-md-block">
+                <button 
+                    type="button"
+                    class="btn-action"
+                    [class.activo]="mostrarMensajes"
+                    (click)="alternarMensajes()">
+                    <i class="bi bi-chat-dots"></i>
+                    @if (mensajesSinLeer > 0) {
+                        <span class="badge-notification">{{ mensajesSinLeer }}</span>
+                    }
+                </button>
+                
+                @if (mostrarMensajes) {
+                    <div class="dropdown-panel dropdown-mensajes">
+                        <div class="dropdown-panel-header">
+                            <h6>Mensajes</h6>
+                            @if (mensajesSinLeer > 0) {
+                                <button type="button" class="btn-link-small" (click)="marcarTodosMensajesComoLeidos()">
+                                    Marcar todos como leídos
+                                </button>
+                            }
+                        </div>
+                        
+                        <div class="dropdown-panel-body">
+                            @for (mensaje of mensajes; track mensaje.id) {
+                                <div 
+                                    class="mensaje-item"
+                                    [class.no-leido]="!mensaje.leido"
+                                    (click)="marcarMensajeComoLeido(mensaje)">
+                                    <div class="mensaje-avatar">
+                                        {{ obtenerIniciales(mensaje.remitente) }}
+                                    </div>
+                                    <div class="mensaje-contenido">
+                                        <p class="mensaje-remitente">{{ mensaje.remitente }}</p>
+                                        <p class="mensaje-texto">{{ mensaje.contenido }}</p>
+                                        <span class="mensaje-tiempo">{{ obtenerTiempoRelativo(mensaje.fecha) }}</span>
+                                    </div>
+                                </div>
+                            } @empty {
+                                <div class="dropdown-panel-empty">
+                                    <i class="bi bi-chat-square-text"></i>
+                                    <p>No hay mensajes</p>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="dropdown-panel-footer">
+                            <a routerLink="/admin/mensajes" class="btn-link-ver-todas" (click)="cerrarDropdowns()">
+                                Ver todos los mensajes
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <!-- Perfil -->
+            <div class="dropdown-wrapper">
+                <button 
+                    type="button"
+                    class="btn-perfil"
+                    [class.activo]="mostrarPerfil"
+                    (click)="alternarPerfil()">
+                    <div class="perfil-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="perfil-info d-none d-md-flex">
+                        <span class="perfil-nombre">{{ usuario()?.nombre || 'Usuario' }}</span>
+                        <span class="perfil-rol">{{ usuario()?.rol?.nombre || 'Admin' }}</span>
+                    </div>
+                    <i class="bi bi-chevron-down perfil-arrow d-none d-md-block"></i>
+                </button>
+                
+                @if (mostrarPerfil) {
+                    <div class="dropdown-panel dropdown-perfil">
+                        <div class="dropdown-panel-header perfil-header">
+                            <div class="perfil-avatar-grande">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div class="perfil-datos">
+                                <h6>{{ usuario()?.nombre || 'Usuario' }}</h6>
+                                <small>{{ usuario()?.correo || 'correo@ejemplo.com' }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown-panel-body">
+                            <a class="menu-item" routerLink="/admin/perfil" (click)="cerrarDropdowns()">
+                                <i class="bi bi-person"></i>
+                                <span>Mi Perfil</span>
+                            </a>
+                            <a class="menu-item" routerLink="/admin/cuenta/cambiar-contrasena" (click)="cerrarDropdowns()">
+                                <i class="bi bi-key"></i>
+                                <span>Cambiar Contraseña</span>
+                            </a>
+                            <a class="menu-item" routerLink="/admin/cuenta/preferencias" (click)="cerrarDropdowns()">
+                                <i class="bi bi-sliders"></i>
+                                <span>Preferencias</span>
+                            </a>
+                            <div class="menu-divider"></div>
+                            <a class="menu-item" routerLink="/admin/actividad" (click)="cerrarDropdowns()">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Mi Actividad</span>
+                            </a>
+                            <a class="menu-item" routerLink="/admin/sesiones" (click)="cerrarDropdowns()">
+                                <i class="bi bi-shield-check"></i>
+                                <span>Sesiones Activas</span>
+                            </a>
+                            <div class="menu-divider"></div>
+                            <a class="menu-item" href="/" target="_blank">
+                                <i class="bi bi-shop"></i>
+                                <span>Ver Tienda</span>
+                            </a>
+                        </div>
+                        
+                        <div class="dropdown-panel-footer">
+                            <button type="button" class="btn-cerrar-sesion" (click)="cerrarSesion()">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Cerrar Sesión</span>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</header>

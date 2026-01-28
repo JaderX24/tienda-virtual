@@ -1,0 +1,336 @@
+<div class="dashboard">
+    <!-- Header de bienvenida -->
+    <div class="dashboard-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="dashboard-titulo mb-1">
+                    {{ obtenerSaludo() }}, {{ usuario()?.nombre || 'Administrador' }}
+                </h1>
+                <p class="dashboard-subtitulo mb-0">
+                    Aquí tienes un resumen de lo que está pasando en tu tienda hoy.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="fecha-actual">
+                    <i class="bi bi-calendar3 me-2"></i>
+                    {{ fechaActual | date:'EEEE, dd MMMM yyyy' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (cargando()) {
+        <!-- Estado de carga -->
+        <div class="row g-3 mb-4">
+            @for (i of [1,2,3,4]; track i) {
+                <div class="col-6 col-lg-3">
+                    <div class="tarjeta-stat skeleton">
+                        <div class="skeleton-line w-50 mb-2"></div>
+                        <div class="skeleton-line w-75 mb-2 h-lg"></div>
+                        <div class="skeleton-line w-25"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    } @else {
+        <!-- Tarjetas de estadísticas -->
+        <div class="row g-3 mb-4">
+            @for (tarjeta of tarjetasEstadisticas; track tarjeta.titulo) {
+                <div class="col-6 col-lg-3">
+                    <div class="tarjeta-stat" [ngClass]="'tarjeta-' + tarjeta.color">
+                        <div class="tarjeta-stat-header">
+                            <span class="tarjeta-stat-titulo">{{ tarjeta.titulo }}</span>
+                            <div class="tarjeta-stat-icono">
+                                <i class="bi" [ngClass]="tarjeta.icono"></i>
+                            </div>
+                        </div>
+                        <div class="tarjeta-stat-valor">
+                            @if (tarjeta.prefijo) {
+                                <span class="valor-prefijo">{{ tarjeta.prefijo }}</span>
+                            }
+                            <span class="valor-numero">{{ formatearValorTarjeta(tarjeta) }}</span>
+                        </div>
+                        <div class="tarjeta-stat-footer">
+                            <span class="variacion" [ngClass]="tarjeta.variacion >= 0 ? 'up' : 'down'">
+                                <i class="bi" [ngClass]="tarjeta.variacion >= 0 ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+                                {{ tarjeta.variacion >= 0 ? '+' : '' }}{{ tarjeta.variacion }}%
+                            </span>
+                            @if (tarjeta.enlace) {
+                                <a [routerLink]="tarjeta.enlace" class="ver-mas">
+                                    Ver <i class="bi bi-arrow-right-short"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Centro de Control y Mi Cuenta -->
+        <div class="row g-4">
+            <!-- Panel principal - Estado del negocio -->
+            <div class="col-lg-6">
+                <div class="card centro-control h-100">
+                    <div class="card-body p-0 d-flex flex-column">
+                        <!-- Header del centro de control -->
+                        <div class="cc-header">
+                            <div class="cc-titulo">
+                                <i class="bi bi-grid-1x2-fill"></i>
+                                <div>
+                                    <h5>Centro de Control</h5>
+                                    <span>Estado actual del negocio</span>
+                                </div>
+                            </div>
+                            <div class="cc-estado-general" [ngClass]="estadoGeneral.clase">
+                                <i class="bi" [ngClass]="estadoGeneral.icono"></i>
+                                <span>{{ estadoGeneral.texto }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Métricas del día -->
+                        <div class="cc-metricas">
+                            @for (metrica of metricasDelDia; track metrica.titulo) {
+                                <div class="metrica-item">
+                                    <div class="metrica-icono" [ngClass]="'color-' + metrica.color">
+                                        <i class="bi" [ngClass]="metrica.icono"></i>
+                                    </div>
+                                    <div class="metrica-info">
+                                        <span class="metrica-titulo">{{ metrica.titulo }}</span>
+                                        <div class="metrica-valores">
+                                            <strong>{{ metrica.actual }}</strong>
+                                            <span class="metrica-meta">/ {{ metrica.meta }}</span>
+                                        </div>
+                                        <div class="metrica-barra">
+                                            <div class="metrica-progreso" [ngClass]="'bg-' + metrica.color" [style.width.%]="metrica.porcentaje"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        <!-- Alertas que requieren atención -->
+                        <div class="cc-alertas">
+                            <div class="cc-alertas-header">
+                                <span><i class="bi bi-bell-fill me-2"></i>Requiere tu atención</span>
+                                <span class="badge-alertas">{{ alertasActivas.length }}</span>
+                            </div>
+                            <div class="cc-alertas-lista">
+                                @for (alerta of alertasActivas; track alerta.id) {
+                                    <div class="alerta-item" [ngClass]="'tipo-' + alerta.tipo">
+                                        <div class="alerta-indicador"></div>
+                                        <div class="alerta-contenido">
+                                            <div class="alerta-texto">
+                                                <i class="bi" [ngClass]="alerta.icono"></i>
+                                                <span>{{ alerta.mensaje }}</span>
+                                            </div>
+                                            <span class="alerta-tiempo">{{ alerta.tiempo }}</span>
+                                        </div>
+                                        @if (alerta.accion) {
+                                            <a [routerLink]="alerta.enlace" class="alerta-btn">
+                                                {{ alerta.accion }}
+                                            </a>
+                                        }
+                                    </div>
+                                } @empty {
+                                    <div class="alertas-vacio">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <span>Todo está bajo control</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mi Cuenta - Panel Personal -->
+            <div class="col-lg-6">
+                <div class="card panel-mi-cuenta h-100">
+                    <div class="card-body p-0">
+                        <!-- Perfil del usuario -->
+                        <div class="mi-cuenta-header">
+                            <div class="mi-cuenta-avatar">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div class="mi-cuenta-info">
+                                <h6>{{ usuario()?.nombre || 'Usuario' }}</h6>
+                                <span>{{ usuario()?.rol?.nombre || 'Administrador' }}</span>
+                            </div>
+                            <a routerLink="/admin/perfil" class="btn-editar-perfil">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                        
+                        <!-- Mis estadísticas rápidas -->
+                        <div class="mi-cuenta-stats">
+                            @for (stat of misEstadisticas; track stat.titulo) {
+                                <div class="stat-item">
+                                    <i class="bi" [ngClass]="stat.icono"></i>
+                                    <div class="stat-info">
+                                        <strong>{{ stat.valor }}</strong>
+                                        <span>{{ stat.titulo }}</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        <!-- Mis accesos recientes -->
+                        <div class="mi-cuenta-accesos">
+                            <div class="accesos-header">
+                                <span><i class="bi bi-clock-history me-2"></i>Mis Últimos Accesos</span>
+                            </div>
+                            <div class="accesos-lista">
+                                @for (acceso of misAccesosRecientes; track acceso.id) {
+                                    <div class="acceso-item">
+                                        <div class="acceso-icono" [ngClass]="acceso.esActual ? 'actual' : ''">
+                                            <i class="bi" [ngClass]="acceso.icono"></i>
+                                        </div>
+                                        <div class="acceso-info">
+                                            <span class="acceso-dispositivo">{{ acceso.dispositivo }}</span>
+                                            <span class="acceso-fecha">{{ acceso.fecha }}</span>
+                                        </div>
+                                        @if (acceso.esActual) {
+                                            <span class="badge-actual">Actual</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        
+                        <!-- Acciones de cuenta -->
+                        <div class="mi-cuenta-acciones">
+                            <a routerLink="/admin/cuenta/cambiar-contrasena" class="accion-cuenta">
+                                <i class="bi bi-key"></i>
+                                <span>Cambiar Contraseña</span>
+                            </a>
+                            <a routerLink="/admin/cuenta/preferencias" class="accion-cuenta">
+                                <i class="bi bi-sliders"></i>
+                                <span>Preferencias</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda fila -->
+        <div class="row g-4 mt-0">
+            <!-- Productos más vendidos -->
+            <div class="col-xl-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-star me-2"></i>Productos Más Vendidos
+                        </h5>
+                        <a routerLink="/admin/productos" class="btn btn-sm btn-outline-primary">
+                            Ver catálogo
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="text-center">Ventas</th>
+                                        <th class="text-end">Ingresos</th>
+                                        <th class="text-center">Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (producto of productosPopulares; track producto.id; let i = $index) {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="ranking-badge" [ngClass]="{'top-3': i < 3}">{{ i + 1 }}</span>
+                                                    <div>
+                                                        <div class="fw-medium">{{ producto.nombre }}</div>
+                                                        <small class="text-muted">{{ producto.categoria }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="fw-medium">{{ producto.ventas }}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                {{ formatearMoneda(producto.ingresos) }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span [ngClass]="obtenerColorStock(producto.stock)" class="fw-medium">
+                                                    {{ producto.stock }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones rápidas -->
+            <div class="col-xl-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-lightning me-2"></i>Acciones Rápidas
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <a routerLink="/admin/productos/nuevo" class="accion-rapida">
+                                    <div class="accion-icono bg-primary">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </div>
+                                    <span>Nuevo Producto</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/admin/pedidos" class="accion-rapida">
+                                    <div class="accion-icono bg-success">
+                                        <i class="bi bi-cart-check"></i>
+                                    </div>
+                                    <span>Gestionar Pedidos</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/admin/inventario" class="accion-rapida">
+                                    <div class="accion-icono bg-warning">
+                                        <i class="bi bi-box-seam"></i>
+                                    </div>
+                                    <span>Actualizar Stock</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/admin/clientes" class="accion-rapida">
+                                    <div class="accion-icono bg-info">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                    <span>Ver Clientes</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/admin/reportes" class="accion-rapida">
+                                    <div class="accion-icono bg-danger">
+                                        <i class="bi bi-graph-up"></i>
+                                    </div>
+                                    <span>Ver Reportes</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/admin/configuracion" class="accion-rapida">
+                                    <div class="accion-icono bg-secondary">
+                                        <i class="bi bi-gear"></i>
+                                    </div>
+                                    <span>Configuración</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
