@@ -15,8 +15,16 @@ import { Usuario, Rol, FiltrosUsuario } from '../../interfaces';
 export class ListaUsuariosComponent implements OnInit {
     private usuariosService = inject(UsuariosService);
 
+    // Datos de prueba mientras no hay backend
+    private readonly rolesMock: Rol[] = [
+        { id: 1, codigo: 'admin', nombre: 'Administrador', activo: true },
+        { id: 2, codigo: 'vendedor', nombre: 'Vendedor', activo: true },
+        { id: 3, codigo: 'inventario', nombre: 'Encargado de Inventario', activo: true },
+        { id: 4, codigo: 'soporte', nombre: 'Soporte al Cliente', activo: true }
+    ];
+
     usuarios = signal<Usuario[]>([]);
-    roles = signal<Rol[]>([]);
+    roles = signal<Rol[]>(this.rolesMock);
     cargando = signal(true);
     
     // Filtros
@@ -69,7 +77,13 @@ export class ListaUsuariosComponent implements OnInit {
 
     cargarRoles(): void {
         this.usuariosService.obtenerRoles().subscribe({
-            next: (roles) => this.roles.set(roles),
+            next: (roles) => {
+                if (Array.isArray(roles)) {
+                    this.roles.set(roles);
+                } else {
+                    this.roles.set(this.rolesMock);
+                }
+            },
             error: () => this.roles.set(this.rolesMock)
         });
     }
@@ -190,14 +204,6 @@ export class ListaUsuariosComponent implements OnInit {
         
         return paginas;
     }
-
-    // Datos de prueba mientras no hay backend
-    private rolesMock: Rol[] = [
-        { id: 1, codigo: 'admin', nombre: 'Administrador', activo: true },
-        { id: 2, codigo: 'vendedor', nombre: 'Vendedor', activo: true },
-        { id: 3, codigo: 'inventario', nombre: 'Encargado de Inventario', activo: true },
-        { id: 4, codigo: 'soporte', nombre: 'Soporte al Cliente', activo: true }
-    ];
 
     private usuariosMock: Usuario[] = [
         {
