@@ -41,7 +41,6 @@ export class ListaUsuariosComponent implements OnInit {
     
     // Modal
     usuarioSeleccionado = signal<Usuario | null>(null);
-    mostrarModalEliminar = signal(false);
     mostrarModalEstado = signal(false);
     procesando = signal(false);
 
@@ -106,33 +105,6 @@ export class ListaUsuariosComponent implements OnInit {
             this.paginaActual.set(pagina);
             this.cargarUsuarios();
         }
-    }
-
-    abrirModalEliminar(usuario: Usuario): void {
-        this.usuarioSeleccionado.set(usuario);
-        this.mostrarModalEliminar.set(true);
-    }
-
-    cerrarModalEliminar(): void {
-        this.mostrarModalEliminar.set(false);
-        this.usuarioSeleccionado.set(null);
-    }
-
-    confirmarEliminar(): void {
-        const usuario = this.usuarioSeleccionado();
-        if (!usuario) return;
-
-        this.procesando.set(true);
-        this.usuariosService.eliminarUsuario(usuario.id).subscribe({
-            next: () => {
-                this.cerrarModalEliminar();
-                this.cargarUsuarios();
-                this.procesando.set(false);
-            },
-            error: () => {
-                this.procesando.set(false);
-            }
-        });
     }
 
     abrirModalEstado(usuario: Usuario): void {

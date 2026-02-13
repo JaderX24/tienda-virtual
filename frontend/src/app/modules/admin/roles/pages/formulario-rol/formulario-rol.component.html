@@ -1,0 +1,154 @@
+<div class="pagina-formulario-rol">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-info">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a routerLink="/admin/dashboard">
+                            <i class="bi bi-house-door"></i>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a routerLink="/admin/roles">Roles</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        {{ modoEdicion() ? 'Editar' : 'Nuevo' }}
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="pagina-titulo">
+                <i class="bi" [class.bi-pencil-square]="modoEdicion()" [class.bi-plus-circle]="!modoEdicion()"></i>
+                {{ modoEdicion() ? 'Editar Rol' : 'Nuevo Rol' }}
+            </h1>
+            <p class="pagina-subtitulo">
+                {{ modoEdicion() ? 'Modifica los datos del rol' : 'Crea un nuevo rol en el sistema' }}
+            </p>
+        </div>
+    </div>
+
+    @if (cargando()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando datos del rol...</p>
+                </div>
+            </div>
+        </div>
+    } @else {
+        <div class="card formulario-card">
+            <div class="card-body">
+                <form [formGroup]="formulario" (ngSubmit)="guardar()">
+                    <!-- Información básica -->
+                    <div class="seccion-formulario">
+                        <h5 class="seccion-titulo">
+                            <i class="bi bi-info-circle"></i>
+                            Información del Rol
+                        </h5>
+                        
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Código <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    formControlName="codigo"
+                                    placeholder="ej: vendedor, bodeguero"
+                                    [class.is-invalid]="tieneError('codigo')"
+                                    [readonly]="esRolProtegido()">
+                                @if (tieneError('codigo')) {
+                                    <div class="invalid-feedback">{{ obtenerError('codigo') }}</div>
+                                }
+                                <small class="form-text text-muted">
+                                    Solo letras minúsculas y guiones bajos
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Nombre <span class="text-danger">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    formControlName="nombre"
+                                    placeholder="ej: Vendedor, Bodeguero"
+                                    [class.is-invalid]="tieneError('nombre')">
+                                @if (tieneError('nombre')) {
+                                    <div class="invalid-feedback">{{ obtenerError('nombre') }}</div>
+                                }
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea 
+                                    class="form-control" 
+                                    formControlName="descripcion"
+                                    rows="3"
+                                    placeholder="Describe las funciones y responsabilidades de este rol"
+                                    [class.is-invalid]="tieneError('descripcion')">
+                                </textarea>
+                                @if (tieneError('descripcion')) {
+                                    <div class="invalid-feedback">{{ obtenerError('descripcion') }}</div>
+                                }
+                            </div>
+                            
+                            @if (!esRolProtegido()) {
+                                <div class="col-12">
+                                    <div class="form-check form-switch">
+                                        <input 
+                                            class="form-check-input" 
+                                            type="checkbox" 
+                                            id="activo"
+                                            formControlName="activo">
+                                        <label class="form-check-label" for="activo">
+                                            Rol activo
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Los roles inactivos no pueden ser asignados a usuarios
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (esRolProtegido()) {
+                        <div class="alert alert-info mt-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Este es un rol protegido del sistema. Algunas opciones están limitadas.
+                        </div>
+                    }
+
+                    <!-- Botones -->
+                    <div class="formulario-acciones">
+                        <button 
+                            type="button" 
+                            class="btn btn-secondary" 
+                            (click)="cancelar()"
+                            [disabled]="guardando()">
+                            <i class="bi bi-x-lg me-2"></i>
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary"
+                            [disabled]="guardando() || formulario.invalid">
+                            @if (guardando()) {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            } @else {
+                                <i class="bi bi-check-lg me-2"></i>
+                            }
+                            {{ modoEdicion() ? 'Actualizar' : 'Crear' }} Rol
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>

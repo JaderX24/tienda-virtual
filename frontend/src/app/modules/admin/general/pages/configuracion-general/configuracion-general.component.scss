@@ -1,0 +1,436 @@
+$primary: #6366f1;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+.pagina-configuracion-sistema {
+    padding: 0;
+}
+
+// Encabezado
+.pagina-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-info {
+    flex: 1;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+
+    .breadcrumb-item {
+        a {
+            color: #64748b;
+            text-decoration: none;
+
+            &:hover {
+                color: $primary;
+            }
+        }
+
+        &.active {
+            color: #1e293b;
+        }
+
+        + .breadcrumb-item::before {
+            content: "›";
+            color: #cbd5e1;
+        }
+    }
+}
+
+.pagina-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+        color: $primary;
+    }
+}
+
+.pagina-subtitulo {
+    color: #64748b;
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+}
+
+// Cards
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+
+    h5, h6 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+}
+
+// Categorías
+.categorias-card {
+    .list-group-item {
+        border: none;
+        padding: 0.875rem 1.25rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s;
+
+        &:hover {
+            background: #f1f5f9;
+        }
+
+        &.active {
+            background: $primary;
+            color: #fff;
+            border-color: $primary;
+
+            .badge {
+                background: rgba(255, 255, 255, 0.2) !important;
+            }
+        }
+
+        .badge {
+            margin-left: auto;
+        }
+    }
+}
+
+// Info Sistema
+.info-sistema-card {
+    .card-body {
+        padding: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e2e8f0;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .info-valor {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1e293b;
+    }
+}
+
+// Tabla de parámetros
+.parametros-card {
+    .table {
+        margin: 0;
+
+        thead {
+            background: #f8fafc;
+
+            th {
+                font-weight: 600;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #64748b;
+                padding: 1rem;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        }
+
+        tbody {
+            tr {
+                transition: background-color 0.15s;
+
+                &:hover {
+                    background-color: #f8fafc;
+                }
+
+                td {
+                    padding: 1rem;
+                    vertical-align: middle;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+            }
+        }
+    }
+}
+
+// Parámetro info
+.parametro-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.parametro-clave {
+    font-weight: 500;
+    color: #1e293b;
+    font-size: 0.875rem;
+}
+
+.parametro-descripcion {
+    color: #64748b;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.parametro-valor {
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.875rem;
+    color: #1e293b;
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+// Badge tipo
+.badge-tipo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 4px;
+    text-transform: capitalize;
+}
+
+// Badge estado
+.badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 50px;
+
+    &.activo {
+        background: rgba($success, 0.1);
+        color: $success;
+    }
+
+    &.inactivo {
+        background: rgba(#64748b, 0.1);
+        color: #64748b;
+    }
+}
+
+// Input edición
+.input-edicion {
+    .form-control, .form-select {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        min-width: 150px;
+
+        &:focus {
+            border-color: $primary;
+            box-shadow: 0 0 0 3px rgba($primary, 0.1);
+        }
+    }
+}
+
+// Acciones
+.acciones-celda {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-accion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f1f5f9;
+    color: #475569;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &.editar:hover {
+        background: rgba($primary, 0.1);
+        color: $primary;
+    }
+
+    &.guardar {
+        background: rgba($success, 0.1);
+        color: $success;
+
+        &:hover:not(:disabled) {
+            background: $success;
+            color: #fff;
+        }
+    }
+
+    &.cancelar {
+        background: rgba($danger, 0.1);
+        color: $danger;
+
+        &:hover:not(:disabled) {
+            background: $danger;
+            color: #fff;
+        }
+    }
+
+    &.toggle {
+        background: rgba($primary, 0.1);
+        color: $primary;
+
+        &:hover:not(:disabled) {
+            background: $primary;
+            color: #fff;
+        }
+    }
+}
+
+// Empty state
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+
+    i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin: 0;
+    }
+}
+
+// Loading
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+}
+
+// Alert
+.alert-info {
+    background: #eff6ff;
+    border: none;
+    border-radius: 8px;
+    color: #1e40af;
+    font-size: 0.875rem;
+}
+
+// Responsive
+@media (max-width: 991px) {
+    .pagina-header {
+        flex-direction: column;
+    }
+
+    .categorias-card {
+        .list-group {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            
+            .list-group-item {
+                white-space: nowrap;
+                border-radius: 0;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .parametros-card {
+        .table {
+            thead {
+                display: none;
+            }
+
+            tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 1rem;
+
+                &:hover {
+                    background: none;
+                }
+
+                td {
+                    display: block;
+                    border: none;
+                    padding: 0.5rem 0;
+
+                    &:first-child {
+                        border-bottom: 1px solid #e2e8f0;
+                        padding-bottom: 0.75rem;
+                        margin-bottom: 0.5rem;
+                    }
+                }
+            }
+        }
+    }
+
+    .acciones-celda {
+        justify-content: flex-start;
+        margin-top: 0.5rem;
+    }
+}

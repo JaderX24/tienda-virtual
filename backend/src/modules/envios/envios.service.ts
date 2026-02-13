@@ -44,7 +44,7 @@ export class EnviosService {
             where: { pedidoId },
             include: {
                 transportista: true,
-                seguimiento: {
+                seguimientos: {
                     orderBy: { fecha: 'desc' },
                 },
             },
@@ -104,7 +104,7 @@ export class EnviosService {
         const envio = await this.prisma.envio.findUnique({
             where: { numeroGuia },
             include: {
-                seguimiento: {
+                seguimientos: {
                     orderBy: { fecha: 'desc' },
                 },
                 pedido: {

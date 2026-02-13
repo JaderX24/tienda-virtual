@@ -5,6 +5,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HeaderAdminComponent } from '../header/header.component';
 import { FooterAdminComponent } from '../footer/footer.component';
 import { AuthAdminService } from '../../auth/services/auth-admin.service';
+import { ToastContainerComponent } from '../../../../core/components/toast';
 
 @Component({
     selector: 'app-layout-admin',
@@ -14,7 +15,8 @@ import { AuthAdminService } from '../../auth/services/auth-admin.service';
         RouterOutlet,
         SidebarComponent,
         HeaderAdminComponent,
-        FooterAdminComponent
+        FooterAdminComponent,
+        ToastContainerComponent
     ],
     templateUrl: './layout-admin.component.html',
     styleUrl: './layout-admin.component.scss'

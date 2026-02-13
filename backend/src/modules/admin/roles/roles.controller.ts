@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { RolesService } from './roles.service';
-import { CrearRolDto, ActualizarRolDto, FiltroRolesDto } from './dto';
+import { CrearRolDto, ActualizarRolDto, FiltroRolesDto, AsignarPermisosDto, CambiarEstadoRolDto } from './dto';
 import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
@@ -61,6 +61,19 @@ export class RolesController {
         return this.rolesService.actualizar(id, actualizarRolDto);
     }
 
+    @Patch(':id/estado')
+    @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
+    @ApiOperacionProtegida('Cambiar estado del rol', 'Activa o desactiva un rol')
+    @ApiResponse({ status: 200, description: 'Estado del rol actualizado' })
+    @ApiResponse({ status: 404, description: 'Rol no encontrado' })
+    @ApiResponse({ status: 409, description: 'No se puede cambiar el estado de roles del sistema' })
+    async cambiarEstado(
+        @Param('id', ParsearIdPipe) id: number,
+        @Body() cambiarEstadoDto: CambiarEstadoRolDto,
+    ) {
+        return this.rolesService.cambiarEstado(id, cambiarEstadoDto.activo);
+    }
+
     @Delete(':id')
     @Roles(ROLES.SUPER_ADMIN)
     @ApiOperacionProtegida('Eliminar rol', 'Elimina un rol del sistema')
@@ -69,5 +82,26 @@ export class RolesController {
     @ApiResponse({ status: 409, description: 'El rol tiene usuarios asignados' })
     async eliminar(@Param('id', ParsearIdPipe) id: number) {
         return this.rolesService.eliminar(id);
+    }
+
+    @Get(':id/permisos')
+    @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
+    @ApiOperacionProtegida('Obtener permisos del rol', 'Obtiene los permisos asignados a un rol')
+    @ApiResponse({ status: 200, description: 'Lista de permisos del rol' })
+    @ApiResponse({ status: 404, description: 'Rol no encontrado' })
+    async obtenerPermisos(@Param('id', ParsearIdPipe) id: number) {
+        return this.rolesService.obtenerPermisos(id);
+    }
+
+    @Post(':id/permisos')
+    @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
+    @ApiOperacionProtegida('Asignar permisos al rol', 'Asigna permisos a un rol')
+    @ApiResponse({ status: 200, description: 'Permisos asignados correctamente' })
+    @ApiResponse({ status: 404, description: 'Rol no encontrado' })
+    async asignarPermisos(
+        @Param('id', ParsearIdPipe) id: number,
+        @Body() asignarPermisosDto: AsignarPermisosDto,
+    ) {
+        return this.rolesService.asignarPermisos(id, asignarPermisosDto.permisoIds);
     }
 }

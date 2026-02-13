@@ -34,6 +34,67 @@ export const MENU_ADMIN: SeccionMenu[] = [
         ],
     },
     {
+        titulo: 'Empresas',
+        items: [
+            {
+                id: 'empresas',
+                titulo: 'Empresas',
+                icono: 'bi-building',
+                permisos: [PERMISOS_ADMIN.EMPRESAS_VER],
+                hijos: [
+                    {
+                        id: 'empresas-lista',
+                        titulo: 'Lista de Empresas',
+                        icono: 'bi-list-ul',
+                        ruta: '/admin/empresas',
+                        permisos: [PERMISOS_ADMIN.EMPRESAS_VER],
+                    },
+                    {
+                        id: 'empresas-crear',
+                        titulo: 'Nueva Empresa',
+                        icono: 'bi-plus-circle',
+                        ruta: '/admin/empresas/nueva',
+                        permisos: [PERMISOS_ADMIN.EMPRESAS_CREAR],
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        titulo: 'Equipo',
+        items: [
+            {
+                id: 'colaboradores',
+                titulo: 'Colaboradores',
+                icono: 'bi-person-badge',
+                permisos: [PERMISOS_ADMIN.COLABORADORES_VER],
+                hijos: [
+                    {
+                        id: 'colaboradores-lista',
+                        titulo: 'Lista de Colaboradores',
+                        icono: 'bi-list-ul',
+                        ruta: '/admin/colaboradores',
+                        permisos: [PERMISOS_ADMIN.COLABORADORES_VER],
+                    },
+                    {
+                        id: 'colaboradores-crear',
+                        titulo: 'Nuevo Colaborador',
+                        icono: 'bi-person-plus',
+                        ruta: '/admin/colaboradores/nuevo',
+                        permisos: [PERMISOS_ADMIN.COLABORADORES_CREAR],
+                    },
+                    {
+                        id: 'colab-roles-permisos',
+                        titulo: 'Roles y Permisos',
+                        icono: 'bi-shield-lock',
+                        ruta: '/admin/colaboradores/roles-permisos',
+                        permisos: [PERMISOS_ADMIN.COLAB_ROLES_VER],
+                    },
+                ],
+            },
+        ],
+    },
+    {
         titulo: 'Catálogo',
         items: [
             {
@@ -187,7 +248,7 @@ export const MENU_ADMIN: SeccionMenu[] = [
                         id: 'usuarios-roles',
                         titulo: 'Roles y Permisos',
                         icono: 'bi-shield-lock',
-                        ruta: '/admin/usuarios/roles',
+                        ruta: '/admin/roles',
                         permisos: [PERMISOS_ADMIN.ROLES_VER],
                     },
                 ],

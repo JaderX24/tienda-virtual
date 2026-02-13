@@ -1,0 +1,341 @@
+<div class="pagina-metodos-pago">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-info">
+            <h1 class="pagina-titulo">
+                <i class="bi bi-credit-card-2-front"></i>
+                Métodos de Pago
+            </h1>
+            <p class="pagina-subtitulo">
+                Configura las pasarelas y formas de pago aceptadas en el sistema
+            </p>
+        </div>
+        <div class="header-acciones">
+            <a routerLink="crear" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>
+                Nuevo Método de Pago
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card filtros-card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Nombre, código o proveedor..."
+                            [ngModel]="busqueda()"
+                            (ngModelChange)="busqueda.set($event)"
+                            (keyup.enter)="buscar()">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tipo</label>
+                    <select
+                        class="form-select"
+                        [ngModel]="tipoSeleccionado()"
+                        (ngModelChange)="tipoSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos</option>
+                        @for (tipo of tiposPasarela; track tipo.valor) {
+                            <option [ngValue]="tipo.valor">{{ tipo.etiqueta }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Integración</label>
+                    <select
+                        class="form-select"
+                        [ngModel]="modoSeleccionado()"
+                        (ngModelChange)="modoSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos</option>
+                        @for (modo of modosIntegracion; track modo.valor) {
+                            <option [ngValue]="modo.valor">{{ modo.etiqueta }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select
+                        class="form-select"
+                        [ngModel]="estadoSeleccionado()"
+                        (ngModelChange)="estadoSeleccionado.set($event)">
+                        @for (estado of estadosFiltro; track estado.etiqueta) {
+                            <option [ngValue]="estado.valor">{{ estado.etiqueta }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" (click)="buscar()" title="Buscar">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()" title="Limpiar filtros">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido -->
+    @if (cargando()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando métodos de pago...</p>
+                </div>
+            </div>
+        </div>
+    } @else if (errorCarga()) {
+        <div class="alert alert-danger d-flex align-items-center mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span>{{ errorCarga() }}</span>
+            <button type="button" class="btn btn-outline-danger btn-sm ms-auto" (click)="cargarPasarelas()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Reintentar
+            </button>
+        </div>
+    } @else {
+        <!-- Resumen -->
+        <div class="resumen-bar mb-3">
+            <span class="resumen-texto">
+                <strong>{{ totalPasarelas() }}</strong> métodos de pago encontrados
+            </span>
+            @if (totalPasarelas() > 0) {
+                <div class="resumen-paginacion">
+                    Mostrando {{ (paginaActual() - 1) * limite() + 1 }} -
+                    {{ paginaActual() * limite() > totalPasarelas() ? totalPasarelas() : paginaActual() * limite() }}
+                </div>
+            }
+        </div>
+
+        <!-- Tarjetas de métodos de pago -->
+        @if (pasarelas().length > 0) {
+            <div class="row g-4">
+                @for (pasarela of pasarelas(); track pasarela.id) {
+                    <div class="col-xl-4 col-lg-6 col-md-6">
+                        <div class="card tarjeta-pasarela" [class.inactiva]="!pasarela.esActivo">
+                            <div class="card-body">
+                                <!-- Cabecera de tarjeta -->
+                                <div class="pasarela-header">
+                                    <div class="pasarela-icono" [attr.data-tipo]="pasarela.tipo">
+                                        @if (pasarela.logoUrl) {
+                                            <img [src]="pasarela.logoUrl" [alt]="pasarela.nombre" class="pasarela-logo">
+                                        } @else {
+                                            <i class="bi" [ngClass]="obtenerIconoTipo(pasarela.tipo)"></i>
+                                        }
+                                    </div>
+                                    <div class="pasarela-titulo">
+                                        <h5 class="pasarela-nombre">{{ pasarela.nombre }}</h5>
+                                        <span class="pasarela-codigo">{{ pasarela.codigo }}</span>
+                                    </div>
+                                    <div class="pasarela-estado-wrapper">
+                                        <span [class]="obtenerClasesEstado(pasarela.esActivo)">
+                                            <i class="bi" [ngClass]="obtenerIconoEstado(pasarela.esActivo)"></i>
+                                            {{ obtenerTextoEstado(pasarela.esActivo) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Tipo y proveedor -->
+                                <div class="pasarela-meta">
+                                    <span class="badge-tipo" [attr.data-tipo]="pasarela.tipo">
+                                        <i class="bi" [ngClass]="obtenerIconoTipo(pasarela.tipo)"></i>
+                                        {{ obtenerTipoTexto(pasarela.tipo) }}
+                                    </span>
+                                    @if (pasarela.proveedor) {
+                                        <span class="badge-proveedor">
+                                            <i class="bi bi-building"></i>
+                                            {{ pasarela.proveedor }}
+                                        </span>
+                                    }
+                                    <span class="badge-integracion">
+                                        <i class="bi bi-plug"></i>
+                                        {{ obtenerModoTexto(pasarela.modoIntegracion) }}
+                                    </span>
+                                </div>
+
+                                <!-- Descripción -->
+                                @if (pasarela.descripcion) {
+                                    <p class="pasarela-descripcion">{{ pasarela.descripcion }}</p>
+                                }
+
+                                <!-- Características soportadas -->
+                                <div class="pasarela-caracteristicas">
+                                    @for (caract of obtenerCaracteristicas(pasarela); track caract) {
+                                        <span class="badge-caracteristica">
+                                            <i class="bi bi-check-lg"></i>
+                                            {{ caract }}
+                                        </span>
+                                    } @empty {
+                                        <span class="text-muted small">Sin características adicionales</span>
+                                    }
+                                </div>
+
+                                <!-- Rangos de monto -->
+                                <div class="pasarela-montos">
+                                    <div class="monto-item">
+                                        <span class="monto-label">Mínimo</span>
+                                        <span class="monto-valor">{{ formatearMonto(pasarela.montoMinimo) }}</span>
+                                    </div>
+                                    <div class="monto-separador"></div>
+                                    <div class="monto-item">
+                                        <span class="monto-label">Máximo</span>
+                                        <span class="monto-valor">{{ formatearMonto(pasarela.montoMaximo) }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Indicadores -->
+                                <div class="pasarela-indicadores">
+                                    <div class="indicador" [class.activo]="pasarela.esVisibleCliente" title="Visible para clientes">
+                                        <i class="bi" [ngClass]="pasarela.esVisibleCliente ? 'bi-eye-fill' : 'bi-eye-slash'"></i>
+                                        <span>{{ pasarela.esVisibleCliente ? 'Visible' : 'Oculto' }}</span>
+                                    </div>
+                                    <div class="indicador" [class.activo]="pasarela.requiereConfiguracion" title="Requiere configuración">
+                                        <i class="bi bi-gear"></i>
+                                        <span>{{ pasarela.requiereConfiguracion ? 'Config. requerida' : 'Listo' }}</span>
+                                    </div>
+                                    <div class="indicador info" title="Prioridad de orden">
+                                        <i class="bi bi-sort-numeric-up"></i>
+                                        <span>Prioridad: {{ pasarela.ordenPrioridad }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Acciones -->
+                                <div class="pasarela-acciones">
+                                    <a [routerLink]="['editar', pasarela.id]"
+                                        class="btn btn-outline-primary btn-sm"
+                                        title="Editar método de pago">
+                                        <i class="bi bi-pencil me-1"></i>
+                                        Editar
+                                    </a>
+                                    <button
+                                        class="btn btn-sm"
+                                        [class.btn-outline-success]="!pasarela.esActivo"
+                                        [class.btn-outline-warning]="pasarela.esActivo"
+                                        (click)="abrirModalEstado(pasarela)"
+                                        title="{{ pasarela.esActivo ? 'Desactivar' : 'Activar' }}">
+                                        <i class="bi" [ngClass]="pasarela.esActivo ? 'bi-toggle-off' : 'bi-toggle-on'"></i>
+                                        {{ pasarela.esActivo ? 'Desactivar' : 'Activar' }}
+                                    </button>
+                                    <button
+                                        class="btn btn-sm"
+                                        [class.btn-outline-info]="!pasarela.esVisibleCliente"
+                                        [class.btn-outline-secondary]="pasarela.esVisibleCliente"
+                                        (click)="cambiarVisibilidad(pasarela)"
+                                        title="{{ pasarela.esVisibleCliente ? 'Ocultar a clientes' : 'Mostrar a clientes' }}">
+                                        <i class="bi" [ngClass]="pasarela.esVisibleCliente ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Fecha -->
+                                <div class="pasarela-fecha">
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>
+                                        Creado {{ formatearFecha(pasarela.creadoEn) }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        } @else {
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-credit-card-2-front"></i>
+                        <h5>No se encontraron métodos de pago</h5>
+                        <p>Configura un nuevo método de pago para que los clientes puedan realizar compras</p>
+                        <a routerLink="crear" class="btn btn-primary">
+                            <i class="bi bi-plus-lg me-2"></i>
+                            Nuevo Método de Pago
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Paginación -->
+        @if (totalPaginas() > 1) {
+            <nav class="paginacion-nav mt-4">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item" [class.disabled]="paginaActual() === 1">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual() - 1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    </li>
+                    @for (pagina of obtenerPaginas(); track pagina) {
+                        <li class="page-item" [class.active]="pagina === paginaActual()">
+                            <button class="page-link" (click)="cambiarPagina(pagina)">
+                                {{ pagina }}
+                            </button>
+                        </li>
+                    }
+                    <li class="page-item" [class.disabled]="paginaActual() === totalPaginas()">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual() + 1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+</div>
+
+<!-- Modal Cambiar Estado -->
+@if (mostrarModalEstado()) {
+    <div class="modal-overlay" (click)="cerrarModalEstado()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+            <div class="modal-header-custom"
+                [class.activar]="!pasarelaSeleccionada()?.esActivo"
+                [class.desactivar]="pasarelaSeleccionada()?.esActivo">
+                <div class="modal-icono">
+                    <i class="bi" [ngClass]="pasarelaSeleccionada()?.esActivo ? 'bi-toggle-off' : 'bi-toggle-on'"></i>
+                </div>
+                <h5>{{ pasarelaSeleccionada()?.esActivo ? 'Desactivar' : 'Activar' }} Método de Pago</h5>
+            </div>
+            <div class="modal-body-custom">
+                @if (pasarelaSeleccionada()?.esActivo) {
+                    <p>¿Estás seguro de que deseas desactivar el método de pago <strong>{{ pasarelaSeleccionada()?.nombre }}</strong>?</p>
+                    <div class="alert alert-warning d-flex align-items-start">
+                        <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+                        <div>
+                            <strong>Advertencia:</strong> Al desactivar este método de pago, los clientes no podrán utilizarlo para realizar compras. Las transacciones en curso no se verán afectadas.
+                        </div>
+                    </div>
+                } @else {
+                    <p>¿Deseas activar el método de pago <strong>{{ pasarelaSeleccionada()?.nombre }}</strong>?</p>
+                    <p class="text-muted small">El método de pago estará disponible nuevamente en el sistema.</p>
+                }
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn btn-secondary" (click)="cerrarModalEstado()" [disabled]="procesando()">
+                    Cancelar
+                </button>
+                <button
+                    class="btn"
+                    [class.btn-success]="!pasarelaSeleccionada()?.esActivo"
+                    [class.btn-warning]="pasarelaSeleccionada()?.esActivo"
+                    (click)="confirmarCambioEstado()"
+                    [disabled]="procesando()">
+                    @if (procesando()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    {{ pasarelaSeleccionada()?.esActivo ? 'Desactivar' : 'Activar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+}

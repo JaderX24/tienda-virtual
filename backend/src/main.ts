@@ -13,7 +13,8 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     const puerto = configService.get<number>('app.puerto') || 3000;
     const entorno = configService.get<string>('app.entorno') || 'desarrollo';
-    const corsOrigen = configService.get<string>('seguridad.corsOrigen') || 'http://localhost:4200';
+    const corsOrigenRaw = configService.get<string>('seguridad.corsOrigen') || 'http://localhost:4200';
+    const corsOrigen = corsOrigenRaw.includes(',') ? corsOrigenRaw.split(',').map(o => o.trim()) : corsOrigenRaw;
 
     app.use(helmet({
         contentSecurityPolicy: entorno === 'produccion',
@@ -35,7 +36,7 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
         transformOptions: {
-            enableImplicitConversion: false,
+            enableImplicitConversion: true,
         },
         validationError: {
             target: false,
@@ -55,7 +56,7 @@ async function bootstrap() {
         logger.log(`Documentación Swagger disponible en: http://localhost:${puerto}/api/docs`);
     }
 
-    await app.listen(puerto);
+    await app.listen(puerto, '0.0.0.0');
 
     logger.log(`🚀 Servidor iniciado en: http://localhost:${puerto}`);
     logger.log(`📝 Entorno: ${entorno}`);

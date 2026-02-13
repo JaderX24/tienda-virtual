@@ -357,6 +357,7 @@ Esto abrirá una interfaz web en http://localhost:5555 para ver y editar datos.
 
 ```bash
 cd backend
+npx prisma generate
 npm run start:dev
 ```
 
@@ -373,6 +374,21 @@ npm start
 
 La aplicación estará disponible en: http://localhost:4200
 
+
+### Reiniciar el servidor TypeScript
+Presiona Ctrl + Shift + P
+Escribe: TypeScript: Restart TS Server
+Presiona Enter
+
+o esde la terminal (alternativa)
+# Cerrar todas las instancias de Node.js que ejecutan TypeScript
+taskkill /f /im node.exe
+# Luego reabrir VS Code o el archivo TypeScript
+npx nest start --watch 2>&1 | Select-Object -First 30
+npx nest start 2>&1 | Select-Object -First 30
+(
+   PS C:\Users\SPE\Proyects\tienda-virtual> cd c:\Users\SPE\Proyects\tienda-virtual\backend; npx nest start 2>&1 | Select-Object -First 30
+)
 ---
 
 ## Verificación Final

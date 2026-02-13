@@ -1,0 +1,806 @@
+$primary: #6366f1;
+$primary-light: rgba(99, 102, 241, 0.1);
+$success: #198754;
+$info: #0dcaf0;
+$warning: #ffc107;
+$danger: #dc3545;
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-800: #343a40;
+$radius-sm: 0.5rem;
+$radius-md: 0.75rem;
+$radius-lg: 1rem;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+.pagina-roles-permisos {
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+// Utilidad para permitir que flex children se reduzcan
+.min-w-0 {
+    min-width: 0;
+}
+
+// Encabezado
+.pagina-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.header-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.pagina-titulo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+
+    i {
+        color: $primary;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.pagina-subtitulo {
+    color: #64748b;
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+}
+
+.header-acciones {
+    .btn-primary {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        border-radius: 8px;
+        background: $primary;
+        border: none;
+        white-space: nowrap;
+
+        &:hover {
+            background: darken($primary, 8%);
+            transform: translateY(-1px);
+        }
+    }
+}
+
+// Tabs
+.nav-tabs {
+    border-bottom: 2px solid $gray-200;
+
+    .nav-link {
+        border: none;
+        color: $gray-600;
+        font-weight: 500;
+        padding: 0.65rem 1rem;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s ease;
+
+        &:hover {
+            color: $primary;
+            border-bottom-color: rgba($primary, 0.3);
+        }
+
+        &.active {
+            color: $primary;
+            border-bottom-color: $primary;
+            background: transparent;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+        }
+    }
+}
+
+// Tarjetas resumen
+.tarjeta-resumen {
+    border: none;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .d-flex {
+        min-width: 0;
+    }
+}
+
+.texto-resumen {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.icono-resumen {
+    width: 44px;
+    height: 44px;
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.valor-resumen {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $gray-800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.etiqueta-resumen {
+    font-size: 0.75rem;
+    color: $gray-600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Tabla de roles
+.tabla-card {
+    border: none;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+
+    .table {
+        thead th {
+            background: $gray-100;
+            border-bottom: 2px solid $gray-200;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $gray-600;
+            padding: 0.75rem 1rem;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 0.75rem 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid $gray-200;
+        }
+
+        tbody tr {
+            transition: background 0.15s ease;
+
+            &:hover {
+                background: rgba($primary, 0.03);
+            }
+
+            &:last-child td {
+                border-bottom: none;
+            }
+        }
+    }
+}
+
+.indicador-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.indicador-color-grande {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.indicador-color-xl {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.badge-jerarquia {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $gray-800;
+    background: $gray-100;
+    border-radius: $radius-sm;
+}
+
+// Botones de acción
+.btn-accion {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-sm;
+    border: 1px solid transparent;
+    background: transparent;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+
+    &.btn-ver {
+        color: $info;
+        &:hover {
+            background: rgba($info, 0.1);
+            border-color: rgba($info, 0.2);
+        }
+    }
+
+    &.btn-permisos {
+        color: $success;
+        &:hover {
+            background: rgba($success, 0.1);
+            border-color: rgba($success, 0.2);
+        }
+    }
+
+    &.btn-editar {
+        color: $primary;
+        &:hover {
+            background: $primary-light;
+            border-color: rgba($primary, 0.2);
+        }
+    }
+
+    &.btn-desactivar {
+        color: $danger;
+        &:hover {
+            background: rgba($danger, 0.1);
+            border-color: rgba($danger, 0.2);
+        }
+    }
+
+    &.btn-activar {
+        color: $success;
+        &:hover {
+            background: rgba($success, 0.1);
+            border-color: rgba($success, 0.2);
+        }
+    }
+}
+
+// Tarjetas móvil
+.tarjeta-rol {
+    border: none;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+
+    .card-body {
+        padding: 1rem;
+        min-width: 0;
+    }
+}
+
+.dato-movil {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.dato-valor {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.dato-etiqueta {
+    font-size: 0.65rem;
+    color: $gray-600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+// Barra de resumen
+.resumen-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.resumen-texto {
+    font-size: 0.8125rem;
+    color: #64748b;
+
+    strong {
+        color: #1e293b;
+    }
+}
+
+.resumen-paginacion {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+// Paginación
+.paginacion-nav {
+    .pagination {
+        gap: 0.25rem;
+    }
+
+    .page-item {
+        .page-link {
+            border: none;
+            border-radius: 8px;
+            color: #64748b;
+            padding: 0.4375rem 0.75rem;
+            font-size: 0.8125rem;
+            background: transparent;
+
+            &:hover {
+                background: #f1f5f9;
+                color: $primary;
+            }
+        }
+
+        &.active .page-link {
+            background: $primary;
+            color: white;
+        }
+
+        &.disabled .page-link {
+            color: #cbd5e1;
+            background: transparent;
+        }
+    }
+}
+
+// Módulos - vista permisos
+.modulo-card {
+    border: none;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+
+    .card-header {
+        background: $gray-100;
+        border-bottom: 1px solid $gray-200;
+        padding: 0.75rem 1rem;
+    }
+
+    .list-group-item {
+        border-color: $gray-200;
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: rgba($primary, 0.02);
+        }
+    }
+}
+
+.texto-accion {
+    font-size: 0.85rem;
+    color: $gray-600;
+}
+
+.badge-accion {
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+
+    &.badge-ver {
+        background: rgba($info, 0.1);
+        color: darken($info, 25%);
+    }
+    &.badge-crear {
+        background: rgba($success, 0.1);
+        color: $success;
+    }
+    &.badge-editar {
+        background: rgba($primary, 0.1);
+        color: $primary;
+    }
+    &.badge-eliminar {
+        background: rgba($danger, 0.1);
+        color: $danger;
+    }
+    &.badge-aprobar {
+        background: rgba($warning, 0.15);
+        color: darken($warning, 25%);
+    }
+    &.badge-exportar {
+        background: rgba(#6f42c1, 0.1);
+        color: #6f42c1;
+    }
+    &.badge-gestionar {
+        background: rgba($gray-600, 0.1);
+        color: $gray-600;
+    }
+}
+
+// Modales
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-contenido {
+    background: white;
+    border-radius: $radius-lg;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.25s ease;
+
+    &.modal-md {
+        max-width: 540px;
+    }
+
+    &.modal-lg {
+        max-width: 800px;
+    }
+}
+
+.modal-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid $gray-200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .modal-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+}
+
+.modal-body {
+    padding: 1.25rem;
+    overflow-y: auto;
+}
+
+.modal-body-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid $gray-200;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+// Permisos en modal
+.modulo-permisos-grupo {
+    padding: 0.75rem;
+    background: $gray-100;
+    border-radius: $radius-sm;
+}
+
+.modulo-permisos-header {
+    .form-check-input {
+        margin-top: 0;
+    }
+}
+
+.permiso-check {
+    padding: 0.4rem 0.5rem;
+    border-radius: $radius-sm;
+    transition: background 0.15s ease;
+
+    &.seleccionado {
+        background: rgba($primary, 0.06);
+    }
+
+    .form-check-label {
+        font-size: 0.82rem;
+        cursor: pointer;
+    }
+}
+
+// Detalle del rol
+.badge-permiso {
+    background: rgba($primary, 0.08);
+    color: $primary;
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+}
+
+.avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-sm;
+    background: linear-gradient(135deg, $primary, lighten($primary, 15%));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+// Animaciones
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Descripción truncada en tarjetas móvil
+.descripcion-truncada {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// Acciones móvil
+.acciones-movil {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    .btn {
+        min-width: 0;
+        white-space: nowrap;
+        font-size: 0.78rem;
+    }
+}
+
+// =============================================
+// RESPONSIVE
+// =============================================
+
+@media (max-width: 991.98px) {
+    .tarjeta-resumen .card-body {
+        padding: 0.75rem;
+    }
+
+    .icono-resumen {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+
+    .valor-resumen {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .pagina-titulo {
+        font-size: 1.1rem;
+    }
+
+    .nav-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-link {
+            padding: 0.5rem 0.65rem;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+    }
+
+    .modal-contenido {
+        margin: 0.5rem;
+
+        &.modal-lg {
+            max-width: 100%;
+        }
+    }
+
+    .modal-body-scroll {
+        max-height: 55vh;
+    }
+
+    .modulo-card .card-header {
+        padding: 0.65rem 0.75rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .pagina-header {
+        gap: 0.5rem;
+    }
+
+    .pagina-titulo {
+        font-size: 0.95rem;
+
+        i {
+            font-size: 0.95rem;
+        }
+    }
+
+    .tarjeta-resumen .card-body {
+        padding: 0.5rem;
+    }
+
+    .icono-resumen {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+
+    .valor-resumen {
+        font-size: 0.9rem;
+    }
+
+    .etiqueta-resumen {
+        font-size: 0.6rem;
+    }
+
+    .tarjeta-rol .card-body {
+        padding: 0.75rem;
+    }
+
+    .dato-movil {
+        .dato-valor {
+            font-size: 0.85rem;
+        }
+        .dato-etiqueta {
+            font-size: 0.55rem;
+        }
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.78rem;
+    }
+
+    .resumen-bar {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .modal-contenido {
+        margin: 0;
+        border-radius: $radius-md $radius-md 0 0;
+        max-height: 95vh;
+        align-self: flex-end;
+    }
+
+    .permiso-check .form-check-label {
+        font-size: 0.78rem;
+    }
+
+    .acciones-movil .btn {
+        font-size: 0.72rem;
+        padding: 0.3rem 0.5rem;
+    }
+
+    .paginacion-nav .page-item .page-link {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 374.98px) {
+    .pagina-header {
+        flex-direction: column;
+    }
+
+    .header-acciones {
+        width: 100%;
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    .pagina-titulo {
+        font-size: 0.88rem;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.35rem 0.4rem;
+        font-size: 0.72rem;
+
+        .badge {
+            display: none;
+        }
+    }
+
+    .icono-resumen {
+        width: 26px;
+        height: 26px;
+        font-size: 0.75rem;
+    }
+
+    .valor-resumen {
+        font-size: 0.82rem;
+    }
+
+    .etiqueta-resumen {
+        font-size: 0.5rem;
+    }
+
+    .tarjeta-resumen .card-body {
+        padding: 0.35rem;
+    }
+
+    .acciones-movil {
+        flex-direction: column;
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    .paginacion-nav .page-item .page-link {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.7rem;
+    }
+}

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, MinLength, MaxLength, Matches } from 'class-validator';
+import { IsString, IsOptional, MinLength, MaxLength, Matches, IsBoolean } from 'class-validator';
 
 export class CrearRolDto {
     @ApiProperty({ description: 'Código único del rol' })
@@ -22,4 +22,9 @@ export class CrearRolDto {
     @IsString()
     @MaxLength(255)
     descripcion?: string;
+
+    @ApiPropertyOptional({ description: 'Estado del rol', default: true })
+    @IsOptional()
+    @IsBoolean()
+    activo?: boolean;
 }

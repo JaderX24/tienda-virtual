@@ -1,0 +1,797 @@
+// Variables
+$primary: #6366f1;
+$primary-light: #818cf8;
+$primary-dark: #4f46e5;
+$success: #10b981;
+$danger: #ef4444;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+.pagina-permisos {
+    padding: 1.5rem;
+    padding-bottom: 120px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+// Encabezado Hero
+.encabezado-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 40px rgba($primary, 0.3);
+}
+
+.hero-contenido {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.hero-icono {
+    width: 64px;
+    height: 64px;
+    background: rgba(white, 0.2);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+        font-size: 2rem;
+        color: white;
+    }
+}
+
+.hero-texto {
+    h1 {
+        color: white;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+}
+
+.rol-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rol-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(white, 0.2);
+    color: white;
+    padding: 0.375rem 0.875rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    
+    i {
+        font-size: 0.875rem;
+    }
+}
+
+.rol-codigo {
+    color: rgba(white, 0.7);
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+.btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(white, 0.15);
+    color: white;
+    border: 1px solid rgba(white, 0.3);
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    
+    &:hover {
+        background: rgba(white, 0.25);
+        border-color: rgba(white, 0.5);
+        color: white;
+    }
+}
+
+// Loading
+.loading-container {
+    text-align: center;
+    padding: 4rem 2rem;
+    
+    .loading-spinner {
+        margin-bottom: 1rem;
+    }
+    
+    p {
+        color: $gray-500;
+        margin: 0;
+    }
+}
+
+// Panel de Control
+.panel-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    background: white;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.control-busqueda {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: $gray-50;
+    border: 1px solid $gray-200;
+    border-radius: 0.5rem;
+    padding: 0.625rem 1rem;
+    flex: 1;
+    max-width: 500px;
+    transition: all 0.2s;
+    
+    &:focus-within {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+    
+    i {
+        color: $gray-400;
+        font-size: 1.1rem;
+    }
+    
+    input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        color: $gray-700;
+        
+        &::placeholder {
+            color: $gray-400;
+        }
+        
+        &:focus {
+            outline: none;
+        }
+    }
+    
+    .btn-limpiar {
+        background: none;
+        border: none;
+        color: $gray-400;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        
+        &:hover {
+            color: $gray-600;
+        }
+    }
+}
+
+.control-acciones {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.contador-permisos {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    
+    .contador-numero {
+        font-size: 2rem;
+        font-weight: 700;
+        color: $primary;
+        line-height: 1;
+    }
+    
+    .contador-texto {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.85rem;
+        color: $gray-500;
+        line-height: 1.3;
+        
+        small {
+            font-size: 0.75rem;
+            color: $gray-400;
+        }
+    }
+}
+
+.acciones-rapidas {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-accion {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    
+    i {
+        font-size: 1rem;
+    }
+    
+    &.seleccionar {
+        background: rgba($success, 0.1);
+        color: $success;
+        
+        &:hover {
+            background: rgba($success, 0.2);
+        }
+    }
+    
+    &.quitar {
+        background: rgba($danger, 0.1);
+        color: $danger;
+        
+        &:hover {
+            background: rgba($danger, 0.2);
+        }
+    }
+}
+
+// Módulos Container
+.modulos-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modulo-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.2s;
+    
+    &.expandido {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.modulo-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    
+    &:hover {
+        background: $gray-50;
+    }
+}
+
+.modulo-check {
+    .check-modulo {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: $primary;
+    }
+}
+
+.modulo-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .modulo-nombre {
+        font-weight: 600;
+        color: $gray-800;
+        font-size: 1rem;
+    }
+    
+    .modulo-contador {
+        font-size: 0.8rem;
+        color: $gray-500;
+        background: $gray-100;
+        padding: 0.25rem 0.625rem;
+        border-radius: 1rem;
+    }
+}
+
+.modulo-toggle {
+    color: $gray-400;
+    
+    i {
+        font-size: 1.25rem;
+        transition: transform 0.2s;
+    }
+}
+
+.modulo-contenido {
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid $gray-100;
+    padding-top: 1.25rem;
+}
+
+// Grid de permisos
+.permisos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+}
+
+.permiso-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: $gray-50;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+        background: white;
+        border-color: $gray-200;
+    }
+    
+    &.activo {
+        background: rgba($primary, 0.05);
+        border-color: $primary;
+        
+        .permiso-estado i {
+            color: $primary;
+        }
+    }
+}
+
+.permiso-check {
+    padding-top: 0.125rem;
+    
+    input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: $primary;
+    }
+}
+
+.permiso-info {
+    flex: 1;
+    min-width: 0;
+    
+    .permiso-nombre {
+        display: block;
+        font-weight: 500;
+        color: $gray-800;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .permiso-desc {
+        display: block;
+        font-size: 0.8rem;
+        color: $gray-500;
+        margin-bottom: 0.375rem;
+        line-height: 1.4;
+    }
+    
+    .permiso-codigo {
+        display: inline-block;
+        font-size: 0.7rem;
+        background: rgba($primary, 0.1);
+        color: $primary-dark;
+        padding: 0.125rem 0.5rem;
+        border-radius: 0.25rem;
+        font-family: monospace;
+    }
+}
+
+.permiso-estado {
+    i {
+        font-size: 1.25rem;
+        color: transparent;
+        transition: color 0.2s;
+    }
+}
+
+// Empty State
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 0.75rem;
+    
+    i {
+        font-size: 3rem;
+        color: $gray-300;
+        margin-bottom: 1rem;
+    }
+    
+    h4 {
+        color: $gray-700;
+        margin-bottom: 0.5rem;
+    }
+    
+    p {
+        color: $gray-500;
+        margin-bottom: 1.5rem;
+    }
+}
+
+// Barra de Acción Flotante
+.barra-accion {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid $gray-200;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.barra-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $gray-500;
+    font-size: 0.9rem;
+    
+    i {
+        color: $gray-400;
+    }
+}
+
+.barra-botones {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-cancelar {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 1px solid $gray-300;
+    color: $gray-700;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+        background: $gray-50;
+        border-color: $gray-400;
+    }
+}
+
+.btn-guardar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    background: $primary;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover:not(:disabled) {
+        background: $primary-dark;
+    }
+    
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    i {
+        font-size: 1.1rem;
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .pagina-permisos {
+        padding: 1rem;
+        padding-bottom: 140px;
+    }
+
+    .encabezado-hero {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-contenido {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .hero-icono {
+        width: 56px;
+        height: 56px;
+        
+        i {
+            font-size: 1.5rem;
+        }
+    }
+
+    .hero-texto {
+        h1 {
+            font-size: 1.35rem;
+            margin-bottom: 0.375rem;
+        }
+    }
+
+    .rol-info {
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .rol-badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+    }
+
+    .rol-codigo {
+        font-size: 0.75rem;
+    }
+    
+    .btn-volver {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+    }
+    
+    .panel-control {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .control-busqueda {
+        max-width: none;
+        padding: 0.5rem 0.875rem;
+        
+        input {
+            font-size: 0.875rem;
+        }
+    }
+    
+    .control-acciones {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .contador-permisos {
+        gap: 0.5rem;
+        
+        .contador-numero {
+            font-size: 1.5rem;
+        }
+        
+        .contador-texto {
+            font-size: 0.75rem;
+            
+            small {
+                font-size: 0.65rem;
+            }
+        }
+    }
+
+    .acciones-rapidas {
+        gap: 0.375rem;
+    }
+
+    .btn-accion {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        
+        span {
+            display: none;
+        }
+        
+        i {
+            font-size: 1.1rem;
+        }
+    }
+
+    .modulos-container {
+        gap: 0.75rem;
+    }
+
+    .modulo-card {
+        border-radius: 0.625rem;
+    }
+
+    .modulo-header {
+        padding: 0.875rem 1rem;
+        gap: 0.75rem;
+    }
+
+    .modulo-check {
+        .check-modulo {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .modulo-info {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        
+        .modulo-nombre {
+            font-size: 0.9rem;
+        }
+        
+        .modulo-contador {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+        }
+    }
+
+    .modulo-contenido {
+        padding: 0.875rem 1rem 1rem;
+    }
+
+    .permisos-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .permiso-item {
+        padding: 0.75rem;
+        gap: 0.625rem;
+    }
+
+    .permiso-check {
+        input {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    .permiso-info {
+        .permiso-nombre {
+            font-size: 0.85rem;
+        }
+        
+        .permiso-desc {
+            font-size: 0.75rem;
+        }
+        
+        .permiso-codigo {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.375rem;
+        }
+    }
+
+    .permiso-estado {
+        i {
+            font-size: 1.1rem;
+        }
+    }
+
+    .empty-state {
+        padding: 2.5rem 1.5rem;
+        
+        i {
+            font-size: 2.5rem;
+        }
+        
+        h4 {
+            font-size: 1rem;
+        }
+        
+        p {
+            font-size: 0.875rem;
+        }
+    }
+    
+    .barra-accion {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .barra-info {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+    
+    .barra-botones {
+        width: 100%;
+        gap: 0.625rem;
+        
+        button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+        }
+    }
+
+    .btn-cancelar {
+        font-size: 0.875rem;
+    }
+
+    .btn-guardar {
+        font-size: 0.875rem;
+        justify-content: center;
+    }
+}
+
+// Extra small devices
+@media (max-width: 375px) {
+    .pagina-permisos {
+        padding: 0.75rem;
+    }
+
+    .encabezado-hero {
+        padding: 1rem;
+    }
+
+    .hero-texto h1 {
+        font-size: 1.2rem;
+    }
+
+    .panel-control {
+        padding: 0.875rem;
+    }
+
+    .contador-permisos .contador-numero {
+        font-size: 1.25rem;
+    }
+
+    .modulo-header {
+        padding: 0.75rem;
+    }
+
+    .modulo-contenido {
+        padding: 0.75rem;
+    }
+}

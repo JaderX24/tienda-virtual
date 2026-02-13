@@ -1,0 +1,307 @@
+$primary: #6366f1;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$info: #3b82f6;
+
+.pagina-detalle-empresa {
+    padding: 0;
+}
+
+.pagina-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-volver {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.15s;
+    flex-shrink: 0;
+
+    &:hover { background: #f8fafc; color: $primary; border-color: $primary; }
+    i { font-size: 1.1rem; }
+}
+
+.pagina-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.pagina-subtitulo {
+    color: #64748b;
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    font-family: monospace;
+}
+
+.header-acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .btn-primary {
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        background: $primary;
+        border: none;
+
+        &:hover { background: darken($primary, 8%); }
+    }
+}
+
+.badge-estado-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+
+    &.activo { background: rgba($success, 0.1); color: $success; }
+    &.inactivo { background: rgba(#64748b, 0.1); color: #64748b; }
+}
+
+.stat-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    .card-body {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+}
+
+.stat-icono {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i { font-size: 1.25rem; }
+
+    &.bg-primary-soft { background: rgba($primary, 0.1); color: $primary; }
+    &.bg-success-soft { background: rgba($success, 0.1); color: $success; }
+    &.bg-warning-soft { background: rgba($warning, 0.1); color: $warning; }
+    &.bg-info-soft { background: rgba($info, 0.1); color: $info; }
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-valor {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.detalle-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.detalle-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+
+    i { color: $primary; font-size: 1.1rem; }
+}
+
+.detalle-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.campo-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.campo-valor {
+    font-size: 0.9rem;
+    color: #1e293b;
+}
+
+.font-mono {
+    font-family: monospace;
+}
+
+.badge-tipo {
+    display: inline-flex;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: #f1f5f9;
+    color: #475569;
+    width: fit-content;
+
+    &[data-tipo="supermercado"] { background: rgba($success, 0.1); color: $success; }
+    &[data-tipo="tienda_ropa"] { background: rgba(#ec4899, 0.1); color: #ec4899; }
+    &[data-tipo="tecnologia"] { background: rgba($info, 0.1); color: $info; }
+    &[data-tipo="farmacia"] { background: rgba(#14b8a6, 0.1); color: #14b8a6; }
+    &[data-tipo="restaurante"] { background: rgba($warning, 0.1); color: darken($warning, 10%); }
+    &[data-tipo="ferreteria"] { background: rgba(#f97316, 0.1); color: #f97316; }
+    &[data-tipo="servicios"] { background: rgba(#8b5cf6, 0.1); color: #8b5cf6; }
+}
+
+.badge-plan {
+    display: inline-flex;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: #f1f5f9;
+    color: #475569;
+    width: fit-content;
+
+    &[data-plan="basico"] { background: rgba(#94a3b8, 0.15); color: #64748b; }
+    &[data-plan="profesional"] { background: rgba($info, 0.1); color: $info; }
+    &[data-plan="empresarial"] { background: rgba($primary, 0.1); color: $primary; }
+    &[data-plan="premium"] { background: rgba($warning, 0.1); color: darken($warning, 10%); }
+}
+
+.red-social-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #475569;
+
+    i { font-size: 1.25rem; }
+}
+
+.sidebar-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.sidebar-logo-container {
+    background: linear-gradient(135deg, #0ea5e9 0%, $primary 100%);
+    padding: 2.5rem 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    span { color: white; font-size: 2.5rem; font-weight: 700; }
+    img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.sistema-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.sistema-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+
+    &:not(:last-child) { border-bottom: 1px solid #f1f5f9; }
+}
+
+.sistema-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.sistema-valor {
+    font-size: 0.85rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+}
+
+@media (max-width: 991.98px) {
+    .stat-valor { font-size: 1.1rem; }
+}
+
+@media (max-width: 767.98px) {
+    .pagina-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-acciones {
+        justify-content: space-between;
+    }
+
+    .pagina-titulo { font-size: 1.25rem; }
+}
+
+@media (max-width: 575.98px) {
+    .stat-card .card-body { padding: 1rem; }
+    .stat-icono { width: 40px; height: 40px; i { font-size: 1rem; } }
+    .stat-valor { font-size: 1rem; }
+}

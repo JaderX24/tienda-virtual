@@ -2,9 +2,7 @@ import {
     Controller,
     Get,
     Post,
-    Put,
     Patch,
-    Delete,
     Body,
     Param,
     Query,
@@ -90,14 +88,5 @@ export class UsuariosController {
         @Body() cambiarEstadoDto: CambiarEstadoDto,
     ) {
         return this.usuariosService.cambiarEstado(id, cambiarEstadoDto.activo);
-    }
-
-    @Delete(':id')
-    @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN)
-    @ApiOperacionProtegida('Eliminar usuario', 'Elimina un usuario del sistema')
-    @ApiResponse({ status: 200, description: 'Usuario eliminado' })
-    @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-    async eliminar(@Param('id', ParsearIdPipe) id: number) {
-        return this.usuariosService.eliminar(id);
     }
 }

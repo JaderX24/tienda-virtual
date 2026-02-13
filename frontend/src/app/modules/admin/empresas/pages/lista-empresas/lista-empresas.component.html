@@ -1,0 +1,284 @@
+<div class="pagina-empresas">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-info">
+            <h1 class="pagina-titulo">
+                <i class="bi bi-building-fill"></i>
+                Gestion de Empresas
+            </h1>
+            <p class="pagina-subtitulo">
+                Administra las empresas registradas en el sistema
+            </p>
+        </div>
+        <div class="header-acciones">
+            <a routerLink="nueva" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>
+                Nueva Empresa
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card filtros-card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Nombre o RTN..."
+                            [ngModel]="busqueda()"
+                            (ngModelChange)="busqueda.set($event)"
+                            (keyup.enter)="buscar()">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tipo de Negocio</label>
+                    <select
+                        class="form-select"
+                        [ngModel]="tipoSeleccionado()"
+                        (ngModelChange)="tipoSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos los tipos</option>
+                        @for (tipo of tiposNegocio; track tipo.valor) {
+                            <option [ngValue]="tipo.valor">{{ tipo.etiqueta }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Plan</label>
+                    <select
+                        class="form-select"
+                        [ngModel]="planSeleccionado()"
+                        (ngModelChange)="planSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos</option>
+                        @for (plan of planesSuscripcion; track plan.valor) {
+                            <option [ngValue]="plan.valor">{{ plan.etiqueta }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select
+                        class="form-select"
+                        [ngModel]="estadoSeleccionado()"
+                        (ngModelChange)="estadoSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos</option>
+                        <option [ngValue]="true">Activas</option>
+                        <option [ngValue]="false">Inactivas</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary flex-grow-1" (click)="buscar()">
+                            <i class="bi bi-search me-1"></i> Buscar
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido -->
+    @if (cargando()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando empresas...</p>
+                </div>
+            </div>
+        </div>
+    } @else if (errorCarga()) {
+        <div class="alert alert-danger d-flex align-items-center mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span>{{ errorCarga() }}</span>
+            <button type="button" class="btn btn-outline-danger btn-sm ms-auto" (click)="cargarEmpresas()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Reintentar
+            </button>
+        </div>
+    } @else {
+        <!-- Resumen -->
+        <div class="resumen-bar mb-3">
+            <span class="resumen-texto">
+                <strong>{{ totalEmpresas() }}</strong> empresas encontradas
+            </span>
+            <div class="resumen-paginacion">
+                Mostrando {{ (paginaActual() - 1) * limite() + 1 }} -
+                {{ paginaActual() * limite() > totalEmpresas() ? totalEmpresas() : paginaActual() * limite() }}
+            </div>
+        </div>
+
+        <!-- Tabla de empresas -->
+        <div class="card tabla-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="th-empresa">Empresa</th>
+                            <th class="th-rtn">RTN</th>
+                            <th class="th-tipo">Tipo</th>
+                            <th class="th-plan">Plan</th>
+                            <th class="th-estado">Estado</th>
+                            <th class="th-acciones text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (empresa of empresas(); track empresa.id) {
+                            <tr>
+                                <td>
+                                    <div class="empresa-info">
+                                        <div class="empresa-avatar" [class.inactivo]="!empresa.activa">
+                                            @if (empresa.logo) {
+                                                <img [src]="empresa.logo" [alt]="empresa.nombre">
+                                            } @else {
+                                                <span>{{ obtenerIniciales(empresa.nombre) }}</span>
+                                            }
+                                        </div>
+                                        <div class="empresa-datos">
+                                            <span class="empresa-nombre">{{ empresa.nombre }}</span>
+                                            <span class="empresa-correo">{{ empresa.correo }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="texto-rtn">{{ empresa.rtn }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge-tipo" [attr.data-tipo]="empresa.tipoNegocio">
+                                        {{ obtenerEtiquetaTipo(empresa.tipoNegocio) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge-plan" [attr.data-plan]="empresa.planSuscripcion">
+                                        {{ obtenerEtiquetaPlan(empresa.planSuscripcion) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge-estado"
+                                        [class.activo]="empresa.activa"
+                                        [class.inactivo]="!empresa.activa">
+                                        <i class="bi" [class.bi-check-circle-fill]="empresa.activa" [class.bi-x-circle-fill]="!empresa.activa"></i>
+                                        {{ empresa.activa ? 'Activa' : 'Inactiva' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="acciones-celda">
+                                        <a
+                                            [routerLink]="[empresa.id]"
+                                            class="btn-accion"
+                                            title="Ver detalle">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a
+                                            [routerLink]="[empresa.id, 'editar']"
+                                            class="btn-accion"
+                                            title="Editar empresa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button
+                                            class="btn-accion"
+                                            [class.activar]="!empresa.activa"
+                                            [class.desactivar]="empresa.activa"
+                                            [title]="empresa.activa ? 'Desactivar empresa' : 'Activar empresa'"
+                                            (click)="abrirModalEstado(empresa)">
+                                            <i class="bi" [class.bi-toggle-on]="empresa.activa" [class.bi-toggle-off]="!empresa.activa"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="bi bi-building"></i>
+                                        <h5>No se encontraron empresas</h5>
+                                        <p>Intenta cambiar los filtros de busqueda o registra una nueva empresa</p>
+                                        <a routerLink="nueva" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg me-2"></i>
+                                            Nueva Empresa
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Paginacion -->
+        @if (totalPaginas() > 1) {
+            <nav class="paginacion-nav mt-4">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item" [class.disabled]="paginaActual() === 1">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual() - 1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    </li>
+                    @for (pagina of obtenerPaginas(); track pagina) {
+                        <li class="page-item" [class.active]="pagina === paginaActual()">
+                            <button class="page-link" (click)="cambiarPagina(pagina)">
+                                {{ pagina }}
+                            </button>
+                        </li>
+                    }
+                    <li class="page-item" [class.disabled]="paginaActual() === totalPaginas()">
+                        <button class="page-link" (click)="cambiarPagina(paginaActual() + 1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+</div>
+
+<!-- Modal Cambiar Estado -->
+@if (mostrarModalEstado()) {
+    <div class="modal-overlay" (click)="cerrarModalEstado()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+            <div class="modal-header-custom" [class.activar]="!empresaSeleccionada()?.activa" [class.desactivar]="empresaSeleccionada()?.activa">
+                <div class="modal-icono">
+                    <i class="bi" [class.bi-toggle-on]="!empresaSeleccionada()?.activa" [class.bi-toggle-off]="empresaSeleccionada()?.activa"></i>
+                </div>
+                <h5>{{ empresaSeleccionada()?.activa ? 'Desactivar' : 'Activar' }} Empresa</h5>
+            </div>
+            <div class="modal-body-custom">
+                @if (empresaSeleccionada()?.activa) {
+                    <p>¿Estas seguro de que deseas desactivar la empresa <strong>{{ empresaSeleccionada()?.nombre }}</strong>?</p>
+                    <p class="text-muted small">La empresa no estara disponible en el sistema hasta que se reactive.</p>
+                } @else {
+                    <p>¿Deseas activar la empresa <strong>{{ empresaSeleccionada()?.nombre }}</strong>?</p>
+                    <p class="text-muted small">La empresa estara disponible nuevamente en el sistema.</p>
+                }
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn btn-secondary" (click)="cerrarModalEstado()" [disabled]="procesando()">
+                    Cancelar
+                </button>
+                <button
+                    class="btn"
+                    [class.btn-success]="!empresaSeleccionada()?.activa"
+                    [class.btn-warning]="empresaSeleccionada()?.activa"
+                    (click)="confirmarCambioEstado()"
+                    [disabled]="procesando()">
+                    @if (procesando()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    {{ empresaSeleccionada()?.activa ? 'Desactivar' : 'Activar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+}

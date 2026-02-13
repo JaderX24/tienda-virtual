@@ -2,11 +2,27 @@ export const PERMISOS_ADMIN = {
     // Acceso general al panel administrativo
     ACCESO: 'admin:acceso',
     
+    // Empresas
+    EMPRESAS_VER: 'empresas:ver',
+    EMPRESAS_CREAR: 'empresas:crear',
+    EMPRESAS_EDITAR: 'empresas:editar',
+    EMPRESAS_ELIMINAR: 'empresas:eliminar',
+
+    // Colaboradores
+    COLABORADORES_VER: 'colaboradores:ver',
+    COLABORADORES_CREAR: 'colaboradores:crear',
+    COLABORADORES_EDITAR: 'colaboradores:editar',
+    COLABORADORES_ELIMINAR: 'colaboradores:eliminar',
+
+    // Roles y Permisos de Colaboradores
+    COLAB_ROLES_VER: 'colab_roles:ver',
+    COLAB_ROLES_CREAR: 'colab_roles:crear',
+    COLAB_ROLES_EDITAR: 'colab_roles:editar',
+
     // Usuarios
     USUARIOS_VER: 'usuarios:ver',
     USUARIOS_CREAR: 'usuarios:crear',
     USUARIOS_EDITAR: 'usuarios:editar',
-    USUARIOS_ELIMINAR: 'usuarios:eliminar',
     
     // Roles
     ROLES_VER: 'roles:ver',

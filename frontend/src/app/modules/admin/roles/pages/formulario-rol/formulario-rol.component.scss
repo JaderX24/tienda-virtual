@@ -1,0 +1,241 @@
+$primary: #6366f1;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+.pagina-formulario-rol {
+    padding: 0;
+    max-width: 800px;
+}
+
+// Encabezado
+.pagina-header {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+
+    .breadcrumb-item {
+        a {
+            color: #64748b;
+            text-decoration: none;
+
+            &:hover {
+                color: $primary;
+            }
+        }
+
+        &.active {
+            color: #1e293b;
+        }
+
+        + .breadcrumb-item::before {
+            content: "›";
+            color: #cbd5e1;
+        }
+    }
+}
+
+.pagina-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+        color: $primary;
+    }
+}
+
+.pagina-subtitulo {
+    color: #64748b;
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+}
+
+// Formulario Card
+.formulario-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+// Secciones
+.seccion-formulario {
+    margin-bottom: 2rem;
+
+    &:last-of-type {
+        margin-bottom: 0;
+    }
+}
+
+.seccion-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+        color: $primary;
+    }
+}
+
+// Form Controls
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+
+    &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+
+    &.is-invalid {
+        border-color: $danger;
+
+        &:focus {
+            box-shadow: 0 0 0 3px rgba($danger, 0.1);
+        }
+    }
+
+    &[readonly] {
+        background-color: #f8fafc;
+        cursor: not-allowed;
+    }
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-text {
+    font-size: 0.75rem;
+    margin-top: 0.375rem;
+}
+
+.invalid-feedback {
+    font-size: 0.75rem;
+}
+
+// Switch
+.form-check-input {
+    width: 2.5rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+    cursor: pointer;
+
+    &:checked {
+        background-color: $primary;
+        border-color: $primary;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+}
+
+.form-check-label {
+    font-size: 0.875rem;
+    color: #475569;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+// Alert
+.alert-info {
+    background: #eff6ff;
+    border: none;
+    border-radius: 8px;
+    color: #1e40af;
+    font-size: 0.875rem;
+}
+
+// Acciones
+.formulario-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+
+    .btn {
+        padding: 0.625rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background: $primary;
+        border: none;
+
+        &:hover:not(:disabled) {
+            background: darken($primary, 8%);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+        }
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        border: none;
+        color: #475569;
+
+        &:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+    }
+}
+
+// Loading
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .pagina-formulario-rol {
+        max-width: 100%;
+    }
+
+    .formulario-acciones {
+        flex-direction: column-reverse;
+
+        .btn {
+            width: 100%;
+        }
+    }
+}

@@ -1,0 +1,589 @@
+<div class="detalle-tienda-container">
+  <!-- Header de la tienda -->
+  <div class="tienda-header mb-4 p-4 bg-white rounded shadow-sm">
+    <!-- Estado de carga -->
+    @if (estaCargando()) {
+      <div class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    } @else if (errorMensaje()) {
+      <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ errorMensaje() }}
+        <button type="button" class="btn btn-outline-danger ms-auto" (click)="irALista()">
+          <i class="bi bi-arrow-left me-1"></i>
+          Volver al listado
+        </button>
+      </div>
+    } @else if (datosTienda()) {
+      <div class="row align-items-center">
+        <!-- Logo y información básica -->
+        <div class="col-lg-8">
+          <div class="d-flex align-items-center">
+            <!-- Logo -->
+            <div class="tienda-logo-container me-3 position-relative">
+              <div class="tienda-logo" (click)="abrirModalLogo()">
+                <img [src]="obtenerUrlLogo()" [alt]="datosTienda()!.nombre" 
+                     class="logo-imagen">
+                <div class="logo-overlay">
+                  <i class="bi bi-camera"></i>
+                </div>
+              </div>
+              @if (estaAbiertaAhora()) {
+                <div class="estado-operativo abierto">
+                  <i class="bi bi-dot"></i>
+                </div>
+              } @else {
+                <div class="estado-operativo cerrado">
+                  <i class="bi bi-dot"></i>
+                </div>
+              }
+            </div>
+
+            <!-- Información básica -->
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center mb-2">
+                <h1 class="display-6 fw-bold mb-0 me-3">{{ datosTienda()!.nombre }}</h1>
+                <span class="badge bg-{{ obtenerClaseEstado(datosTienda()!.estado) }} fs-6">
+                  {{ obtenerEstadoTexto(datosTienda()!.estado) }}
+                </span>
+              </div>
+              
+              <div class="d-flex flex-wrap gap-3 text-muted">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-building me-1"></i>
+                  {{ obtenerTipoNegocioTexto(datosTienda()!.tipoNegocio) }}
+                </div>
+                @if (datosTienda()!.tipoTienda) {
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-shop me-1"></i>
+                    {{ obtenerTipoTiendaTexto(datosTienda()!.tipoTienda!) }}
+                  </div>
+                }
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  {{ datosTienda()!.ubicacion.ciudad }}, {{ datosTienda()!.ubicacion.departamento }}
+                </div>
+                <div class="d-flex align-items-center">
+                  <i class="bi {{ obtenerIconoPlan(datosTienda()!.planSuscripcion) }} me-1" 
+                     [style.color]="obtenerColorPlan(datosTienda()!.planSuscripcion)"></i>
+                  {{ obtenerPlanTexto(datosTienda()!.planSuscripcion) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="col-lg-4 text-end mt-3 mt-lg-0">
+          <div class="d-flex flex-column flex-lg-row gap-2">
+            <button type="button" class="btn btn-outline-primary" (click)="irAEditar()">
+              <i class="bi bi-pencil me-1"></i>
+              Editar
+            </button>
+            <button type="button" class="btn btn-outline-warning" (click)="abrirModalCambiarEstado()">
+              <i class="bi bi-arrow-repeat me-1"></i>
+              Cambiar Estado
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="irALista()">
+              <i class="bi bi-arrow-left me-1"></i>
+              Volver
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Tabs de navegación -->
+  @if (datosTienda() && !estaCargando()) {
+    <div class="tienda-tabs bg-white rounded shadow-sm">
+      <!-- Tab headers -->
+      <nav class="nav nav-tabs border-0 px-4 pt-3" role="tablist">
+        @for (tab of tabs; track tab.id) {
+          <button class="nav-link" 
+                  [class.active]="tabSeleccionado() === tab.id"
+                  (click)="seleccionarTab(tab.id)">
+            <i class="bi {{ tab.icono }} me-2"></i>
+            {{ tab.titulo }}
+          </button>
+        }
+      </nav>
+
+      <!-- Tab content -->
+      <div class="tab-content p-4">
+        <!-- Tab General -->
+        @if (tabSeleccionado() === 'general') {
+          <div class="tab-pane fade show active">
+            <div class="row g-4">
+              <!-- Información básica -->
+              <div class="col-md-6">
+                <div class="info-card h-100">
+                  <h5 class="card-title mb-3">
+                    <i class="bi bi-info-circle me-2 text-primary"></i>
+                    Información General
+                  </h5>
+                  
+                  <div class="info-item">
+                    <label class="form-label">RTN:</label>
+                    <p class="form-control-plaintext">{{ datosTienda()!.rtn }}</p>
+                  </div>
+
+                  <div class="info-item">
+                    <label class="form-label">Tipo de Negocio:</label>
+                    <p class="form-control-plaintext">{{ obtenerTipoNegocioTexto(datosTienda()!.tipoNegocio) }}</p>
+                  </div>
+
+                  <div class="info-item">
+                    <label class="form-label">Tipo de Tienda:</label>
+                    <p class="form-control-plaintext">
+                      @if (datosTienda()!.tipoTienda) {
+                        {{ obtenerTipoTiendaTexto(datosTienda()!.tipoTienda!) }}
+                      } @else {
+                        <span class="text-muted">No especificado</span>
+                      }
+                    </p>
+                  </div>
+
+                  <div class="info-item">
+                    <label class="form-label">Plan:</label>
+                    <p class="form-control-plaintext">
+                      <i class="bi {{ obtenerIconoPlan(datosTienda()!.planSuscripcion) }} me-1" 
+                         [style.color]="obtenerColorPlan(datosTienda()!.planSuscripcion)"></i>
+                      {{ obtenerPlanTexto(datosTienda()!.planSuscripcion) }}
+                    </p>
+                  </div>
+
+                  <div class="info-item mb-0">
+                    <label class="form-label">Estado:</label>
+                    <p class="form-control-plaintext">
+                      <span class="badge bg-{{ obtenerClaseEstado(datosTienda()!.estado) }}">
+                        {{ obtenerEstadoTexto(datosTienda()!.estado) }}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fechas y metadatos -->
+              <div class="col-md-6">
+                <div class="info-card h-100">
+                  <h5 class="card-title mb-3">
+                    <i class="bi bi-calendar me-2 text-primary"></i>
+                    Fechas
+                  </h5>
+                  
+                  <div class="info-item">
+                    <label class="form-label">Fecha de Creación:</label>
+                    <p class="form-control-plaintext">{{ formatearFecha(datosTienda()!.creadoEn) }}</p>
+                  </div>
+
+                  <div class="info-item">
+                    <label class="form-label">Última Actualización:</label>
+                    <p class="form-control-plaintext">{{ formatearFecha(datosTienda()!.actualizadoEn) }}</p>
+                  </div>
+
+                  <div class="info-item">
+                    <label class="form-label">Moneda:</label>
+                    <p class="form-control-plaintext">{{ datosTienda()!.moneda }}</p>
+                  </div>
+
+                  <div class="info-item mb-0">
+                    <label class="form-label">Zona Horaria:</label>
+                    <p class="form-control-plaintext">{{ datosTienda()!.zonaHoraria }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab Ubicación -->
+        @if (tabSeleccionado() === 'ubicacion') {
+          <div class="tab-pane fade show active">
+            <div class="info-card">
+              <h5 class="card-title mb-3">
+                <i class="bi bi-geo-alt me-2 text-primary"></i>
+                Dirección Completa
+              </h5>
+              
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Dirección:</label>
+                  <p class="form-control-plaintext">{{ datosTienda()!.ubicacion.direccion }}</p>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Ciudad:</label>
+                  <p class="form-control-plaintext">{{ datosTienda()!.ubicacion.ciudad }}</p>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Departamento:</label>
+                  <p class="form-control-plaintext">{{ datosTienda()!.ubicacion.departamento }}</p>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">País:</label>
+                  <p class="form-control-plaintext">{{ datosTienda()!.ubicacion.pais }}</p>
+                </div>
+
+                @if (datosTienda()!.ubicacion.latitud && datosTienda()!.ubicacion.longitud) {
+                  <div class="col-md-6">
+                    <label class="form-label">Latitud:</label>
+                    <p class="form-control-plaintext">{{ datosTienda()!.ubicacion.latitud }}</p>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Longitud:</label>
+                    <p class="form-control-plaintext">{{ datosTienda()!.ubicacion.longitud }}</p>
+                  </div>
+                }
+
+                <div class="col-12">
+                  <div class="alert alert-info">
+                    <i class="bi bi-map me-2"></i>
+                    <strong>Dirección Completa:</strong> {{ formatearDireccionCompleta() }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab Contacto -->
+        @if (tabSeleccionado() === 'contacto') {
+          <div class="tab-pane fade show active">
+            <div class="info-card">
+              <h5 class="card-title mb-3">
+                <i class="bi bi-telephone me-2 text-primary"></i>
+                Información de Contacto
+              </h5>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Correo Electrónico:</label>
+                  <p class="form-control-plaintext">
+                    <a [href]="'mailto:' + datosTienda()!.correo" class="text-decoration-none">
+                      <i class="bi bi-envelope me-1"></i>
+                      {{ datosTienda()!.correo }}
+                    </a>
+                  </p>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Teléfono:</label>
+                  <p class="form-control-plaintext">
+                    @if (datosTienda()!.telefono) {
+                      <a [href]="'tel:' + datosTienda()!.telefono" class="text-decoration-none">
+                        <i class="bi bi-telephone me-1"></i>
+                        {{ datosTienda()!.telefono }}
+                      </a>
+                    } @else {
+                      <span class="text-muted">No especificado</span>
+                    }
+                  </p>
+                </div>
+
+                @if (datosTienda()!.celular) {
+                  <div class="col-md-6">
+                    <label class="form-label">Celular:</label>
+                    <p class="form-control-plaintext">
+                      <a [href]="'tel:' + datosTienda()!.celular" class="text-decoration-none">
+                        <i class="bi bi-phone me-1"></i>
+                        {{ datosTienda()!.celular }}
+                      </a>
+                    </p>
+                  </div>
+                }
+
+                @if (datosTienda()!.sitioWeb) {
+                  <div class="col-md-6">
+                    <label class="form-label">Sitio Web:</label>
+                    <p class="form-control-plaintext">
+                      <a [href]="datosTienda()!.sitioWeb" target="_blank" class="text-decoration-none">
+                        <i class="bi bi-globe me-1"></i>
+                        {{ datosTienda()!.sitioWeb }}
+                        <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                      </a>
+                    </p>
+                  </div>
+                }
+
+                <!-- Redes sociales si existen -->
+                @if (datosTienda()!.redesSociales) {
+                  <div class="col-12">
+                    <label class="form-label">Redes Sociales:</label>
+                    <div class="redes-sociales-grid">
+                      @if (datosTienda()!.redesSociales!.facebook) {
+                        <a [href]="datosTienda()!.redesSociales!.facebook" target="_blank" 
+                           class="btn btn-outline-primary btn-sm">
+                          <i class="bi bi-facebook me-1"></i>
+                          Facebook
+                        </a>
+                      }
+                      @if (datosTienda()!.redesSociales!.instagram) {
+                        <a [href]="datosTienda()!.redesSociales!.instagram" target="_blank" 
+                           class="btn btn-outline-danger btn-sm">
+                          <i class="bi bi-instagram me-1"></i>
+                          Instagram
+                        </a>
+                      }
+                      @if (datosTienda()!.redesSociales!.whatsapp) {
+                        <a [href]="'https://wa.me/' + datosTienda()!.redesSociales!.whatsapp" target="_blank" 
+                           class="btn btn-outline-success btn-sm">
+                          <i class="bi bi-whatsapp me-1"></i>
+                          WhatsApp
+                        </a>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab Horarios -->
+        @if (tabSeleccionado() === 'horarios') {
+          <div class="tab-pane fade show active">
+            <div class="info-card">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-clock me-2 text-primary"></i>
+                  Horarios de Atención
+                </h5>
+                @if (estaAbiertaAhora()) {
+                  <span class="badge bg-success">
+                    <i class="bi bi-dot fs-4"></i>
+                    Abierto Ahora
+                  </span>
+                } @else {
+                  <span class="badge bg-secondary">
+                    <i class="bi bi-dot fs-4"></i>
+                    Cerrado
+                  </span>
+                }
+              </div>
+              
+              @if (datosTienda()!.horarioAtencion) {
+                <div class="horarios-grid">
+                  @for (dia of diasSemana; track dia.clave) {
+                    <div class="horario-dia">
+                      <div class="dia-nombre">{{ dia.nombre }}</div>
+                      <div class="dia-horario">
+                        {{ formatearHorarioDia(datosTienda()!.horarioAtencion![dia.clave]) }}
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="alert alert-info">
+                  <i class="bi bi-info-circle me-2"></i>
+                  No se han configurado horarios de atención
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Tab Configuración -->
+        @if (tabSeleccionado() === 'configuracion') {
+          <div class="tab-pane fade show active">
+            <div class="row g-4">
+              <!-- Configuración básica -->
+              <div class="col-md-6">
+                <div class="info-card h-100">
+                  <h6 class="card-subtitle mb-3">
+                    <i class="bi bi-gear me-2 text-primary"></i>
+                    Configuración Técnica
+                  </h6>
+                  
+                  <div class="info-item">
+                    <label class="form-label">Moneda Base:</label>
+                    <p class="form-control-plaintext">{{ datosTienda()!.moneda }}</p>
+                  </div>
+
+                  <div class="info-item">
+                    <label class="form-label">Zona Horaria:</label>
+                    <p class="form-control-plaintext">{{ datosTienda()!.zonaHoraria }}</p>
+                  </div>
+
+                  <div class="info-item mb-0">
+                    <label class="form-label">Estado Activo:</label>
+                    <p class="form-control-plaintext">
+                      @if (datosTienda()!.activa) {
+                        <span class="text-success"><i class="bi bi-check-circle me-1"></i>Sí</span>
+                      } @else {
+                        <span class="text-danger"><i class="bi bi-x-circle me-1"></i>No</span>
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Configuración adicional si existe -->
+              <div class="col-md-6">
+                <div class="info-card h-100">
+                  <h6 class="card-subtitle mb-3">
+                    <i class="bi bi-sliders me-2 text-primary"></i>
+                    Configuración Avanzada
+                  </h6>
+                  
+                  @if (datosTienda()!.configuracion) {
+                    <!-- Mostrar configuraciones específicas si existen -->
+                    <div class="small text-muted">
+                      Configuraciones específicas del negocio aparecerán aquí
+                    </div>
+                  } @else {
+                    <div class="text-muted small">
+                      No hay configuraciones específicas definidas
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab Estadísticas -->
+        @if (tabSeleccionado() === 'estadisticas') {
+          <div class="tab-pane fade show active">
+            @if (estadisticasTienda()) {
+              <div class="row g-3 mb-4">
+                <!-- Cards de estadísticas -->
+                <div class="col-sm-6 col-lg-3">
+                  <div class="stat-card text-center">
+                    <i class="bi bi-box-seam stat-icon text-primary"></i>
+                    <h4 class="stat-number">{{ estadisticasTienda()?.productosActivos || 0 }}</h4>
+                    <p class="stat-label">Productos</p>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="stat-card text-center">
+                    <i class="bi bi-cart-check stat-icon text-success"></i>
+                    <h4 class="stat-number">{{ estadisticasTienda()?.pedidosDelMes || 0 }}</h4>
+                    <p class="stat-label">Pedidos del Mes</p>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="stat-card text-center">
+                    <i class="bi bi-people stat-icon text-info"></i>
+                    <h4 class="stat-number">{{ estadisticasTienda()?.clientesActivos || 0 }}</h4>
+                    <p class="stat-label">Clientes</p>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <div class="stat-card text-center">
+                    <i class="bi bi-currency-dollar stat-icon text-warning"></i>
+                    <h4 class="stat-number">{{ formatearMoneda(estadisticasTienda()?.ventasDelMes || 0) }}</h4>
+                    <p class="stat-label">Ventas del Mes</p>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="alert alert-info">
+                <i class="bi bi-graph-up me-2"></i>
+                Las estadísticas se están cargando...
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Modal para cambiar estado -->
+  @if (modalEstadoAbierto()) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-arrow-repeat me-2"></i>
+              Cambiar Estado de Tienda
+            </h5>
+            <button type="button" class="btn-close" (click)="cerrarModalCambiarEstado()"></button>
+          </div>
+          <div class="modal-body">
+            <p>Selecciona el nuevo estado para <strong>{{ datosTienda()?.nombre }}</strong>:</p>
+            
+            <div class="estados-grid">
+              @for (estado of estadosDisponibles; track estado.valor) {
+                <div class="form-check estado-option"
+                     [class.selected]="estadoSeleccionado() === estado.valor">
+                  <input class="form-check-input" 
+                         type="radio" 
+                         [value]="estado.valor"
+                         [checked]="estadoSeleccionado() === estado.valor"
+                         (change)="seleccionarNuevoEstado(estado.valor)">
+                  <label class="form-check-label">
+                    <span class="badge bg-{{ estado.clase }} me-2">{{ estado.texto }}</span>
+                  </label>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalCambiarEstado()">
+              Cancelar
+            </button>
+            <button type="button" 
+                    class="btn btn-primary" 
+                    [disabled]="!estadoSeleccionado() || estaCargandoOperacion()"
+                    (click)="confirmarCambioEstado()">
+              @if (estaCargandoOperacion()) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              Actualizar Estado
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal para cambiar logo -->
+  @if (modalLogoAbierto()) {
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-camera me-2"></i>
+              Cambiar Logo
+            </h5>
+            <button type="button" class="btn-close" (click)="cerrarModalLogo()"></button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="mb-3">
+              <img [src]="obtenerUrlLogo()" [alt]="datosTienda()?.nombre" 
+                   class="logo-preview mb-3">
+            </div>
+            
+            <div class="mb-3">
+              <label for="logoFile" class="form-label">Seleccionar nuevo logo:</label>
+              <input type="file" 
+                     class="form-control" 
+                     id="logoFile"
+                     accept="image/*"
+                     (change)="onArchivoLogoSeleccionado($event)">
+            </div>
+            
+            <div class="alert alert-info small">
+              <i class="bi bi-info-circle me-1"></i>
+              Formato recomendado: PNG o JPG, máximo 5MB, dimensión cuadrada preferida
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="cerrarModalLogo()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

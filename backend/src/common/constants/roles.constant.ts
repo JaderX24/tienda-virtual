@@ -75,6 +75,12 @@ export const PERMISOS = {
     // Configuración
     CONFIGURACION_VER: 'configuracion:ver',
     CONFIGURACION_EDITAR: 'configuracion:editar',
+
+    // Empresas
+    EMPRESAS_VER: 'empresas:ver',
+    EMPRESAS_CREAR: 'empresas:crear',
+    EMPRESAS_EDITAR: 'empresas:editar',
+    EMPRESAS_ELIMINAR: 'empresas:eliminar',
 } as const;
 
 export type TipoPermiso = (typeof PERMISOS)[keyof typeof PERMISOS];
@@ -97,6 +103,7 @@ export const PERMISOS_POR_ROL: Record<TipoRol, TipoPermiso[]> = {
         PERMISOS.CLIENTES_VER,
         PERMISOS.REPORTES_VER,
         PERMISOS.REPORTES_EXPORTAR,
+        PERMISOS.EMPRESAS_VER,
     ],
     [ROLES.VENDEDOR]: [
         PERMISOS.ADMIN_ACCESO,

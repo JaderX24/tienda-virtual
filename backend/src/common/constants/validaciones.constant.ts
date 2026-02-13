@@ -11,8 +11,8 @@ export const VALIDACIONES = {
     // Correo
     CORREO_LONGITUD_MAXIMA: 255,
 
-    // Teléfono (Honduras)
-    TELEFONO_REGEX: /^(\+504)?[2389]\d{7}$/,
+    // Teléfono internacional (acepta códigos de país seguidos de 7-15 dígitos)
+    TELEFONO_REGEX: /^\+[1-9]\d{0,3}\d{6,14}$/,
 
     // Paginación
     PAGINA_MINIMA: 1,

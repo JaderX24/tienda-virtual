@@ -164,12 +164,6 @@
                                             (click)="abrirModalEstado(usuario)">
                                             <i class="bi" [class.bi-toggle-on]="usuario.activo" [class.bi-toggle-off]="!usuario.activo"></i>
                                         </button>
-                                        <button 
-                                            class="btn-accion eliminar"
-                                            title="Eliminar usuario"
-                                            (click)="abrirModalEliminar(usuario)">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -219,35 +213,6 @@
         }
     }
 </div>
-
-<!-- Modal Eliminar -->
-@if (mostrarModalEliminar()) {
-    <div class="modal-overlay" (click)="cerrarModalEliminar()">
-        <div class="modal-contenido" (click)="$event.stopPropagation()">
-            <div class="modal-header-custom eliminar">
-                <div class="modal-icono">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <h5>Eliminar Usuario</h5>
-            </div>
-            <div class="modal-body-custom">
-                <p>¿Estás seguro de que deseas eliminar al usuario <strong>{{ usuarioSeleccionado()?.nombre }}</strong>?</p>
-                <p class="text-muted small">Esta acción no se puede deshacer y se perderán todos los datos asociados.</p>
-            </div>
-            <div class="modal-footer-custom">
-                <button class="btn btn-secondary" (click)="cerrarModalEliminar()" [disabled]="procesando()">
-                    Cancelar
-                </button>
-                <button class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="procesando()">
-                    @if (procesando()) {
-                        <span class="spinner-border spinner-border-sm me-2"></span>
-                    }
-                    Eliminar
-                </button>
-            </div>
-        </div>
-    </div>
-}
 
 <!-- Modal Cambiar Estado -->
 @if (mostrarModalEstado()) {

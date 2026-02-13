@@ -15,7 +15,7 @@ export class RolesService {
     constructor(private prisma: PrismaService) {}
 
     async crear(crearRolDto: CrearRolDto) {
-        const { codigo, nombre, descripcion } = crearRolDto;
+        const { codigo, nombre, descripcion, activo = true } = crearRolDto;
 
         const rolExistente = await this.prisma.rol.findUnique({
             where: { codigo },
@@ -30,7 +30,7 @@ export class RolesService {
                 codigo,
                 nombre,
                 descripcion,
-                activo: true,
+                activo,
             },
         });
 
@@ -90,6 +90,48 @@ export class RolesService {
             cantidadUsuarios: rol._count.usuarios,
             permisos: rol.permisos.map(rp => rp.permiso),
             _count: undefined,
+        };
+    }
+
+    async obtenerPermisos(id: number) {
+        const rol = await this.prisma.rol.findUnique({
+            where: { id },
+            include: {
+                permisos: {
+                    include: { permiso: true },
+                },
+            },
+        });
+
+        if (!rol) {
+            throw new NotFoundException('Rol no encontrado');
+        }
+
+        return rol.permisos.map(rp => rp.permiso);
+    }
+
+    async cambiarEstado(id: number, activo: boolean) {
+        const rol = await this.prisma.rol.findUnique({ where: { id } });
+
+        if (!rol) {
+            throw new NotFoundException('Rol no encontrado');
+        }
+
+        const rolesProtegidos = ['super_admin', 'admin'];
+        if (rolesProtegidos.includes(rol.codigo)) {
+            throw new ConflictException('No se puede cambiar el estado de roles del sistema');
+        }
+
+        const rolActualizado = await this.prisma.rol.update({
+            where: { id },
+            data: { activo },
+        });
+
+        this.logger.log(`Estado de rol cambiado: ${rol.codigo} -> ${activo ? 'activo' : 'inactivo'}`);
+
+        return {
+            mensaje: activo ? 'Rol activado correctamente' : 'Rol desactivado correctamente',
+            rol: rolActualizado,
         };
     }
 

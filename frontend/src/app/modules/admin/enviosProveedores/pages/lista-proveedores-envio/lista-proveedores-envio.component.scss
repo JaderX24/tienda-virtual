@@ -1,0 +1,778 @@
+$primary: #6366f1;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$info: #3b82f6;
+$orange: #f97316;
+$purple: #8b5cf6;
+$teal: #14b8a6;
+
+.pagina-proveedores-envio {
+    padding: 0;
+}
+
+.pagina-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pagina-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i { color: $primary; }
+}
+
+.pagina-subtitulo {
+    color: #64748b;
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+}
+
+.header-acciones {
+    .btn-primary {
+        padding: 0.625rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        background: $primary;
+        border: none;
+
+        &:hover {
+            background: darken($primary, 8%);
+            transform: translateY(-1px);
+        }
+    }
+}
+
+.filtros-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    .card-body { padding: 1.25rem; }
+
+    .form-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.375rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 0.5rem 0.875rem;
+        font-size: 0.875rem;
+
+        &:focus {
+            border-color: $primary;
+            box-shadow: 0 0 0 3px rgba($primary, 0.1);
+        }
+    }
+
+    .input-group-text {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        border-radius: 8px 0 0 8px;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.5rem 0.875rem;
+
+        &.btn-primary {
+            background: $primary;
+            border-color: $primary;
+        }
+    }
+}
+
+.loading-container {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.resumen-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+
+    .resumen-texto { color: #374151; }
+    .resumen-paginacion { color: #6b7280; }
+}
+
+// Tarjetas de proveedores
+.tarjeta-proveedor {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    height: 100%;
+
+    &:hover {
+        border-color: $primary;
+        box-shadow: 0 4px 12px rgba($primary, 0.12);
+        transform: translateY(-2px);
+    }
+
+    &.inactiva {
+        opacity: 0.7;
+        border-color: #e2e8f0;
+        background: #fafafa;
+
+        &:hover {
+            opacity: 0.85;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+    }
+
+    .card-body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
+
+.proveedor-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+
+    .proveedor-icono {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+
+        &[data-tipo="interno"] {
+            background: linear-gradient(135deg, rgba($primary, 0.15) 0%, rgba($primary, 0.05) 100%);
+            color: $primary;
+        }
+
+        &[data-tipo="externo"] {
+            background: linear-gradient(135deg, rgba($teal, 0.15) 0%, rgba($teal, 0.05) 100%);
+            color: $teal;
+        }
+
+        &[data-tipo="freelance"] {
+            background: linear-gradient(135deg, rgba($purple, 0.15) 0%, rgba($purple, 0.05) 100%);
+            color: $purple;
+        }
+
+        &[data-tipo="empresa_courier"] {
+            background: linear-gradient(135deg, rgba($orange, 0.15) 0%, rgba($orange, 0.05) 100%);
+            color: $orange;
+        }
+
+        .proveedor-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+    }
+
+    .proveedor-titulo {
+        flex: 1;
+        min-width: 0;
+
+        .proveedor-nombre {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .proveedor-codigo {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+    }
+
+    .proveedor-estado-wrapper {
+        flex-shrink: 0;
+    }
+}
+
+.badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    &.activo {
+        background: rgba($success, 0.1);
+        color: $success;
+    }
+
+    &.inactivo {
+        background: rgba(#6b7280, 0.1);
+        color: #6b7280;
+    }
+}
+
+.proveedor-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.badge-tipo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+
+    &[data-tipo="interno"] { background: rgba($primary, 0.08); color: $primary; }
+    &[data-tipo="externo"] { background: rgba($teal, 0.08); color: $teal; }
+    &[data-tipo="freelance"] { background: rgba($purple, 0.08); color: $purple; }
+    &[data-tipo="empresa_courier"] { background: rgba($orange, 0.08); color: $orange; }
+}
+
+.badge-empresa,
+.badge-rtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(#64748b, 0.08);
+    color: #475569;
+}
+
+.proveedor-descripcion {
+    font-size: 0.8rem;
+    color: #64748b;
+    line-height: 1.4;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.proveedor-contacto {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.625rem 0.875rem;
+    background: #f8fafc;
+    border-radius: 8px;
+
+    .contacto-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: #475569;
+
+        i {
+            font-size: 0.7rem;
+            color: $primary;
+            width: 14px;
+            text-align: center;
+        }
+
+        span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+.proveedor-servicios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+
+    .badge-servicio {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        background: rgba($info, 0.08);
+        color: $info;
+
+        i { font-size: 0.6rem; }
+    }
+}
+
+.proveedor-operativa {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.625rem 0.875rem;
+    background: #f8fafc;
+    border-radius: 8px;
+
+    .operativa-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        flex: 1;
+
+        .operativa-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .operativa-valor {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+    }
+
+    .operativa-separador {
+        width: 1px;
+        height: 28px;
+        background: #e2e8f0;
+    }
+}
+
+.proveedor-indicadores {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    .indicador-calificacion {
+        display: flex;
+        align-items: center;
+        gap: 0.15rem;
+
+        .estrella-llena { color: $warning; font-size: 0.75rem; }
+        .estrella-media { color: $warning; font-size: 0.75rem; }
+        .estrella-vacia { color: #d1d5db; font-size: 0.75rem; }
+
+        .calificacion-numero {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+            margin-left: 0.3rem;
+        }
+    }
+
+    .indicador-capacidades {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+
+        .badge-capacidad {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 500;
+            background: rgba($success, 0.08);
+            color: $success;
+
+            i { font-size: 0.55rem; }
+
+            &.mas {
+                background: rgba(#64748b, 0.08);
+                color: #64748b;
+            }
+        }
+    }
+}
+
+.proveedor-zonas {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+
+    .zonas-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .badge-zona {
+        display: inline-flex;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        background: rgba($teal, 0.08);
+        color: $teal;
+    }
+}
+
+.proveedor-acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f1f5f9;
+
+    .btn {
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.375rem 0.75rem;
+
+        &.btn-outline-primary { color: $primary; border-color: $primary; &:hover { background: $primary; color: white; } }
+        &.btn-outline-info { color: $info; border-color: $info; &:hover { background: $info; color: white; } }
+        &.btn-outline-success { &:hover { background: $success; color: white; } }
+        &.btn-outline-warning { &:hover { background: $warning; color: white; } }
+        &.btn-outline-secondary { &:hover { background: #6b7280; color: white; } }
+    }
+}
+
+.proveedor-fecha {
+    padding-top: 0.25rem;
+    small { font-size: 0.7rem; }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+
+    i {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    h5 { color: #374151; margin-bottom: 0.5rem; }
+    p { margin-bottom: 1.5rem; font-size: 0.9rem; }
+}
+
+.paginacion-nav {
+    .pagination {
+        gap: 0.25rem;
+
+        .page-item {
+            .page-link {
+                border: 1px solid #e2e8f0;
+                color: #64748b;
+                padding: 0.5rem 0.875rem;
+                border-radius: 6px;
+                font-size: 0.875rem;
+                margin: 0;
+
+                &:hover {
+                    background: #f8fafc;
+                    border-color: $primary;
+                    color: $primary;
+                }
+            }
+
+            &.active .page-link {
+                background: $primary;
+                border-color: $primary;
+                color: white;
+            }
+
+            &.disabled .page-link {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+// Modales
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    backdrop-filter: blur(4px);
+}
+
+.modal-contenido {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    max-width: 480px;
+    width: 90%;
+    overflow: hidden;
+
+    &.modal-detalle {
+        max-width: 640px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.modal-header-custom {
+    padding: 1.5rem 1.5rem 1rem;
+    text-align: center;
+
+    &.activar {
+        background: linear-gradient(135deg, rgba($success, 0.1) 0%, rgba($success, 0.05) 100%);
+    }
+
+    &.desactivar {
+        background: linear-gradient(135deg, rgba($warning, 0.1) 0%, rgba($warning, 0.05) 100%);
+    }
+
+    &.detalle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-icono {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin: 0 auto 1rem;
+        background: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .btn-cerrar {
+        background: transparent;
+        border: none;
+        font-size: 1.25rem;
+        color: #64748b;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+
+        &:hover { color: #1e293b; background: #e2e8f0; }
+    }
+}
+
+.proveedor-icono-lg {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+
+    &[data-tipo="interno"] { background: rgba($primary, 0.12); color: $primary; }
+    &[data-tipo="externo"] { background: rgba($teal, 0.12); color: $teal; }
+    &[data-tipo="freelance"] { background: rgba($purple, 0.12); color: $purple; }
+    &[data-tipo="empresa_courier"] { background: rgba($orange, 0.12); color: $orange; }
+}
+
+.modal-body-custom {
+    padding: 1rem 1.5rem;
+    text-align: center;
+
+    p { margin-bottom: 0.5rem; color: #374151; }
+    .alert { text-align: left; font-size: 0.8rem; }
+
+    &.detalle-body {
+        text-align: left;
+        overflow-y: auto;
+        max-height: calc(85vh - 180px);
+        padding: 1rem 1.5rem;
+    }
+}
+
+.detalle-seccion {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+
+    &:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .detalle-seccion-titulo {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i { color: $primary; font-size: 0.9rem; }
+    }
+}
+
+.detalle-campo {
+    .campo-label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.125rem;
+    }
+
+    .campo-valor {
+        display: block;
+        font-size: 0.8rem;
+        color: #1e293b;
+        font-weight: 500;
+    }
+}
+
+.contactos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .contacto-card {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fafafa;
+
+        &.principal {
+            border-color: rgba($primary, 0.3);
+            background: rgba($primary, 0.02);
+        }
+
+        .contacto-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.375rem;
+
+            strong { font-size: 0.8rem; color: #1e293b; }
+            .badge-sm { font-size: 0.6rem; padding: 0.15rem 0.4rem; }
+        }
+
+        .contacto-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+
+            span {
+                font-size: 0.7rem;
+                color: #64748b;
+                display: flex;
+                align-items: center;
+
+                i { font-size: 0.65rem; color: #94a3b8; }
+            }
+        }
+    }
+}
+
+.modal-footer-custom {
+    padding: 1rem 1.5rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+
+    .btn {
+        min-width: 100px;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+}
+
+// Responsive
+@media (max-width: 992px) {
+    .pagina-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filtros-card .row.g-3 {
+        row-gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .resumen-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .proveedor-acciones {
+        flex-wrap: wrap;
+    }
+
+    .proveedor-operativa {
+        flex-direction: column;
+        gap: 0.5rem;
+
+        .operativa-separador {
+            width: 100%;
+            height: 1px;
+        }
+
+        .operativa-item {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+
+    .modal-contenido {
+        margin: 1rem;
+        max-width: none;
+        width: calc(100% - 2rem);
+
+        &.modal-detalle {
+            max-height: 90vh;
+        }
+    }
+}

@@ -35,14 +35,14 @@ export class RegistroDto {
     contrasena!: string;
 
     @ApiProperty({
-        description: 'Teléfono del usuario (formato Honduras)',
+        description: 'Teléfono del usuario con código de país',
         example: '+50499887766',
         required: false,
     })
     @IsOptional()
     @IsString()
     @Matches(VALIDACIONES.TELEFONO_REGEX, {
-        message: 'El teléfono debe tener un formato válido de Honduras',
+        message: 'El teléfono debe incluir código de país y número válido (ej: +50499887766)',
     })
     telefono?: string;
 }

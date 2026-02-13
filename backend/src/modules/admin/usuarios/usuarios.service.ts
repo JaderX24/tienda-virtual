@@ -15,6 +15,8 @@ import {
     CambiarContrasenaDto 
 } from './dto';
 import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
+import { generarContrasenaSegura } from '../../../common/utils';
+import { CorreoService } from '../../../common/services';
 
 @Injectable()
 export class UsuariosService {
@@ -23,19 +25,21 @@ export class UsuariosService {
     constructor(
         private prisma: PrismaService,
         private configService: ConfigService,
+        private correoService: CorreoService,
     ) {}
 
     async crear(crearUsuarioDto: CrearUsuarioDto) {
-        const { correo, contrasena, nombre, telefono, rolId } = crearUsuarioDto;
+        const { correo, rolId } = crearUsuarioDto;
 
         const usuarioExistente = await this.prisma.usuario.findUnique({
             where: { correo },
         });
 
         if (usuarioExistente) {
-            throw new ConflictException(MENSAJES_ERROR.USUARIO_YA_EXISTE);
+            throw new ConflictException('El correo electrónico ya está registrado');
         }
 
+        let nombreRol: string | undefined;
         if (rolId) {
             const rolExiste = await this.prisma.rol.findUnique({
                 where: { id: rolId },
@@ -44,18 +48,21 @@ export class UsuariosService {
             if (!rolExiste) {
                 throw new BadRequestException('El rol especificado no existe');
             }
+            nombreRol = rolExiste.nombre;
         }
 
+        const contrasenaGenerada = generarContrasenaSegura(16);
         const bcryptRounds = this.configService.get<number>('seguridad.bcryptRounds') || 12;
-        const contrasenaHash = await bcrypt.hash(contrasena, bcryptRounds);
+        const contrasenaHash = await bcrypt.hash(contrasenaGenerada, bcryptRounds);
 
         const usuario = await this.prisma.usuario.create({
             data: {
-                nombre,
-                correo,
+                nombre: crearUsuarioDto.nombre,
+                correo: crearUsuarioDto.correo,
                 contrasenaHash,
-                telefono,
-                rolId,
+                telefono: crearUsuarioDto.telefono,
+                avatar: crearUsuarioDto.avatar,
+                rolId: crearUsuarioDto.rolId,
                 activo: true,
             },
             include: {
@@ -65,9 +72,19 @@ export class UsuariosService {
 
         this.logger.log(`Usuario creado: ${usuario.correo}`);
 
+        const urlFrontend = this.configService.get<string>('app.urlFrontend') || 'http://localhost:4200';
+        const correoEnviado = await this.correoService.enviarCorreoBienvenidaUsuario({
+            nombre: usuario.nombre,
+            correo: usuario.correo,
+            contrasena: contrasenaGenerada,
+            nombreRol,
+            urlAcceso: `${urlFrontend}/admin/inicio-sesion`,
+        });
+
         return {
             mensaje: MENSAJES_EXITO.CREADO_EXITOSAMENTE,
             usuario: this.excluirCamposSensibles(usuario),
+            correoEnviado,
         };
     }
 
@@ -137,7 +154,7 @@ export class UsuariosService {
             });
 
             if (correoExistente) {
-                throw new ConflictException(MENSAJES_ERROR.USUARIO_YA_EXISTE);
+                throw new ConflictException('El correo electrónico ya está registrado');
             }
         }
 
@@ -180,7 +197,6 @@ export class UsuariosService {
             data: { contrasenaHash },
         });
 
-        // Invalidar todas las sesiones del usuario
         await this.prisma.sesion.deleteMany({
             where: { usuarioId: id },
         });
@@ -203,7 +219,6 @@ export class UsuariosService {
             include: { rol: true },
         });
 
-        // Si se desactiva, invalidar sesiones
         if (!activo) {
             await this.prisma.sesion.deleteMany({
                 where: { usuarioId: id },
@@ -216,29 +231,6 @@ export class UsuariosService {
             mensaje: MENSAJES_EXITO.ACTUALIZADO_EXITOSAMENTE,
             usuario: this.excluirCamposSensibles(usuarioActualizado),
         };
-    }
-
-    async eliminar(id: number) {
-        const usuario = await this.prisma.usuario.findUnique({ where: { id } });
-
-        if (!usuario) {
-            throw new NotFoundException(MENSAJES_ERROR.USUARIO_NO_ENCONTRADO);
-        }
-
-        // Eliminar sesiones primero
-        await this.prisma.sesion.deleteMany({
-            where: { usuarioId: id },
-        });
-
-        // Soft delete: desactivar el usuario
-        await this.prisma.usuario.update({
-            where: { id },
-            data: { activo: false },
-        });
-
-        this.logger.log(`Usuario eliminado (desactivado): ${usuario.correo}`);
-
-        return { mensaje: MENSAJES_EXITO.ELIMINADO_EXITOSAMENTE };
     }
 
     async obtenerPorCorreo(correo: string) {

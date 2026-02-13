@@ -1,0 +1,341 @@
+<div class="pagina-detalle-empresa">
+    @if (cargando()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando empresa...</p>
+                </div>
+            </div>
+        </div>
+    } @else if (empresa()) {
+        <!-- Encabezado -->
+        <div class="pagina-header">
+            <div class="header-info">
+                <a routerLink="/admin/empresas" class="btn-volver">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h1 class="pagina-titulo">{{ empresa()!.nombre }}</h1>
+                    <p class="pagina-subtitulo">RTN: {{ empresa()!.rtn }}</p>
+                </div>
+            </div>
+            <div class="header-acciones">
+                <span class="badge-estado-header" [class.activo]="empresa()!.activa" [class.inactivo]="!empresa()!.activa">
+                    <i class="bi" [class.bi-check-circle-fill]="empresa()!.activa" [class.bi-x-circle-fill]="!empresa()!.activa"></i>
+                    {{ empresa()!.activa ? 'Activa' : 'Inactiva' }}
+                </span>
+                <button class="btn btn-primary" (click)="irAEditar()">
+                    <i class="bi bi-pencil me-2"></i> Editar
+                </button>
+            </div>
+        </div>
+
+        <!-- Estadisticas -->
+        @if (estadisticas()) {
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-icono bg-primary-soft"><i class="bi bi-box-seam"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-valor">{{ estadisticas()!.totalProductos }}</span>
+                                <span class="stat-label">Productos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-icono bg-success-soft"><i class="bi bi-cart-check"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-valor">{{ estadisticas()!.totalPedidos }}</span>
+                                <span class="stat-label">Pedidos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-icono bg-warning-soft"><i class="bi bi-cash-stack"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-valor">{{ formatearMoneda(estadisticas()!.totalVentas) }}</span>
+                                <span class="stat-label">Ventas Totales</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="stat-icono bg-info-soft"><i class="bi bi-people"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-valor">{{ estadisticas()!.totalUsuarios }}</span>
+                                <span class="stat-label">Usuarios</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row g-4">
+            <!-- Columna principal -->
+            <div class="col-lg-8">
+                <!-- Informacion Basica -->
+                <div class="card detalle-card mb-4">
+                    <div class="card-header detalle-header">
+                        <i class="bi bi-building"></i> Informacion Basica
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Nombre</span>
+                                    <span class="campo-valor">{{ empresa()!.nombre }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Tipo de Negocio</span>
+                                    <span class="badge-tipo" [attr.data-tipo]="empresa()!.tipoNegocio">
+                                        {{ obtenerEtiquetaTipo(empresa()!.tipoNegocio) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">RTN</span>
+                                    <span class="campo-valor font-mono">{{ empresa()!.rtn }}</span>
+                                </div>
+                            </div>
+                            @if (empresa()!.nit) {
+                                <div class="col-md-6">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">NIT</span>
+                                        <span class="campo-valor">{{ empresa()!.nit }}</span>
+                                    </div>
+                                </div>
+                            }
+                            @if (empresa()!.descripcion) {
+                                <div class="col-12">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Descripcion</span>
+                                        <span class="campo-valor">{{ empresa()!.descripcion }}</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contacto -->
+                <div class="card detalle-card mb-4">
+                    <div class="card-header detalle-header">
+                        <i class="bi bi-telephone"></i> Contacto
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Correo</span>
+                                    <span class="campo-valor">{{ empresa()!.correo }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Telefono</span>
+                                    <span class="campo-valor">{{ empresa()!.telefono }}</span>
+                                </div>
+                            </div>
+                            @if (empresa()!.celular) {
+                                <div class="col-md-6">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Celular</span>
+                                        <span class="campo-valor">{{ empresa()!.celular }}</span>
+                                    </div>
+                                </div>
+                            }
+                            @if (empresa()!.sitioWeb) {
+                                <div class="col-md-6">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Sitio Web</span>
+                                        <span class="campo-valor">{{ empresa()!.sitioWeb }}</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ubicacion -->
+                <div class="card detalle-card mb-4">
+                    <div class="card-header detalle-header">
+                        <i class="bi bi-geo-alt"></i> Ubicacion
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @if (empresa()!.direccion) {
+                                <div class="col-12">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Direccion</span>
+                                        <span class="campo-valor">{{ empresa()!.direccion }}</span>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-md-4">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Ciudad</span>
+                                    <span class="campo-valor">{{ empresa()!.ciudad || 'No especificada' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Departamento</span>
+                                    <span class="campo-valor">{{ empresa()!.departamento || 'No especificado' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Pais</span>
+                                    <span class="campo-valor">{{ empresa()!.pais || 'No especificado' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Redes Sociales -->
+                @if (empresa()!.redesSociales) {
+                    <div class="card detalle-card mb-4">
+                        <div class="card-header detalle-header">
+                            <i class="bi bi-share"></i> Redes Sociales
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                @if (empresa()!.redesSociales?.facebook) {
+                                    <div class="col-md-4">
+                                        <div class="red-social-item">
+                                            <i class="bi bi-facebook text-primary"></i>
+                                            <span>{{ empresa()!.redesSociales!.facebook }}</span>
+                                        </div>
+                                    </div>
+                                }
+                                @if (empresa()!.redesSociales?.instagram) {
+                                    <div class="col-md-4">
+                                        <div class="red-social-item">
+                                            <i class="bi bi-instagram" style="color: #e4405f;"></i>
+                                            <span>{{ empresa()!.redesSociales!.instagram }}</span>
+                                        </div>
+                                    </div>
+                                }
+                                @if (empresa()!.redesSociales?.whatsapp) {
+                                    <div class="col-md-4">
+                                        <div class="red-social-item">
+                                            <i class="bi bi-whatsapp text-success"></i>
+                                            <span>{{ empresa()!.redesSociales!.whatsapp }}</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Informacion Empresarial -->
+                <div class="card detalle-card mb-4">
+                    <div class="card-header detalle-header">
+                        <i class="bi bi-briefcase"></i> Informacion Empresarial
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @if (empresa()!.representanteLegal) {
+                                <div class="col-md-6">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Representante Legal</span>
+                                        <span class="campo-valor">{{ empresa()!.representanteLegal }}</span>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-md-6">
+                                <div class="detalle-campo">
+                                    <span class="campo-label">Plan de Suscripcion</span>
+                                    <span class="badge-plan" [attr.data-plan]="empresa()!.planSuscripcion">
+                                        {{ obtenerEtiquetaPlan(empresa()!.planSuscripcion) }}
+                                    </span>
+                                </div>
+                            </div>
+                            @if (empresa()!.moneda) {
+                                <div class="col-md-4">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Moneda</span>
+                                        <span class="campo-valor">{{ empresa()!.moneda }}</span>
+                                    </div>
+                                </div>
+                            }
+                            @if (empresa()!.zonaHoraria) {
+                                <div class="col-md-4">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Zona Horaria</span>
+                                        <span class="campo-valor">{{ empresa()!.zonaHoraria }}</span>
+                                    </div>
+                                </div>
+                            }
+                            @if (empresa()!.cantidadEmpleados) {
+                                <div class="col-md-4">
+                                    <div class="detalle-campo">
+                                        <span class="campo-label">Empleados</span>
+                                        <span class="campo-valor">{{ empresa()!.cantidadEmpleados }}</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Logo / Avatar -->
+                <div class="card sidebar-card mb-4">
+                    <div class="sidebar-logo-container">
+                        <div class="sidebar-avatar">
+                            @if (empresa()!.logo) {
+                                <img [src]="empresa()!.logo" [alt]="empresa()!.nombre">
+                            } @else {
+                                <span>{{ obtenerIniciales(empresa()!.nombre) }}</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info del Sistema -->
+                <div class="card sidebar-card">
+                    <div class="card-header detalle-header">
+                        <i class="bi bi-info-circle"></i> Informacion del Sistema
+                    </div>
+                    <div class="card-body">
+                        <div class="sistema-info">
+                            <div class="sistema-item">
+                                <span class="sistema-label">ID</span>
+                                <span class="sistema-valor">#{{ empresa()!.id }}</span>
+                            </div>
+                            <div class="sistema-item">
+                                <span class="sistema-label">Fecha de Registro</span>
+                                <span class="sistema-valor">{{ formatearFecha(empresa()!.creadoEn) }}</span>
+                            </div>
+                            <div class="sistema-item">
+                                <span class="sistema-label">Ultima Actualizacion</span>
+                                <span class="sistema-valor">{{ formatearFecha(empresa()!.actualizadoEn) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

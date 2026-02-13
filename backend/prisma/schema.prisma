@@ -8,7 +8,7 @@ datasource db {
 }
 
 // ============================================
-// MÓDULO DE USUARIOS Y AUTENTICACIÓN (RBAC)
+// MÓDULO DE USUARIOS Y AUTENTICACIÓN
 // ============================================
 
 model Usuario {
@@ -20,20 +20,19 @@ model Usuario {
   avatar          String?   @db.VarChar(500)
   activo          Boolean   @default(true)
   ultimoAcceso    DateTime? @map("ultimo_acceso")
-  
   rolId           Int?      @map("rol_id")
-  rol             Rol?      @relation(fields: [rolId], references: [id])
-  
   creadoEn        DateTime  @default(now()) @map("creado_en")
   actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
 
   // Relaciones
-  pedidos               Pedido[]
+  rol                   Rol?                   @relation(fields: [rolId], references: [id])
   direcciones           Direccion[]
-  notificaciones        Notificacion[]
   movimientosInventario MovimientoInventario[]
+  notificaciones        Notificacion[]
+  pedidos               Pedido[]
   sesiones              Sesion[]
 
+  @@index([rolId], map: "usuarios_rol_id_fkey")
   @@map("usuarios")
 }
 
@@ -43,7 +42,6 @@ model Rol {
   nombre      String    @db.VarChar(100)
   descripcion String?   @db.VarChar(255)
   activo      Boolean   @default(true)
-  
   creadoEn    DateTime  @default(now()) @map("creado_en")
 
   // Relaciones
@@ -59,7 +57,6 @@ model Permiso {
   nombre      String    @db.VarChar(100)
   descripcion String?   @db.VarChar(255)
   modulo      String    @db.VarChar(50)
-  
   creadoEn    DateTime  @default(now()) @map("creado_en")
 
   // Relaciones
@@ -71,108 +68,99 @@ model Permiso {
 model RolPermiso {
   rolId     Int @map("rol_id")
   permisoId Int @map("permiso_id")
-  
-  rol       Rol     @relation(fields: [rolId], references: [id], onDelete: Cascade)
-  permiso   Permiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
+
+  rol     Rol     @relation(fields: [rolId], references: [id], onDelete: Cascade)
+  permiso Permiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
 
   @@id([rolId, permisoId])
+  @@index([permisoId], map: "roles_permisos_permiso_id_fkey")
   @@map("roles_permisos")
 }
 
 model Sesion {
-  id            Int       @id @default(autoincrement())
-  usuarioId     Int       @map("usuario_id")
-  token         String    @unique @db.VarChar(500)
-  ip            String?   @db.VarChar(50)
-  userAgent     String?   @map("user_agent") @db.VarChar(500)
-  expiraEn      DateTime  @map("expira_en")
-  
-  creadoEn      DateTime  @default(now()) @map("creado_en")
-  
-  usuario       Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  token     String   @unique @db.VarChar(768)
+  ip        String?  @db.VarChar(50)
+  userAgent String?  @map("user_agent") @db.VarChar(500)
+  expiraEn  DateTime @map("expira_en")
+  creadoEn  DateTime @default(now()) @map("creado_en")
 
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId], map: "sesiones_usuario_id_fkey")
   @@map("sesiones")
 }
 
 // ============================================
-// MÓDULO DE PRODUCTOS Y CATÁLOGO
+// MÓDULO DE CATÁLOGO
 // ============================================
 
 model Categoria {
-  id                Int         @id @default(autoincrement())
-  nombre            String      @db.VarChar(100)
-  slug              String      @unique @db.VarChar(120)
-  descripcion       String?     @db.Text
-  imagen            String?     @db.VarChar(500)
-  orden             Int         @default(0)
-  activa            Boolean     @default(true)
-  
-  categoriaPadreId  Int?        @map("categoria_padre_id")
-  categoriaPadre    Categoria?  @relation("SubCategorias", fields: [categoriaPadreId], references: [id])
-  subcategorias     Categoria[] @relation("SubCategorias")
-  
-  creadoEn          DateTime    @default(now()) @map("creado_en")
-  actualizadoEn     DateTime    @updatedAt @map("actualizado_en")
+  id              Int         @id @default(autoincrement())
+  nombre          String      @db.VarChar(100)
+  slug            String      @unique @db.VarChar(120)
+  descripcion     String?     @db.Text
+  imagen          String?     @db.VarChar(500)
+  orden           Int         @default(0)
+  activa          Boolean     @default(true)
+  categoriaPadreId Int?       @map("categoria_padre_id")
+  creadoEn        DateTime    @default(now()) @map("creado_en")
+  actualizadoEn   DateTime    @updatedAt @map("actualizado_en")
 
-  // Relaciones
-  productos         Producto[]
+  categoriaPadre  Categoria?  @relation("CategoriaHija", fields: [categoriaPadreId], references: [id])
+  subcategorias   Categoria[] @relation("CategoriaHija")
+  productos       Producto[]
 
+  @@index([categoriaPadreId], map: "categorias_categoria_padre_id_fkey")
   @@map("categorias")
 }
 
 model Marca {
-  id          Int       @id @default(autoincrement())
-  nombre      String    @db.VarChar(100)
-  slug        String    @unique @db.VarChar(120)
-  logo        String?   @db.VarChar(500)
-  descripcion String?   @db.Text
-  activa      Boolean   @default(true)
-  
-  creadoEn    DateTime  @default(now()) @map("creado_en")
+  id          Int         @id @default(autoincrement())
+  nombre      String      @db.VarChar(100)
+  slug        String      @unique @db.VarChar(120)
+  logo        String?     @db.VarChar(500)
+  descripcion String?     @db.Text
+  activa      Boolean     @default(true)
+  creadoEn    DateTime    @default(now()) @map("creado_en")
 
-  // Relaciones
   productos   Producto[]
 
   @@map("marcas")
 }
 
 model Producto {
-  id                Int       @id @default(autoincrement())
-  nombre            String    @db.VarChar(255)
-  slug              String    @unique @db.VarChar(280)
-  sku               String    @unique @db.VarChar(50)
-  descripcionCorta  String?   @map("descripcion_corta") @db.VarChar(255)
-  descripcion       String?   @db.Text
-  
-  precio            Decimal   @db.Decimal(12, 2)
-  precioComparacion Decimal?  @map("precio_comparacion") @db.Decimal(12, 2)
-  costo             Decimal?  @db.Decimal(12, 2)
-  
-  stock             Int       @default(0)
-  stockMinimo       Int       @default(5) @map("stock_minimo")
-  
-  peso              Decimal?  @db.Decimal(8, 3)
-  
-  activo            Boolean   @default(true)
-  destacado         Boolean   @default(false)
-  
-  categoriaId       Int       @map("categoria_id")
-  categoria         Categoria @relation(fields: [categoriaId], references: [id])
-  
-  marcaId           Int?      @map("marca_id")
-  marca             Marca?    @relation(fields: [marcaId], references: [id])
-  
-  creadoEn          DateTime  @default(now()) @map("creado_en")
-  actualizadoEn     DateTime  @updatedAt @map("actualizado_en")
+  id                 Int       @id @default(autoincrement())
+  nombre             String    @db.VarChar(255)
+  slug               String    @unique @db.VarChar(280)
+  sku                String    @unique @db.VarChar(50)
+  descripcionCorta   String?   @map("descripcion_corta") @db.VarChar(255)
+  descripcion        String?   @db.Text
+  precio             Decimal   @db.Decimal(12, 2)
+  precioComparacion  Decimal?  @map("precio_comparacion") @db.Decimal(12, 2)
+  costo              Decimal?  @db.Decimal(12, 2)
+  stock              Int       @default(0)
+  stockMinimo        Int       @default(5) @map("stock_minimo")
+  peso               Decimal?  @db.Decimal(8, 3)
+  activo             Boolean   @default(true)
+  destacado          Boolean   @default(false)
+  categoriaId        Int       @map("categoria_id")
+  marcaId            Int?      @map("marca_id")
+  creadoEn           DateTime  @default(now()) @map("creado_en")
+  actualizadoEn      DateTime  @updatedAt @map("actualizado_en")
 
-  // Relaciones
-  imagenes             ImagenProducto[]
-  itemsPedido          ItemPedido[]
+  categoria          Categoria @relation(fields: [categoriaId], references: [id])
+  marca              Marca?    @relation(fields: [marcaId], references: [id])
+  imagenes           ImagenProducto[]
+  items              ItemPedido[]
   movimientosInventario MovimientoInventario[]
+  colabActividades      ColabActividadInventario[]
+  colabConteoDetalles   ColabConteoInventarioDetalle[]
 
+  @@index([activo, destacado])
   @@index([categoriaId])
   @@index([marcaId])
-  @@index([activo, destacado])
   @@map("productos")
 }
 
@@ -183,11 +171,11 @@ model ImagenProducto {
   altText     String?   @map("alt_text") @db.VarChar(255)
   orden       Int       @default(0)
   esPrincipal Boolean   @default(false) @map("es_principal")
-  
   creadoEn    DateTime  @default(now()) @map("creado_en")
-  
+
   producto    Producto  @relation(fields: [productoId], references: [id], onDelete: Cascade)
 
+  @@index([productoId], map: "imagenes_productos_producto_id_fkey")
   @@map("imagenes_productos")
 }
 
@@ -203,43 +191,42 @@ model MovimientoInventario {
   motivo          String    @db.VarChar(255)
   stockAnterior   Int       @map("stock_anterior")
   stockNuevo      Int       @map("stock_nuevo")
-  
   usuarioId       Int       @map("usuario_id")
-  
   creadoEn        DateTime  @default(now()) @map("creado_en")
-  
+
   producto        Producto  @relation(fields: [productoId], references: [id])
   usuario         Usuario   @relation(fields: [usuarioId], references: [id])
 
   @@index([productoId])
+  @@index([usuarioId], map: "movimientos_inventario_usuario_id_fkey")
   @@map("movimientos_inventario")
 }
 
 // ============================================
-// MÓDULO DE DIRECCIONES
+// MÓDULO DE DIRECCIONES Y CLIENTES
 // ============================================
 
 model Direccion {
-  id              Int       @id @default(autoincrement())
-  usuarioId       Int       @map("usuario_id")
-  alias           String    @db.VarChar(50)
-  nombreContacto  String    @map("nombre_contacto") @db.VarChar(100)
-  telefono        String    @db.VarChar(20)
-  direccion       String    @db.VarChar(255)
-  ciudad          String    @db.VarChar(100)
-  departamento    String    @db.VarChar(100)
-  codigoPostal    String?   @map("codigo_postal") @db.VarChar(10)
-  pais            String    @default("Honduras") @db.VarChar(50)
-  referencia      String?   @db.VarChar(255)
-  esPrincipal     Boolean   @default(false) @map("es_principal")
-  activa          Boolean   @default(true)
-  
-  creadoEn        DateTime  @default(now()) @map("creado_en")
-  actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
-  
-  usuario         Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  pedidos         Pedido[]
+  id             Int       @id @default(autoincrement())
+  usuarioId      Int       @map("usuario_id")
+  alias          String    @db.VarChar(50)
+  nombreContacto String    @map("nombre_contacto") @db.VarChar(100)
+  telefono       String    @db.VarChar(20)
+  direccion      String    @db.VarChar(255)
+  ciudad         String    @db.VarChar(100)
+  departamento   String    @db.VarChar(100)
+  codigoPostal   String?   @map("codigo_postal") @db.VarChar(10)
+  pais           String    @default("Honduras") @db.VarChar(50)
+  referencia     String?   @db.VarChar(255)
+  esPrincipal    Boolean   @default(false) @map("es_principal")
+  activa         Boolean   @default(true)
+  creadoEn       DateTime  @default(now()) @map("creado_en")
+  actualizadoEn  DateTime  @updatedAt @map("actualizado_en")
 
+  usuario        Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  pedidos        Pedido[]
+
+  @@index([usuarioId], map: "direcciones_usuario_id_fkey")
   @@map("direcciones")
 }
 
@@ -250,32 +237,27 @@ model Direccion {
 model Pedido {
   id                Int       @id @default(autoincrement())
   numeroPedido      String    @unique @map("numero_pedido") @db.VarChar(20)
-  
   clienteId         Int       @map("cliente_id")
-  cliente           Usuario   @relation(fields: [clienteId], references: [id])
-  
-  direccionEnvioId  Int       @map("direccion_envio_id")
-  direccionEnvio    Direccion @relation(fields: [direccionEnvioId], references: [id])
-  
+  estado            String    @default("pendiente") @db.VarChar(20)
   subtotal          Decimal   @db.Decimal(12, 2)
   impuestos         Decimal   @db.Decimal(12, 2)
-  costoEnvio        Decimal   @default(0) @map("costo_envio") @db.Decimal(12, 2)
-  descuento         Decimal   @default(0) @db.Decimal(12, 2)
+  costoEnvio        Decimal   @default(0.00) @map("costo_envio") @db.Decimal(12, 2)
+  descuento         Decimal   @default(0.00) @db.Decimal(12, 2)
   total             Decimal   @db.Decimal(12, 2)
-  
-  estado            String    @default("pendiente") @db.VarChar(20)
-  notas             String?   @db.Text
+  direccionEnvioId  Int       @map("direccion_envio_id")
   motivoCancelacion String?   @map("motivo_cancelacion") @db.Text
-  
+  notas             String?   @db.Text
   creadoEn          DateTime  @default(now()) @map("creado_en")
   actualizadoEn     DateTime  @updatedAt @map("actualizado_en")
 
-  // Relaciones
+  cliente           Usuario   @relation(fields: [clienteId], references: [id])
+  direccionEnvio    Direccion @relation(fields: [direccionEnvioId], references: [id])
   items             ItemPedido[]
   pago              Pago?
   envio             Envio?
 
   @@index([clienteId])
+  @@index([direccionEnvioId], map: "pedidos_direccion_envio_id_fkey")
   @@index([estado])
   @@map("pedidos")
 }
@@ -287,35 +269,30 @@ model ItemPedido {
   cantidad        Int
   precioUnitario  Decimal   @map("precio_unitario") @db.Decimal(12, 2)
   subtotal        Decimal   @db.Decimal(12, 2)
-  
+
   pedido          Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
   producto        Producto  @relation(fields: [productoId], references: [id])
 
+  @@index([pedidoId], map: "items_pedido_pedido_id_fkey")
+  @@index([productoId], map: "items_pedido_producto_id_fkey")
   @@map("items_pedido")
 }
 
-// ============================================
-// MÓDULO DE PAGOS
-// ============================================
-
 model Pago {
-  id                    Int       @id @default(autoincrement())
-  pedidoId              Int       @unique @map("pedido_id")
-  metodoPago            String    @map("metodo_pago") @db.VarChar(30)
-  monto                 Decimal   @db.Decimal(12, 2)
-  estado                String    @default("pendiente") @db.VarChar(20)
-  referencia            String    @unique @db.VarChar(100)
-  
-  ultimosDigitosTarjeta String?   @map("ultimos_digitos_tarjeta") @db.VarChar(4)
-  marcaTarjeta          String?   @map("marca_tarjeta") @db.VarChar(20)
-  
-  motivoReembolso       String?   @map("motivo_reembolso") @db.Text
-  fechaReembolso        DateTime? @map("fecha_reembolso")
-  
-  creadoEn              DateTime  @default(now()) @map("creado_en")
-  actualizadoEn         DateTime  @updatedAt @map("actualizado_en")
-  
-  pedido                Pedido    @relation(fields: [pedidoId], references: [id])
+  id                   Int       @id @default(autoincrement())
+  pedidoId             Int       @unique @map("pedido_id")
+  metodoPago           String    @map("metodo_pago") @db.VarChar(30)
+  monto                Decimal   @db.Decimal(12, 2)
+  estado               String    @default("pendiente") @db.VarChar(20)
+  referencia           String    @unique @db.VarChar(100)
+  ultimosDigitosTarjeta String?  @map("ultimos_digitos_tarjeta") @db.VarChar(4)
+  marcaTarjeta         String?   @map("marca_tarjeta") @db.VarChar(20)
+  motivoReembolso      String?   @map("motivo_reembolso") @db.Text
+  fechaReembolso       DateTime? @map("fecha_reembolso")
+  creadoEn             DateTime  @default(now()) @map("creado_en")
+  actualizadoEn        DateTime  @updatedAt @map("actualizado_en")
+
+  pedido               Pedido    @relation(fields: [pedidoId], references: [id])
 
   @@map("pagos")
 }
@@ -325,54 +302,128 @@ model Pago {
 // ============================================
 
 model Transportista {
-  id          Int       @id @default(autoincrement())
-  nombre      String    @db.VarChar(100)
-  codigo      String    @unique @db.VarChar(20)
-  telefono    String?   @db.VarChar(20)
-  correo      String?   @db.VarChar(255)
-  activo      Boolean   @default(true)
-  
-  creadoEn    DateTime  @default(now()) @map("creado_en")
+  id                       Int       @id @default(autoincrement())
+  codigo                   String    @unique @db.VarChar(50)
+  nombre                   String    @db.VarChar(100)
+  razonSocial              String?   @map("razon_social") @db.VarChar(200)
+  rtn                      String?   @db.VarChar(20)
+  tipo                     String    @default("externo") @db.VarChar(30)
+  descripcion              String?   @db.Text
+  logoUrl                  String?   @map("logo_url") @db.VarChar(500)
+  sitioWeb                 String?   @map("sitio_web") @db.VarChar(500)
 
-  // Relaciones
-  envios      Envio[]
+  // Ubicación
+  direccion                String?   @db.VarChar(300)
+  ciudad                   String?   @db.VarChar(100)
+  departamento             String?   @db.VarChar(100)
+  pais                     String    @default("Honduras") @db.VarChar(100)
+  codigoPostal             String?   @map("codigo_postal") @db.VarChar(10)
+
+  // Contacto general
+  telefonoPrincipal        String?   @map("telefono_principal") @db.VarChar(20)
+  telefonoSecundario       String?   @map("telefono_secundario") @db.VarChar(20)
+  correoGeneral            String?   @map("correo_general") @db.VarChar(255)
+  correoOperaciones        String?   @map("correo_operaciones") @db.VarChar(255)
+
+  // Servicios y cobertura (JSON)
+  servicios                Json?
+  zonasCobertura           Json?     @map("zonas_cobertura")
+  departamentosCobertura   Json?     @map("departamentos_cobertura")
+
+  // Operativa
+  tiempoEntregaMinimo      Int?      @map("tiempo_entrega_minimo")
+  tiempoEntregaMaximo      Int?      @map("tiempo_entrega_maximo")
+  costoBase                Decimal?  @map("costo_base") @db.Decimal(12, 2)
+  costoKgAdicional         Decimal?  @map("costo_kg_adicional") @db.Decimal(12, 2)
+  moneda                   String    @default("HNL") @db.VarChar(10)
+  capacidadDiaria          Int?      @map("capacidad_diaria")
+  pesoMaximoPaquete        Decimal?  @map("peso_maximo_paquete") @db.Decimal(8, 2)
+  horarioAtencion          String?   @map("horario_atencion") @db.VarChar(200)
+
+  // Capacidades
+  soportaRastreo           Boolean   @default(false) @map("soporta_rastreo")
+  soportaSeguro            Boolean   @default(false) @map("soporta_seguro")
+  soportaContraEntrega     Boolean   @default(false) @map("soporta_contra_entrega")
+  soportaDevolucion        Boolean   @default(false) @map("soporta_devolucion")
+  soportaEntregaProgramada Boolean   @default(false) @map("soporta_entrega_programada")
+  soportaRecogidaDomicilio Boolean   @default(false) @map("soporta_recogida_domicilio")
+
+  // Integración
+  urlRastreo               String?   @map("url_rastreo") @db.VarChar(500)
+  apiUrl                   String?   @map("api_url") @db.VarChar(500)
+
+  // Calificación
+  calificacion             Decimal   @default(0) @db.Decimal(3, 2)
+  totalEnvios              Int       @default(0) @map("total_envios")
+
+  // Estado y configuración
+  ordenPrioridad           Int       @default(0) @map("orden_prioridad")
+  esActivo                 Boolean   @default(true) @map("es_activo")
+  esVisible                Boolean   @default(true) @map("es_visible")
+  notas                    String?   @db.Text
+
+  creadoEn                 DateTime  @default(now()) @map("creado_en")
+  actualizadoEn            DateTime  @updatedAt @map("actualizado_en")
+
+  contactos                ContactoTransportista[]
+  envios                   Envio[]
 
   @@map("transportistas")
 }
 
-model Envio {
-  id              Int           @id @default(autoincrement())
-  pedidoId        Int           @unique @map("pedido_id")
-  numeroGuia      String        @unique @map("numero_guia") @db.VarChar(50)
-  
-  transportistaId Int?          @map("transportista_id")
-  transportista   Transportista? @relation(fields: [transportistaId], references: [id])
-  
-  costoEnvio      Decimal       @map("costo_envio") @db.Decimal(12, 2)
-  estado          String        @default("pendiente") @db.VarChar(20)
-  
-  fechaEnvio      DateTime?     @map("fecha_envio")
-  fechaEntrega    DateTime?     @map("fecha_entrega")
-  
-  creadoEn        DateTime      @default(now()) @map("creado_en")
-  actualizadoEn   DateTime      @updatedAt @map("actualizado_en")
-  
-  pedido          Pedido        @relation(fields: [pedidoId], references: [id])
-  seguimiento     SeguimientoEnvio[]
+model ContactoTransportista {
+  id                  Int       @id @default(autoincrement())
+  transportistaId     Int       @map("transportista_id")
+  nombreCompleto      String    @map("nombre_completo") @db.VarChar(150)
+  cargo               String    @db.VarChar(100)
+  departamento        String?   @db.VarChar(100)
+  telefonoPrincipal   String    @map("telefono_principal") @db.VarChar(20)
+  telefonoSecundario  String?   @map("telefono_secundario") @db.VarChar(20)
+  correo              String    @db.VarChar(255)
+  correoSecundario    String?   @map("correo_secundario") @db.VarChar(255)
+  esPrincipal         Boolean   @default(false) @map("es_principal")
+  notas               String?   @db.Text
+  activo              Boolean   @default(true)
+  creadoEn            DateTime  @default(now()) @map("creado_en")
+  actualizadoEn       DateTime  @updatedAt @map("actualizado_en")
 
+  transportista       Transportista @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+
+  @@index([transportistaId])
+  @@map("contactos_transportista")
+}
+
+model Envio {
+  id              Int       @id @default(autoincrement())
+  pedidoId        Int       @unique @map("pedido_id")
+  numeroGuia      String    @unique @map("numero_guia") @db.VarChar(50)
+  transportistaId Int?      @map("transportista_id")
+  costoEnvio      Decimal   @map("costo_envio") @db.Decimal(12, 2)
+  estado          String    @default("pendiente") @db.VarChar(20)
+  fechaEnvio      DateTime? @map("fecha_envio")
+  fechaEntrega    DateTime? @map("fecha_entrega")
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+  actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
+
+  pedido          Pedido    @relation(fields: [pedidoId], references: [id])
+  transportista   Transportista? @relation(fields: [transportistaId], references: [id])
+  seguimientos    SeguimientoEnvio[]
+
+  @@index([transportistaId], map: "envios_transportista_id_fkey")
   @@map("envios")
 }
 
 model SeguimientoEnvio {
-  id          Int       @id @default(autoincrement())
-  envioId     Int       @map("envio_id")
-  estado      String    @db.VarChar(30)
-  ubicacion   String?   @db.VarChar(255)
-  notas       String?   @db.Text
-  fecha       DateTime  @default(now())
-  
-  envio       Envio     @relation(fields: [envioId], references: [id], onDelete: Cascade)
+  id        Int       @id @default(autoincrement())
+  envioId   Int       @map("envio_id")
+  estado    String    @db.VarChar(30)
+  ubicacion String?   @db.VarChar(255)
+  notas     String?   @db.Text
+  fecha     DateTime  @default(now())
 
+  envio     Envio     @relation(fields: [envioId], references: [id], onDelete: Cascade)
+
+  @@index([envioId], map: "seguimiento_envios_envio_id_fkey")
   @@map("seguimiento_envios")
 }
 
@@ -381,18 +432,690 @@ model SeguimientoEnvio {
 // ============================================
 
 model Notificacion {
-  id          Int       @id @default(autoincrement())
-  usuarioId   Int       @map("usuario_id")
-  tipo        String    @db.VarChar(30)
-  titulo      String    @db.VarChar(150)
-  mensaje     String    @db.Text
-  enlace      String?   @db.VarChar(255)
-  leida       Boolean   @default(false)
-  
-  creadoEn    DateTime  @default(now()) @map("creado_en")
-  
-  usuario     Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  id        Int       @id @default(autoincrement())
+  usuarioId Int       @map("usuario_id")
+  titulo    String    @db.VarChar(150)
+  mensaje   String    @db.Text
+  tipo      String    @db.VarChar(30)
+  creadoEn  DateTime  @default(now()) @map("creado_en")
+  enlace    String?   @db.VarChar(255)
+  leida     Boolean   @default(false)
 
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId], map: "idx_usuario")
   @@index([usuarioId, leida])
   @@map("notificaciones")
 }
+
+// ============================================
+// MÓDULO DE CONFIGURACIÓN DEL SISTEMA
+// ============================================
+
+model ParametroSistema {
+  id            Int       @id @default(autoincrement())
+  clave         String    @unique @db.VarChar(100)
+  valor         String    @db.Text
+  tipo          String    @db.VarChar(20)
+  categoria     String    @db.VarChar(50)
+  descripcion   String?   @db.VarChar(255)
+  editable      Boolean   @default(true)
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  @@index([categoria])
+  @@map("parametros_sistema")
+}
+
+// ============================================
+// MÓDULO DE EMPRESAS
+// ============================================
+
+model Empresa {
+  id                  Int       @id @default(autoincrement())
+  nombre              String    @db.VarChar(200)
+  rtn                 String    @unique @db.VarChar(20)
+  nit                 String?   @db.VarChar(50)
+  correo              String    @unique @db.VarChar(255)
+  telefono            String    @db.VarChar(20)
+  celular             String?   @db.VarChar(20)
+  direccion           String?   @db.VarChar(255)
+  departamento        String?   @db.VarChar(100)
+  ciudad              String?   @db.VarChar(100)
+  codigoPostal        String?   @map("codigo_postal") @db.VarChar(15)
+  pais                String?   @default("HN") @db.VarChar(5)
+  logo                String?   @db.VarChar(500)
+  sitioWeb            String?   @map("sitio_web") @db.VarChar(500)
+  tipoNegocio         String    @map("tipo_negocio") @db.VarChar(30)
+  descripcion         String?   @db.VarChar(500)
+  redesSociales       Json?     @map("redes_sociales")
+  representanteLegal  String?   @map("representante_legal") @db.VarChar(200)
+  planSuscripcion     String?   @map("plan_suscripcion") @db.VarChar(20)
+  moneda              String?   @default("HNL") @db.VarChar(5)
+  zonaHoraria         String?   @map("zona_horaria") @default("America/Tegucigalpa") @db.VarChar(50)
+  cantidadEmpleados   String?   @map("cantidad_empleados") @db.VarChar(10)
+  activa              Boolean   @default(true)
+  creadoEn            DateTime  @default(now()) @map("creado_en")
+  actualizadoEn       DateTime  @updatedAt @map("actualizado_en")
+
+  colaboradores       ColabUsuario[]
+
+  @@index([tipoNegocio])
+  @@index([activa])
+  @@map("empresas")
+}
+
+// ============================================
+// MÓDULO DE PAGOS - PASARELAS
+// ============================================
+
+enum TipoPasarela {
+  tarjeta
+  transferencia
+  wallet_digital
+  efectivo
+  criptomoneda
+  bnpl
+  otro
+}
+
+enum ModoIntegracion {
+  api
+  redirect
+  iframe
+  sdk
+  webhook
+}
+
+model PagosPasarela {
+  id                         Int             @id @default(autoincrement())
+  codigo                     String          @unique @db.VarChar(50)
+  nombre                     String          @db.VarChar(100)
+  descripcion                String?         @db.VarChar(500)
+  tipo                       TipoPasarela    @default(tarjeta)
+  proveedor                  String?         @db.VarChar(100)
+  logoUrl                    String?         @map("logo_url") @db.VarChar(500)
+  urlDocumentacion           String?         @map("url_documentacion") @db.VarChar(500)
+  modoIntegracion            ModoIntegracion @default(api) @map("modo_integracion")
+  urlApiSandbox              String?         @map("url_api_sandbox") @db.VarChar(500)
+  urlApiProduccion           String?         @map("url_api_produccion") @db.VarChar(500)
+  versionApi                 String?         @map("version_api") @db.VarChar(20)
+  soportaTokenizacion        Boolean         @default(false) @map("soporta_tokenizacion")
+  soporta3ds                 Boolean         @default(false) @map("soporta_3ds")
+  soportaReembolsos          Boolean         @default(true) @map("soporta_reembolsos")
+  soportaReembolsosParciales Boolean         @default(false) @map("soporta_reembolsos_parciales")
+  soportaSuscripciones       Boolean         @default(false) @map("soporta_suscripciones")
+  soportaSplitPayment        Boolean         @default(false) @map("soporta_split_payment")
+  soportaPreautorizacion     Boolean         @default(false) @map("soporta_preautorizacion")
+  soportaCapturaDiferida     Boolean         @default(false) @map("soporta_captura_diferida")
+  monedasSoportadas          Json?           @map("monedas_soportadas")
+  montoMinimo                Decimal         @default(1.00) @map("monto_minimo") @db.Decimal(15, 2)
+  montoMaximo                Decimal         @default(999999.99) @map("monto_maximo") @db.Decimal(15, 2)
+  ordenPrioridad             Int             @default(0) @map("orden_prioridad")
+  esActivo                   Boolean         @default(true) @map("es_activo")
+  esVisibleCliente           Boolean         @default(true) @map("es_visible_cliente")
+  requiereConfiguracion      Boolean         @default(true) @map("requiere_configuracion")
+  creadoEn                   DateTime        @default(now()) @map("creado_en")
+  actualizadoEn              DateTime        @updatedAt @map("actualizado_en")
+
+  @@index([tipo], map: "idx_pasarela_tipo")
+  @@index([esActivo], map: "idx_pasarela_activo")
+  @@index([ordenPrioridad], map: "idx_pasarela_orden")
+  @@map("pagos_pasarelas")
+}
+
+// ============================================
+// MÓDULO DE COLABORADORES
+// ============================================
+
+model ColabUsuario {
+  id                              Int       @id @default(autoincrement()) @db.UnsignedInt
+  nombre                          String    @db.VarChar(100)
+  apellido                        String    @db.VarChar(100)
+  numeroIdentidad                 String?   @unique @map("numero_identidad") @db.VarChar(20)
+  fechaNacimiento                 DateTime? @map("fecha_nacimiento") @db.Date
+  genero                          String    @default("no_especificado") @db.VarChar(20)
+
+  correo                          String    @unique @db.VarChar(255)
+  telefono                        String?   @db.VarChar(20)
+  telefonoEmergencia              String?   @map("telefono_emergencia") @db.VarChar(20)
+  contactoEmergenciaNombre        String?   @map("contacto_emergencia_nombre") @db.VarChar(200)
+
+  codigoColaborador               String    @unique @map("codigo_colaborador") @db.VarChar(50)
+  cargo                           String?   @db.VarChar(150)
+  fechaIngreso                    DateTime  @default(now()) @map("fecha_ingreso")
+  fechaBaja                       DateTime? @map("fecha_baja")
+  tipoContrato                    String    @default("permanente") @map("tipo_contrato") @db.VarChar(20)
+
+  empresaId                       Int?      @map("empresa_id")
+
+  contrasenaHash                  String    @map("contrasena_hash") @db.VarChar(255)
+  contrasenaTemporal              Boolean   @default(true) @map("contrasena_temporal")
+  contrasenaExpiraEn              DateTime? @map("contrasena_expira_en")
+  ultimoCambioContrasena          DateTime? @map("ultimo_cambio_contrasena")
+
+  esActivo                        Boolean   @default(true) @map("es_activo")
+  esVerificado                    Boolean   @default(false) @map("es_verificado")
+  verificadoEn                    DateTime? @map("verificado_en")
+  motivoInactivacion              String?   @map("motivo_inactivacion") @db.Text
+  inactivadoEn                    DateTime? @map("inactivado_en")
+
+  idioma                          String    @default("es") @db.VarChar(10)
+  zonaHoraria                     String    @default("America/Tegucigalpa") @map("zona_horaria") @db.VarChar(50)
+
+  requiere2fa                     Boolean   @default(false) @map("requiere_2fa")
+  secreto2fa                      String?   @map("secreto_2fa") @db.VarChar(255)
+  metodo2fa                       String    @default("ninguno") @map("metodo_2fa") @db.VarChar(20)
+
+  accesoSoloIpConfiable           Boolean   @default(false) @map("acceso_solo_ip_confiable")
+  accesoSoloHorarioTurno          Boolean   @default(false) @map("acceso_solo_horario_turno")
+  accesoSoloDispositivoRegistrado Boolean   @default(false) @map("acceso_solo_dispositivo_registrado")
+  maxSesionesSimultaneas          Int       @default(1) @map("max_sesiones_simultaneas") @db.UnsignedTinyInt
+
+  avatarUrl                       String?   @map("avatar_url") @db.VarChar(500)
+
+  creadoEn                        DateTime  @default(now()) @map("creado_en")
+  actualizadoEn                   DateTime  @updatedAt @map("actualizado_en")
+  creadoPorAdmin                  Int?      @map("creado_por_admin") @db.UnsignedInt
+  ultimoAcceso                    DateTime? @map("ultimo_acceso")
+
+  empresa                         Empresa?  @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+
+  roles                           ColabUsuarioRol[]
+  asignaciones                    ColabAsignacionAlmacen[]
+  permisosDirectos                ColabUsuarioPermiso[]
+  historialContrasenas            ColabHistorialContrasena[]
+  tokens                          ColabToken[]
+  dispositivos                    ColabDispositivo[]
+  sesiones                        ColabSesion[]
+  bitacoraSeguridad               ColabBitacoraSeguridad[]
+  turnos                          ColabTurno[]
+  actividadInventario             ColabActividadInventario[]
+  conteosResponsable              ColabConteoInventario[]
+  detallesConteo                  ColabConteoInventarioDetalle[]
+  notificaciones                  ColabNotificacion[]
+
+  @@index([correo], map: "idx_colab_correo")
+  @@index([codigoColaborador], map: "idx_colab_codigo")
+  @@index([esActivo], map: "idx_colab_activo")
+  @@index([empresaId], map: "idx_colab_empresa")
+  @@index([nombre, apellido], map: "idx_colab_nombre")
+  @@index([ultimoAcceso], map: "idx_colab_ultimo_acceso")
+  @@map("colab_usuarios")
+}
+
+// Módulos del portal de colaboradores
+model ColabModulo {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  codigo          String    @unique @db.VarChar(50)
+  nombre          String    @db.VarChar(100)
+  descripcion     String?   @db.Text
+  icono           String?   @db.VarChar(100)
+  ruta            String?   @db.VarChar(200)
+  moduloPadreId   Int?      @map("modulo_padre_id") @db.UnsignedInt
+  orden           Int       @default(0) @db.UnsignedInt
+  esMenu          Boolean   @default(true) @map("es_menu")
+  esActivo        Boolean   @default(true) @map("es_activo")
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+  actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
+
+  moduloPadre     ColabModulo?  @relation("ColabModuloHijos", fields: [moduloPadreId], references: [id], onDelete: SetNull)
+  hijos           ColabModulo[] @relation("ColabModuloHijos")
+  permisos        ColabPermiso[]
+
+  @@index([moduloPadreId], map: "idx_colab_mod_padre")
+  @@index([orden], map: "idx_colab_mod_orden")
+  @@index([esActivo], map: "idx_colab_mod_activo")
+  @@map("colab_modulos")
+}
+
+// Permisos del portal de colaboradores (independientes de admin)
+model ColabPermiso {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  codigo          String    @unique @db.VarChar(100)
+  nombre          String    @db.VarChar(150)
+  descripcion     String?   @db.Text
+  moduloId        Int       @map("modulo_id") @db.UnsignedInt
+  accion          String    @db.VarChar(20)
+  esActivo        Boolean   @default(true) @map("es_activo")
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+  actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
+
+  modulo          ColabModulo @relation(fields: [moduloId], references: [id], onDelete: Cascade)
+  rolesPermisos   ColabRolPermiso[]
+  usuariosPermisos ColabUsuarioPermiso[]
+
+  @@index([moduloId], map: "idx_colab_perm_modulo")
+  @@index([accion], map: "idx_colab_perm_accion")
+  @@index([esActivo], map: "idx_colab_perm_activo")
+  @@map("colab_permisos")
+}
+
+model ColabRol {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  codigo          String    @unique @db.VarChar(50)
+  nombre          String    @db.VarChar(100)
+  descripcion     String?   @db.VarChar(500)
+  nivelJerarquia  Int       @default(0) @map("nivel_jerarquia")
+  esSupervisor    Boolean   @default(false) @map("es_supervisor")
+  color           String?   @db.VarChar(20)
+  esActivo        Boolean   @default(true) @map("es_activo")
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+  actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
+
+  usuariosRoles   ColabUsuarioRol[]
+  rolesPermisos   ColabRolPermiso[]
+
+  @@index([esActivo])
+  @@map("colab_roles")
+}
+
+// Asignación de permisos a roles de colaboradores
+model ColabRolPermiso {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  rolId           Int       @map("rol_id") @db.UnsignedInt
+  permisoId       Int       @map("permiso_id") @db.UnsignedInt
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+
+  rol             ColabRol     @relation(fields: [rolId], references: [id], onDelete: Cascade)
+  permiso         ColabPermiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
+
+  @@unique([rolId, permisoId], map: "uk_colab_rol_permiso")
+  @@index([rolId], map: "idx_colab_rp_rol")
+  @@index([permisoId], map: "idx_colab_rp_permiso")
+  @@map("colab_roles_permisos")
+}
+
+// Permisos específicos por colaborador (sobrescribe rol)
+model ColabUsuarioPermiso {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId         Int       @map("usuario_id") @db.UnsignedInt
+  permisoId         Int       @map("permiso_id") @db.UnsignedInt
+  tipo              String    @default("otorgado") @db.VarChar(20)
+  fechaInicio       DateTime  @default(now()) @map("fecha_inicio")
+  fechaFin          DateTime? @map("fecha_fin")
+  motivo            String?   @db.Text
+  asignadoPorAdmin  Int?      @map("asignado_por_admin") @db.UnsignedInt
+  creadoEn          DateTime  @default(now()) @map("creado_en")
+
+  usuario           ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  permiso           ColabPermiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, permisoId], map: "uk_colab_usuario_permiso")
+  @@index([usuarioId], map: "idx_colab_up_usuario")
+  @@index([permisoId], map: "idx_colab_up_permiso")
+  @@map("colab_usuarios_permisos")
+}
+
+model ColabUsuarioRol {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId         Int       @map("usuario_id") @db.UnsignedInt
+  rolId             Int       @map("rol_id") @db.UnsignedInt
+  esPrincipal       Boolean   @default(false) @map("es_principal")
+  fechaInicio       DateTime  @default(now()) @map("fecha_inicio")
+  fechaFin          DateTime? @map("fecha_fin")
+  asignadoPorAdmin  Int?      @map("asignado_por_admin") @db.UnsignedInt
+  creadoEn          DateTime  @default(now()) @map("creado_en")
+
+  usuario           ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  rol               ColabRol     @relation(fields: [rolId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, rolId], map: "uk_colab_usuario_rol")
+  @@index([usuarioId], map: "idx_colab_ur_usuario")
+  @@index([rolId], map: "idx_colab_ur_rol")
+  @@map("colab_usuarios_roles")
+}
+
+model ColabAsignacionAlmacen {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId         Int       @map("usuario_id") @db.UnsignedInt
+  almacenId         Int       @map("almacen_id") @db.UnsignedInt
+  nivelAcceso       String    @default("operacion") @map("nivel_acceso") @db.VarChar(20)
+  fechaInicio       DateTime  @default(now()) @map("fecha_inicio")
+  fechaFin          DateTime? @map("fecha_fin")
+  esActiva          Boolean   @default(true) @map("es_activa")
+  zonaAsignada      String?   @map("zona_asignada") @db.VarChar(50)
+  asignadoPorAdmin  Int?      @map("asignado_por_admin") @db.UnsignedInt
+  motivo            String?   @db.Text
+  creadoEn          DateTime  @default(now()) @map("creado_en")
+  actualizadoEn     DateTime  @updatedAt @map("actualizado_en")
+
+  usuario           ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, almacenId], map: "uk_colab_asignacion")
+  @@index([usuarioId], map: "idx_colab_asig_usuario")
+  @@index([almacenId], map: "idx_colab_asig_almacen")
+  @@index([esActiva], map: "idx_colab_asig_activa")
+  @@map("colab_asignaciones_almacen")
+}
+
+// Configuración del portal de colaboradores
+model ColabConfiguracion {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  clave           String    @unique @db.VarChar(100)
+  valor           String    @db.Text
+  tipoDato        String    @default("texto") @map("tipo_dato") @db.VarChar(20)
+  descripcion     String?   @db.VarChar(500)
+  categoria       String    @default("general") @db.VarChar(50)
+  esEditable      Boolean   @default(true) @map("es_editable")
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+  actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
+
+  @@index([categoria], map: "idx_colab_config_categoria")
+  @@index([clave], map: "idx_colab_config_clave")
+  @@map("colab_configuracion")
+}
+
+// Historial de contraseñas de colaboradores
+model ColabHistorialContrasena {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId       Int       @map("usuario_id") @db.UnsignedInt
+  contrasenaHash  String    @map("contrasena_hash") @db.VarChar(255)
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+
+  usuario         ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId], map: "idx_colab_hist_usuario")
+  @@map("colab_usuarios_historial_contrasenas")
+}
+
+// Tokens de verificación/recuperación de colaboradores
+model ColabToken {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId       Int       @map("usuario_id") @db.UnsignedInt
+  tipo            String    @db.VarChar(30)
+  tokenHash       String    @unique @map("token_hash") @db.VarChar(255)
+  expiraEn        DateTime  @map("expira_en")
+  usadoEn         DateTime? @map("usado_en")
+  ipSolicitud     String?   @map("ip_solicitud") @db.VarChar(45)
+  ipUso           String?   @map("ip_uso") @db.VarChar(45)
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+
+  usuario         ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId], map: "idx_colab_token_usuario")
+  @@index([tokenHash], map: "idx_colab_token_hash")
+  @@index([tipo], map: "idx_colab_token_tipo")
+  @@index([expiraEn], map: "idx_colab_token_expira")
+  @@map("colab_tokens")
+}
+
+// Dispositivos registrados de colaboradores
+model ColabDispositivo {
+  id                  Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId           Int       @map("usuario_id") @db.UnsignedInt
+  huellaDispositivo   String    @map("huella_dispositivo") @db.VarChar(255)
+  nombreDispositivo   String?   @map("nombre_dispositivo") @db.VarChar(200)
+  tipoDispositivo     String    @default("otro") @map("tipo_dispositivo") @db.VarChar(20)
+  navegador           String?   @db.VarChar(100)
+  sistemaOperativo    String?   @map("sistema_operativo") @db.VarChar(100)
+  esConfiable         Boolean   @default(false) @map("es_confiable")
+  confirmadoEn        DateTime? @map("confirmado_en")
+  ultimoUso           DateTime? @map("ultimo_uso")
+  aprobadoPorAdmin    Int?      @map("aprobado_por_admin") @db.UnsignedInt
+  fechaAprobacion     DateTime? @map("fecha_aprobacion")
+  esActivo            Boolean   @default(true) @map("es_activo")
+  creadoEn            DateTime  @default(now()) @map("creado_en")
+  actualizadoEn       DateTime  @updatedAt @map("actualizado_en")
+
+  usuario             ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  sesiones            ColabSesion[]
+
+  @@index([usuarioId], map: "idx_colab_disp_usuario")
+  @@index([huellaDispositivo], map: "idx_colab_disp_huella")
+  @@index([esActivo], map: "idx_colab_disp_activo")
+  @@map("colab_dispositivos")
+}
+
+// Sesiones activas de colaboradores
+model ColabSesion {
+  id                  Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId           Int       @map("usuario_id") @db.UnsignedInt
+  tokenHash           String    @unique @map("token_hash") @db.VarChar(255)
+  refreshTokenHash    String?   @unique @map("refresh_token_hash") @db.VarChar(255)
+  dispositivoId       Int?      @map("dispositivo_id") @db.UnsignedInt
+  ipAddress           String    @map("ip_address") @db.VarChar(45)
+  ipPais              String?   @map("ip_pais") @db.VarChar(100)
+  ipCiudad            String?   @map("ip_ciudad") @db.VarChar(100)
+  userAgent           String?   @map("user_agent") @db.Text
+  creadoEn            DateTime  @default(now()) @map("creado_en")
+  expiraEn            DateTime  @map("expira_en")
+  ultimaActividad     DateTime  @default(now()) @map("ultima_actividad")
+  turnoId             Int?      @map("turno_id") @db.UnsignedInt
+  esActiva            Boolean   @default(true) @map("es_activa")
+  cerradaEn           DateTime? @map("cerrada_en")
+  motivoCierre        String?   @map("motivo_cierre") @db.VarChar(30)
+
+  usuario             ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  dispositivo         ColabDispositivo? @relation(fields: [dispositivoId], references: [id], onDelete: SetNull)
+  bitacoraSeguridad   ColabBitacoraSeguridad[]
+
+  @@index([usuarioId], map: "idx_colab_ses_usuario")
+  @@index([esActiva], map: "idx_colab_ses_activa")
+  @@index([expiraEn], map: "idx_colab_ses_expira")
+  @@index([dispositivoId], map: "idx_colab_ses_dispositivo")
+  @@map("colab_sesiones")
+}
+
+// Bitácora de seguridad de colaboradores
+model ColabBitacoraSeguridad {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  usuarioId       Int?      @map("usuario_id") @db.UnsignedInt
+  sesionId        Int?      @map("sesion_id") @db.UnsignedInt
+  tipoEvento      String    @map("tipo_evento") @db.VarChar(30)
+  descripcion     String?   @db.Text
+  datosExtra      Json?     @map("datos_extra")
+  ipAddress       String?   @map("ip_address") @db.VarChar(45)
+  userAgent       String?   @map("user_agent") @db.Text
+  correoIntento   String?   @map("correo_intento") @db.VarChar(255)
+  severidad       String    @default("info") @db.VarChar(15)
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+
+  usuario         ColabUsuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  sesion          ColabSesion?  @relation(fields: [sesionId], references: [id], onDelete: SetNull)
+
+  @@index([usuarioId], map: "idx_colab_bit_usuario")
+  @@index([tipoEvento], map: "idx_colab_bit_tipo")
+  @@index([severidad], map: "idx_colab_bit_severidad")
+  @@index([ipAddress], map: "idx_colab_bit_ip")
+  @@index([creadoEn], map: "idx_colab_bit_fecha")
+  @@map("colab_bitacora_seguridad")
+}
+
+// Almacenes de inventario
+model InventarioAlmacen {
+  id                  Int       @id @default(autoincrement()) @db.UnsignedInt
+  codigo              String    @unique @db.VarChar(30)
+  nombre              String    @db.VarChar(150)
+  tipo                String    @default("principal") @db.VarChar(20)
+  descripcion         String?   @db.Text
+  direccion           String?   @db.VarChar(300)
+  ciudad              String?   @db.VarChar(100)
+  departamento        String?   @db.VarChar(100)
+  pais                String    @default("Honduras") @db.VarChar(100)
+  codigoPostal        String?   @map("codigo_postal") @db.VarChar(10)
+  latitud             Decimal?  @db.Decimal(10, 7)
+  longitud            Decimal?  @db.Decimal(10, 7)
+  telefono            String?   @db.VarChar(20)
+  correo              String?   @db.VarChar(255)
+  responsable         String?   @db.VarChar(200)
+  capacidadMaxima     Int?      @map("capacidad_maxima") @db.UnsignedInt
+  esActivo            Boolean   @default(true) @map("es_activo")
+  creadoEn            DateTime  @default(now()) @map("creado_en")
+  actualizadoEn       DateTime  @updatedAt @map("actualizado_en")
+
+  turnos              ColabTurno[]
+  actividades         ColabActividadInventario[]
+  conteos             ColabConteoInventario[]
+
+  @@index([esActivo], map: "idx_inv_almacen_activo")
+  @@map("inventario_almacenes")
+}
+
+// Turnos de colaboradores
+model ColabTurno {
+  id                      Int       @id @default(autoincrement()) @db.UnsignedInt
+  usuarioId               Int       @map("usuario_id") @db.UnsignedInt
+  almacenId               Int       @map("almacen_id") @db.UnsignedInt
+  fecha                   DateTime  @db.Date
+  horaInicioProgramada    DateTime  @map("hora_inicio_programada") @db.Time(0)
+  horaFinProgramada       DateTime  @map("hora_fin_programada") @db.Time(0)
+  horaEntrada             DateTime? @map("hora_entrada")
+  horaSalida              DateTime? @map("hora_salida")
+  estado                  String    @default("programado") @db.VarChar(20)
+  notasEntrada            String?   @map("notas_entrada") @db.Text
+  notasSalida             String?   @map("notas_salida") @db.Text
+  ipEntrada               String?   @map("ip_entrada") @db.VarChar(45)
+  ipSalida                String?   @map("ip_salida") @db.VarChar(45)
+  creadoEn                DateTime  @default(now()) @map("creado_en")
+  actualizadoEn           DateTime  @updatedAt @map("actualizado_en")
+
+  usuario                 ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  almacen                 InventarioAlmacen @relation(fields: [almacenId], references: [id], onDelete: Cascade)
+  actividades             ColabActividadInventario[]
+
+  @@index([usuarioId], map: "idx_colab_turno_usuario")
+  @@index([almacenId], map: "idx_colab_turno_almacen")
+  @@index([fecha], map: "idx_colab_turno_fecha")
+  @@index([estado], map: "idx_colab_turno_estado")
+  @@index([usuarioId, fecha], map: "idx_colab_turno_usuario_fecha")
+  @@map("colab_turnos")
+}
+
+// Actividad de inventario de colaboradores
+model ColabActividadInventario {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  usuarioId               Int       @map("usuario_id") @db.UnsignedInt
+  turnoId                 Int?      @map("turno_id") @db.UnsignedInt
+  almacenId               Int       @map("almacen_id") @db.UnsignedInt
+  tipoOperacion           String    @map("tipo_operacion") @db.VarChar(40)
+  productoId              Int       @map("producto_id")
+  varianteId              Int?      @map("variante_id")
+  cantidad                Int
+  cantidadAnterior        Int       @default(0) @map("cantidad_anterior")
+  cantidadNueva           Int       @default(0) @map("cantidad_nueva")
+  documentoTipo           String?   @map("documento_tipo") @db.VarChar(50)
+  documentoNumero         String?   @map("documento_numero") @db.VarChar(50)
+  documentoId             BigInt?   @map("documento_id") @db.UnsignedBigInt
+  referenciaExterna       String?   @map("referencia_externa") @db.VarChar(200)
+  ubicacionOrigen         String?   @map("ubicacion_origen") @db.VarChar(50)
+  ubicacionDestino        String?   @map("ubicacion_destino") @db.VarChar(50)
+  numeroLote              String?   @map("numero_lote") @db.VarChar(100)
+  fechaVencimiento        DateTime? @map("fecha_vencimiento") @db.Date
+  costoUnitario           Decimal?  @map("costo_unitario") @db.Decimal(15, 4)
+  motivo                  String?   @db.Text
+  notas                   String?   @db.Text
+  fotoEvidenciaUrl        String?   @map("foto_evidencia_url") @db.VarChar(500)
+  requiereAprobacion      Boolean   @default(false) @map("requiere_aprobacion")
+  estadoAprobacion        String?   @map("estado_aprobacion") @db.VarChar(15)
+  aprobadoPor             Int?      @map("aprobado_por") @db.UnsignedInt
+  fechaAprobacion         DateTime? @map("fecha_aprobacion")
+  motivoRechazo           String?   @map("motivo_rechazo") @db.Text
+  ipAddress               String?   @map("ip_address") @db.VarChar(45)
+  dispositivoId           Int?      @map("dispositivo_id") @db.UnsignedInt
+  creadoEn                DateTime  @default(now()) @map("creado_en")
+
+  usuario                 ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  turno                   ColabTurno? @relation(fields: [turnoId], references: [id], onDelete: SetNull)
+  almacen                 InventarioAlmacen @relation(fields: [almacenId], references: [id], onDelete: Cascade)
+  producto                Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId], map: "idx_colab_act_usuario")
+  @@index([turnoId], map: "idx_colab_act_turno")
+  @@index([almacenId], map: "idx_colab_act_almacen")
+  @@index([tipoOperacion], map: "idx_colab_act_tipo")
+  @@index([productoId], map: "idx_colab_act_producto")
+  @@index([varianteId], map: "idx_colab_act_variante")
+  @@index([creadoEn], map: "idx_colab_act_fecha")
+  @@index([documentoTipo, documentoId], map: "idx_colab_act_documento")
+  @@index([estadoAprobacion], map: "idx_colab_act_aprobacion")
+  @@index([numeroLote], map: "idx_colab_act_lote")
+  @@map("colab_actividad_inventario")
+}
+
+// Conteos de inventario
+model ColabConteoInventario {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  almacenId               Int       @map("almacen_id") @db.UnsignedInt
+  codigo                  String    @unique @db.VarChar(30)
+  tipo                    String    @default("parcial") @db.VarChar(15)
+  zonaConteo              String?   @map("zona_conteo") @db.VarChar(50)
+  categoriaId             Int?      @map("categoria_id") @db.UnsignedInt
+  responsableId           Int       @map("responsable_id") @db.UnsignedInt
+  estado                  String    @default("programado") @db.VarChar(15)
+  fechaProgramada         DateTime  @map("fecha_programada") @db.Date
+  fechaInicio             DateTime? @map("fecha_inicio")
+  fechaFin                DateTime? @map("fecha_fin")
+  totalProductosContados  Int       @default(0) @map("total_productos_contados") @db.UnsignedInt
+  totalDiscrepancias      Int       @default(0) @map("total_discrepancias") @db.UnsignedInt
+  totalFaltantes          Int       @default(0) @map("total_faltantes") @db.UnsignedInt
+  totalSobrantes          Int       @default(0) @map("total_sobrantes") @db.UnsignedInt
+  aprobadoPor             Int?      @map("aprobado_por") @db.UnsignedInt
+  fechaAprobacion         DateTime? @map("fecha_aprobacion")
+  notas                   String?   @db.Text
+  creadoEn                DateTime  @default(now()) @map("creado_en")
+  actualizadoEn           DateTime  @updatedAt @map("actualizado_en")
+
+  almacen                 InventarioAlmacen @relation(fields: [almacenId], references: [id], onDelete: Cascade)
+  responsable             ColabUsuario @relation(fields: [responsableId], references: [id], onDelete: Cascade)
+  detalles                ColabConteoInventarioDetalle[]
+
+  @@index([almacenId], map: "idx_colab_conteo_almacen")
+  @@index([estado], map: "idx_colab_conteo_estado")
+  @@index([fechaProgramada], map: "idx_colab_conteo_fecha")
+  @@index([responsableId], map: "idx_colab_conteo_responsable")
+  @@map("colab_conteos_inventario")
+}
+
+// Detalle de conteo de inventario
+model ColabConteoInventarioDetalle {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  conteoId            BigInt    @map("conteo_id") @db.UnsignedBigInt
+  productoId          Int       @map("producto_id")
+  varianteId          Int?      @map("variante_id")
+  ubicacion           String?   @db.VarChar(50)
+  cantidadSistema     Int       @default(0) @map("cantidad_sistema")
+  cantidadFisica      Int       @default(0) @map("cantidad_fisica")
+  numeroLote          String?   @map("numero_lote") @db.VarChar(100)
+  estadoProducto      String    @default("bueno") @map("estado_producto") @db.VarChar(15)
+  contadoPor          Int       @map("contado_por") @db.UnsignedInt
+  fechaConteo         DateTime  @default(now()) @map("fecha_conteo")
+  notas               String?   @db.Text
+  fotoEvidenciaUrl    String?   @map("foto_evidencia_url") @db.VarChar(500)
+
+  conteo              ColabConteoInventario @relation(fields: [conteoId], references: [id], onDelete: Cascade)
+  producto            Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  contador            ColabUsuario @relation(fields: [contadoPor], references: [id], onDelete: Cascade)
+
+  @@index([conteoId], map: "idx_colab_det_conteo")
+  @@index([productoId], map: "idx_colab_det_producto")
+  @@index([varianteId], map: "idx_colab_det_variante")
+  @@map("colab_conteos_inventario_detalle")
+}
+
+// Notificaciones de colaboradores
+model ColabNotificacion {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  usuarioId       Int       @map("usuario_id") @db.UnsignedInt
+  titulo          String    @db.VarChar(255)
+  mensaje         String    @db.Text
+  tipo            String    @default("info") @db.VarChar(15)
+  prioridad       String    @default("normal") @db.VarChar(10)
+  urlAccion       String?   @map("url_accion") @db.VarChar(500)
+  textoAccion     String?   @map("texto_accion") @db.VarChar(100)
+  leida           Boolean   @default(false)
+  leidaEn         DateTime? @map("leida_en")
+  archivada       Boolean   @default(false)
+  archivadaEn     DateTime? @map("archivada_en")
+  expiraEn        DateTime? @map("expira_en")
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+
+  usuario         ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId], map: "idx_colab_notif_usuario")
+  @@index([tipo], map: "idx_colab_notif_tipo")
+  @@index([leida], map: "idx_colab_notif_leida")
+  @@index([creadoEn], map: "idx_colab_notif_fecha")
+  @@map("colab_notificaciones")
+}
+

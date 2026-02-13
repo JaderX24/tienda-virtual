@@ -8,7 +8,7 @@
             <div class="header-info">
                 <h1 class="pagina-titulo">{{ titulo() }}</h1>
                 <p class="pagina-subtitulo">
-                    {{ esEdicion() ? 'Modifica los datos del usuario' : 'Completa el formulario para crear un nuevo usuario' }}
+                    {{ esEdicion() ? 'Modifica los datos del usuario empresario' : 'Completa el formulario para registrar un nuevo usuario empresario' }}
                 </p>
             </div>
         </div>
@@ -30,7 +30,8 @@
             <!-- Formulario principal -->
             <div class="col-lg-8">
                 <form [formGroup]="formulario" (ngSubmit)="guardar()">
-                    <!-- Información básica -->
+                    
+                    <!-- SECCIÓN 1: Información Personal -->
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5><i class="bi bi-person me-2"></i>Información Personal</h5>
@@ -38,15 +39,27 @@
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Nombre Completo <span class="text-danger">*</span></label>
+                                    <label class="form-label">Nombre <span class="text-danger">*</span></label>
                                     <input 
                                         type="text" 
                                         class="form-control" 
                                         formControlName="nombre"
-                                        placeholder="Ej: Juan Carlos Pérez"
+                                        placeholder="Ej: Juan Carlos"
                                         [class.is-invalid]="tieneError('nombre')">
                                     @if (tieneError('nombre')) {
                                         <div class="invalid-feedback">{{ obtenerError('nombre') }}</div>
+                                    }
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Apellido <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="apellido"
+                                        placeholder="Ej: Pérez López"
+                                        [class.is-invalid]="tieneError('apellido')">
+                                    @if (tieneError('apellido')) {
+                                        <div class="invalid-feedback">{{ obtenerError('apellido') }}</div>
                                     }
                                 </div>
                                 <div class="col-md-6">
@@ -55,27 +68,41 @@
                                         type="email" 
                                         class="form-control" 
                                         formControlName="correo"
-                                        placeholder="correo@ejemplo.com"
+                                        placeholder="correo@empresa.com"
                                         [class.is-invalid]="tieneError('correo')">
                                     @if (tieneError('correo')) {
                                         <div class="invalid-feedback">{{ obtenerError('correo') }}</div>
                                     }
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Teléfono</label>
+                                    <label class="form-label">Fecha de Nacimiento</label>
                                     <input 
-                                        type="tel" 
+                                        type="date" 
                                         class="form-control" 
-                                        formControlName="telefono"
-                                        placeholder="+504 9999-0000">
+                                        formControlName="fechaNacimiento"
+                                        [max]="fechaMaximaNacimiento"
+                                        [class.is-invalid]="tieneError('fechaNacimiento')">
+                                    @if (tieneError('fechaNacimiento')) {
+                                        <div class="invalid-feedback">{{ obtenerError('fechaNacimiento') }}</div>
+                                    }
+                                    <small class="form-text text-muted">Opcional - Debe tener al menos 18 años</small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Rol <span class="text-danger">*</span></label>
+                                    <label class="form-label">Género</label>
+                                    <select class="form-select" formControlName="genero">
+                                        <option value="">Seleccionar...</option>
+                                        @for (genero of generos; track genero.valor) {
+                                            <option [value]="genero.valor">{{ genero.etiqueta }}</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Rol en el Sistema <span class="text-danger">*</span></label>
                                     <select 
                                         class="form-select" 
                                         formControlName="rolId"
                                         [class.is-invalid]="tieneError('rolId')">
-                                        <option [ngValue]="null">Selecciona un rol</option>
+                                        <option [ngValue]="null">Seleccionar rol...</option>
                                         @for (rol of roles(); track rol.id) {
                                             <option [ngValue]="rol.id">{{ rol.nombre }}</option>
                                         }
@@ -88,113 +115,400 @@
                         </div>
                     </div>
 
-                    <!-- Contraseña -->
+                    <!-- SECCIÓN 2: Identificación -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5>
-                                <i class="bi bi-shield-lock me-2"></i>
-                                {{ esEdicion() ? 'Cambiar Contraseña' : 'Contraseña' }}
-                            </h5>
-                            @if (esEdicion()) {
-                                <span class="badge bg-secondary">Opcional</span>
-                            }
+                            <h5><i class="bi bi-card-text me-2"></i>Identificación</h5>
                         </div>
                         <div class="card-body">
-                            @if (esEdicion()) {
-                                <p class="text-muted small mb-3">
-                                    Deja estos campos vacíos si no deseas cambiar la contraseña del usuario.
-                                </p>
-                            }
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">
-                                        Contraseña 
-                                        @if (!esEdicion()) {
-                                            <span class="text-danger">*</span>
+                                    <label class="form-label">Tipo de Documento <span class="text-danger">*</span></label>
+                                    <select class="form-select" formControlName="tipoDocumento" [class.is-invalid]="tieneError('tipoDocumento')">
+                                        <option value="">Seleccionar...</option>
+                                        @for (tipo of tiposDocumento; track tipo.valor) {
+                                            <option [value]="tipo.valor">{{ tipo.etiqueta }}</option>
                                         }
-                                    </label>
-                                    <div class="input-group">
-                                        <input 
-                                            [type]="mostrarContrasena() ? 'text' : 'password'" 
-                                            class="form-control" 
-                                            formControlName="contrasena"
-                                            placeholder="Mínimo 12 caracteres"
-                                            [class.is-invalid]="tieneError('contrasena')">
-                                        <button 
-                                            type="button" 
-                                            class="btn btn-outline-secondary"
-                                            (click)="toggleContrasena()">
-                                            <i class="bi" [class.bi-eye]="!mostrarContrasena()" [class.bi-eye-slash]="mostrarContrasena()"></i>
-                                        </button>
-                                    </div>
-                                    @if (tieneError('contrasena')) {
-                                        <div class="text-danger small mt-1">{{ obtenerError('contrasena') }}</div>
+                                    </select>
+                                    @if (tieneError('tipoDocumento')) {
+                                        <div class="invalid-feedback">{{ obtenerError('tipoDocumento') }}</div>
                                     }
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">
-                                        Confirmar Contraseña
-                                        @if (!esEdicion()) {
-                                            <span class="text-danger">*</span>
-                                        }
-                                    </label>
+                                    <label class="form-label">Número de Documento <span class="text-danger">*</span></label>
                                     <input 
-                                        [type]="mostrarContrasena() ? 'text' : 'password'" 
+                                        type="text" 
                                         class="form-control" 
-                                        formControlName="confirmarContrasena"
-                                        placeholder="Repite la contraseña"
-                                        [class.is-invalid]="!contrasenasCoinciden() && formulario.get('confirmarContrasena')?.touched">
-                                    @if (!contrasenasCoinciden() && formulario.get('confirmarContrasena')?.touched) {
-                                        <div class="text-danger small mt-1">Las contraseñas no coinciden</div>
+                                        formControlName="numeroDocumento"
+                                        placeholder="Ej: 0801-1990-00001"
+                                        [class.is-invalid]="tieneError('numeroDocumento')">
+                                    @if (tieneError('numeroDocumento')) {
+                                        <div class="invalid-feedback">{{ obtenerError('numeroDocumento') }}</div>
                                     }
+                                    <small class="form-text text-muted">Solo letras, números y guiones (mín. 4, máx. 30)</small>
                                 </div>
-                            </div>
-                            <div class="requisitos-contrasena mt-3">
-                                <span class="requisitos-titulo">Requisitos de la contraseña:</span>
-                                <ul class="mb-0">
-                                    <li>Mínimo 12 caracteres</li>
-                                    <li>Al menos una mayúscula y una minúscula</li>
-                                    <li>Al menos un número</li>
-                                    <li>Al menos un carácter especial (!&#64;#$%^&*)</li>
-                                </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Estado -->
+                    <!-- SECCIÓN 3: Contacto -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5><i class="bi bi-toggles me-2"></i>Estado de la Cuenta</h5>
+                            <h5><i class="bi bi-telephone me-2"></i>Información de Contacto</h5>
                         </div>
                         <div class="card-body">
-                            <div class="form-check form-switch">
-                                <input 
-                                    class="form-check-input" 
-                                    type="checkbox" 
-                                    id="activo" 
-                                    formControlName="activo">
-                                <label class="form-check-label" for="activo">
-                                    <strong>Usuario Activo</strong>
-                                    <span class="d-block text-muted small">
-                                        Los usuarios inactivos no pueden acceder al sistema
-                                    </span>
-                                </label>
+                            <div class="row g-3">
+                                <!-- Teléfono Fijo (Opcional) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Teléfono Fijo</label>
+                                    <div class="input-group telefono-internacional">
+                                        <div class="dropdown">
+                                            <button 
+                                                class="btn btn-outline-secondary dropdown-toggle selector-pais" 
+                                                type="button" 
+                                                data-bs-toggle="dropdown">
+                                                <span class="bandera">{{ paisSeleccionadoTelefono().bandera }}</span>
+                                                <span class="codigo">{{ paisSeleccionadoTelefono().codigo }}</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-paises">
+                                                @for (pais of paises; track pais.codigo + pais.pais; let i = $index) {
+                                                    <li>
+                                                        <button 
+                                                            type="button"
+                                                            class="dropdown-item" 
+                                                            (click)="seleccionarPaisTelefono(i)">
+                                                            <span class="bandera">{{ pais.bandera }}</span>
+                                                            <span class="nombre-pais">{{ pais.pais }}</span>
+                                                            <span class="codigo-pais">{{ pais.codigo }}</span>
+                                                        </button>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <input 
+                                            type="tel" 
+                                            class="form-control" 
+                                            formControlName="telefono"
+                                            [placeholder]="obtenerPlaceholder('telefono')"
+                                            (input)="formatearNumeroTelefono($event, 'telefono')"
+                                            [class.is-invalid]="tieneError('telefono')">
+                                    </div>
+                                    @if (tieneError('telefono')) {
+                                        <div class="text-danger small mt-1">{{ obtenerError('telefono') }}</div>
+                                    }
+                                    <small class="text-muted">
+                                        Formato para {{ paisSeleccionadoTelefono().pais }}: {{ paisSeleccionadoTelefono().formato }}
+                                    </small>
+                                </div>
+
+                                <!-- Teléfono Celular (Obligatorio y Único) -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Teléfono Celular <span class="text-danger">*</span></label>
+                                    <div class="input-group telefono-internacional">
+                                        <div class="dropdown">
+                                            <button 
+                                                class="btn btn-outline-secondary dropdown-toggle selector-pais" 
+                                                type="button" 
+                                                data-bs-toggle="dropdown">
+                                                <span class="bandera">{{ paisSeleccionadoCelular().bandera }}</span>
+                                                <span class="codigo">{{ paisSeleccionadoCelular().codigo }}</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-paises">
+                                                @for (pais of paises; track pais.codigo + pais.pais; let i = $index) {
+                                                    <li>
+                                                        <button 
+                                                            type="button"
+                                                            class="dropdown-item" 
+                                                            (click)="seleccionarPaisCelular(i)">
+                                                            <span class="bandera">{{ pais.bandera }}</span>
+                                                            <span class="nombre-pais">{{ pais.pais }}</span>
+                                                            <span class="codigo-pais">{{ pais.codigo }}</span>
+                                                        </button>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <input 
+                                            type="tel" 
+                                            class="form-control" 
+                                            formControlName="celular"
+                                            [placeholder]="obtenerPlaceholder('celular')"
+                                            (input)="formatearNumeroTelefono($event, 'celular')"
+                                            [class.is-invalid]="tieneError('celular')">
+                                    </div>
+                                    @if (tieneError('celular')) {
+                                        <div class="text-danger small mt-1">{{ obtenerError('celular') }}</div>
+                                    }
+                                    <small class="text-muted">
+                                        Formato para {{ paisSeleccionadoCelular().pais }}: {{ paisSeleccionadoCelular().formato }}
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- SECCIÓN 4: Información Laboral -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="bi bi-briefcase me-2"></i>Información Laboral</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Cargo / Puesto <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="cargo"
+                                        placeholder="Ej: Gerente de Ventas"
+                                        [class.is-invalid]="tieneError('cargo')">
+                                    @if (tieneError('cargo')) {
+                                        <div class="invalid-feedback">{{ obtenerError('cargo') }}</div>
+                                    }
+                                    <small class="form-text text-muted">Solo letras, mín. 2 caracteres</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Departamento / Área <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="departamento"
+                                        placeholder="Ej: Ventas, Administración, etc."
+                                        [class.is-invalid]="tieneError('departamento')">
+                                    @if (tieneError('departamento')) {
+                                        <div class="invalid-feedback">{{ obtenerError('departamento') }}</div>
+                                    }
+                                    <small class="form-text text-muted">Solo letras, mín. 2 caracteres</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Fecha de Ingreso</label>
+                                    <input 
+                                        type="date" 
+                                        class="form-control" 
+                                        formControlName="fechaIngreso"
+                                        [max]="fechaMaximaIngreso"
+                                        [class.is-invalid]="tieneError('fechaIngreso')">
+                                    @if (tieneError('fechaIngreso')) {
+                                        <div class="invalid-feedback">{{ obtenerError('fechaIngreso') }}</div>
+                                    }
+                                    <small class="form-text text-muted">Opcional - No puede ser futura</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 5: Dirección -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="bi bi-geo-alt me-2"></i>Dirección</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <!-- País -->
+                                <div class="col-md-6">
+                                    <label class="form-label">País <span class="text-danger">*</span></label>
+                                    <div class="dropdown">
+                                        <button 
+                                            class="btn btn-outline-secondary dropdown-toggle selector-pais-direccion w-100" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown">
+                                            <span class="bandera me-2">{{ paisSeleccionado().bandera }}</span>
+                                            <span>{{ paisSeleccionado().nombre }}</span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-paises w-100">
+                                            @for (pais of paisesLista; track pais.codigo) {
+                                                <li>
+                                                    <button 
+                                                        type="button"
+                                                        class="dropdown-item" 
+                                                        (click)="seleccionarPais(pais.codigo)">
+                                                        <span class="bandera me-2">{{ pais.bandera }}</span>
+                                                        <span>{{ pais.nombre }}</span>
+                                                    </button>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Estado/Provincia/Departamento -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Estado / Provincia / Región <span class="text-danger">*</span></label>
+                                    @if (estadosDisponibles().length > 0) {
+                                        <select class="form-select" formControlName="estado">
+                                            <option value="">Seleccionar...</option>
+                                            @for (estado of estadosDisponibles(); track estado) {
+                                                <option [value]="estado">{{ estado }}</option>
+                                            }
+                                        </select>
+                                    } @else {
+                                        <input 
+                                            type="text" 
+                                            class="form-control" 
+                                            formControlName="estado"
+                                            placeholder="Ingrese estado/provincia">
+                                    }
+                                </div>
+
+                                <!-- Ciudad -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Ciudad <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="ciudad"
+                                        placeholder="Ej: Tegucigalpa, Ciudad de México, Madrid..."
+                                        [class.is-invalid]="tieneError('ciudad')">
+                                    @if (tieneError('ciudad')) {
+                                        <div class="invalid-feedback">{{ obtenerError('ciudad') }}</div>
+                                    }
+                                    <small class="form-text text-muted">Solo letras</small>
+                                </div>
+
+                                <!-- Código Postal -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Código Postal / ZIP <span class="text-danger">*</span></label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="codigoPostal"
+                                        placeholder="Ej: 11101, 28001, 10001"
+                                        maxlength="15"
+                                        [class.is-invalid]="tieneError('codigoPostal')">
+                                    @if (tieneError('codigoPostal')) {
+                                        <div class="invalid-feedback">{{ obtenerError('codigoPostal') }}</div>
+                                    }
+                                    <small class="form-text text-muted">3-15 caracteres</small>
+                                </div>
+
+                                <!-- Dirección completa -->
+                                <div class="col-12">
+                                    <label class="form-label">Dirección Completa</label>
+                                    <textarea 
+                                        class="form-control" 
+                                        formControlName="direccion"
+                                        rows="2"
+                                        placeholder="Calle, número, colonia, referencias..."
+                                        maxlength="255"
+                                        [class.is-invalid]="tieneError('direccion')"></textarea>
+                                    @if (tieneError('direccion')) {
+                                        <div class="invalid-feedback">{{ obtenerError('direccion') }}</div>
+                                    }
+                                    <small class="form-text text-muted">Mín. 10 caracteres si se completa (máx. 255)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 6: Notas Adicionales -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="bi bi-journal-text me-2"></i>Notas Adicionales</h5>
+                            <small class="text-muted">(Opcional)</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Observaciones</label>
+                                    <textarea 
+                                        class="form-control" 
+                                        formControlName="notas"
+                                        rows="3"
+                                        maxlength="500"
+                                        placeholder="Información adicional sobre el usuario..."
+                                        [class.is-invalid]="tieneError('notas')"></textarea>
+                                    @if (tieneError('notas')) {
+                                        <div class="invalid-feedback">{{ obtenerError('notas') }}</div>
+                                    }
+                                    <small class="text-muted">Máximo 500 caracteres</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Contraseña (solo en creación) -->
+                    @if (!esEdicion()) {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="bi bi-shield-lock me-2"></i>Contraseña de Acceso</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info mb-0">
+                                    <div class="d-flex align-items-start">
+                                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                                        <div>
+                                            <h6 class="alert-heading mb-2">Contraseña Automática</h6>
+                                            <p class="mb-2">
+                                                La contraseña será generada automáticamente cumpliendo todos los requisitos de seguridad:
+                                            </p>
+                                            <ul class="mb-2">
+                                                <li>Mínimo 16 caracteres</li>
+                                                <li>Mayúsculas y minúsculas</li>
+                                                <li>Números y caracteres especiales</li>
+                                            </ul>
+                                            <p class="mb-0">
+                                                <strong>Las credenciales serán enviadas al correo electrónico del usuario.</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Estado (solo en edición) -->
+                    @if (esEdicion()) {
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="bi bi-toggles me-2"></i>Estado de la Cuenta</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check form-switch">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="activo" 
+                                        [checked]="usuario()?.activo"
+                                        (change)="toggleEstadoUsuario($event)">
+                                    <label class="form-check-label" for="activo">
+                                        <strong>Usuario Activo</strong>
+                                        <span class="d-block text-muted small">
+                                            Los usuarios inactivos no pueden acceder al sistema
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Alerta de Error del Servidor -->
+                    @if (errorServidor()) {
+                        <div class="alert alert-danger mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <div>
+                                    <strong>Error:</strong> {{ errorServidor() }}
+                                </div>
+                                <button type="button" class="btn-close ms-auto" (click)="errorServidor.set(null)"></button>
+                            </div>
+                        </div>
+                    }
 
                     <!-- Botones -->
                     <div class="form-acciones">
                         <button type="button" class="btn btn-secondary" (click)="cancelar()">
                             <i class="bi bi-x-lg me-2"></i>Cancelar
                         </button>
-                        <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary"
+                            [disabled]="guardando()">
                             @if (guardando()) {
-                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                                 Guardando...
                             } @else {
                                 <i class="bi bi-check-lg me-2"></i>
-                                {{ esEdicion() ? 'Guardar Cambios' : 'Crear Usuario' }}
+                                {{ esEdicion() ? 'Actualizar Usuario' : 'Crear Usuario' }}
                             }
                         </button>
                     </div>
@@ -204,20 +518,26 @@
             <!-- Panel lateral -->
             <div class="col-lg-4">
                 <!-- Vista previa -->
-                <div class="card card-preview">
+                <div class="card card-preview sticky-top" style="top: 1rem;">
                     <div class="card-header">
                         <h6><i class="bi bi-eye me-2"></i>Vista Previa</h6>
                     </div>
                     <div class="card-body text-center">
                         <div class="preview-avatar">
-                            <span>{{ obtenerIniciales(formulario.get('nombre')?.value || '') }}</span>
+                            <span>{{ obtenerIniciales(formulario.get('nombre')?.value || '', formulario.get('apellido')?.value) }}</span>
                         </div>
                         <h5 class="preview-nombre mt-3">
-                            {{ formulario.get('nombre')?.value || 'Nombre del usuario' }}
+                            {{ obtenerNombreCompleto() }}
                         </h5>
                         <p class="preview-correo">
                             {{ formulario.get('correo')?.value || 'correo@ejemplo.com' }}
                         </p>
+                        @if (formulario.get('cargo')?.value) {
+                            <p class="preview-cargo">
+                                <i class="bi bi-briefcase me-1"></i>
+                                {{ formulario.get('cargo')?.value }}
+                            </p>
+                        }
                         @if (formulario.get('rolId')?.value) {
                             @for (rol of roles(); track rol.id) {
                                 @if (rol.id === formulario.get('rolId')?.value) {
@@ -225,17 +545,48 @@
                                 }
                             }
                         }
-                        <div class="preview-estado mt-3">
-                            <span 
-                                class="badge-estado-preview"
-                                [class.activo]="formulario.get('activo')?.value"
-                                [class.inactivo]="!formulario.get('activo')?.value">
-                                <i class="bi" 
-                                    [class.bi-check-circle-fill]="formulario.get('activo')?.value" 
-                                    [class.bi-x-circle-fill]="!formulario.get('activo')?.value"></i>
-                                {{ formulario.get('activo')?.value ? 'Activo' : 'Inactivo' }}
-                            </span>
+                        
+                        <!-- Info de contacto en preview -->
+                        <div class="preview-contacto mt-3">
+                            @if (formulario.get('celular')?.value) {
+                                <p class="mb-1 small text-muted">
+                                    <i class="bi bi-phone me-1"></i>
+                                    {{ obtenerTelefonoFormateado('celular') }}
+                                </p>
+                            }
+                            @if (formulario.get('telefono')?.value) {
+                                <p class="mb-1 small text-muted">
+                                    <i class="bi bi-telephone me-1"></i>
+                                    {{ obtenerTelefonoFormateado('telefono') }}
+                                </p>
+                            }
+                            @if (formulario.get('ciudad')?.value || formulario.get('departamentoGeo')?.value) {
+                                <p class="mb-0 small text-muted">
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    {{ formulario.get('ciudad')?.value }}{{ formulario.get('ciudad')?.value && formulario.get('estado')?.value ? ', ' : '' }}{{ formulario.get('estado')?.value }}
+                                </p>
+                            }
+                            @if (paisSeleccionado()) {
+                                <p class="mb-0 small text-muted">
+                                    <span class="me-1">{{ paisSeleccionado().bandera }}</span>
+                                    {{ paisSeleccionado().nombre }}
+                                </p>
+                            }
                         </div>
+
+                        @if (esEdicion()) {
+                            <div class="preview-estado mt-3">
+                                <span 
+                                    class="badge-estado-preview"
+                                    [class.activo]="usuario()?.activo"
+                                    [class.inactivo]="!usuario()?.activo">
+                                    <i class="bi" 
+                                        [class.bi-check-circle-fill]="usuario()?.activo" 
+                                        [class.bi-x-circle-fill]="!usuario()?.activo"></i>
+                                    {{ usuario()?.activo ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </div>
+                        }
                     </div>
                 </div>
 
@@ -243,9 +594,13 @@
                 @if (esEdicion() && usuario()) {
                     <div class="card mt-4">
                         <div class="card-header">
-                            <h6><i class="bi bi-info-circle me-2"></i>Información Adicional</h6>
+                            <h6><i class="bi bi-info-circle me-2"></i>Información del Sistema</h6>
                         </div>
                         <div class="card-body">
+                            <div class="info-item">
+                                <span class="info-label">ID de Usuario</span>
+                                <span class="info-valor">#{{ usuario()?.id }}</span>
+                            </div>
                             <div class="info-item">
                                 <span class="info-label">Creado</span>
                                 <span class="info-valor">{{ usuario()?.creadoEn | date:'dd/MM/yyyy HH:mm' }}</span>
@@ -267,3 +622,74 @@
         </div>
     }
 </div>
+
+<!-- Modal de Usuario Creado Exitosamente -->
+@if (mostrarInfoContrasena()) {
+    <div class="modal-overlay">
+        <div class="modal-contenido modal-exito">
+            <div class="modal-header-custom exito">
+                <div class="modal-icono">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <h5>¡Usuario Creado Exitosamente!</h5>
+            </div>
+            <div class="modal-body-custom">
+                <p class="text-center mb-3">
+                    El usuario <strong>{{ obtenerNombreCompleto() }}</strong> ha sido creado correctamente.
+                </p>
+                
+                @if (correoEnviado()) {
+                    <div class="text-center mb-4">
+                        <div class="icono-correo-enviado">
+                            <i class="bi bi-envelope-check"></i>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-envelope-paper me-3 fs-4"></i>
+                            <div>
+                                <strong>Credenciales enviadas por correo</strong>
+                                <p class="mb-0 small">
+                                    Se ha enviado un correo a <strong>{{ correoUsuarioCreado() }}</strong> 
+                                    con la contraseña de acceso y las instrucciones para iniciar sesión.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted small text-center mt-3">
+                        <i class="bi bi-shield-check me-1"></i>
+                        La contraseña fue generada cumpliendo todos los requisitos de seguridad
+                    </p>
+                } @else {
+                    <div class="text-center mb-4">
+                        <div class="icono-correo-error">
+                            <i class="bi bi-envelope-x text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+                            <div>
+                                <strong>No se pudo enviar el correo</strong>
+                                <p class="mb-2 small">
+                                    El usuario fue creado pero no se pudo enviar el correo con las credenciales a 
+                                    <strong>{{ correoUsuarioCreado() }}</strong>.
+                                </p>
+                                <p class="mb-0 small">
+                                    <strong>Acción requerida:</strong> Deberá establecer una contraseña manualmente 
+                                    desde la opción "Cambiar contraseña" en la lista de usuarios.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn btn-primary btn-lg w-100" (click)="irAListaUsuarios()">
+                    <i class="bi bi-list-ul me-2"></i>
+                    Ir a Lista de Usuarios
+                </button>
+            </div>
+        </div>
+    </div>
+}

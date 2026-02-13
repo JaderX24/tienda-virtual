@@ -1,0 +1,184 @@
+<div class="pagina-permisos">
+    <!-- Encabezado Hero -->
+    <div class="encabezado-hero">
+        <div class="hero-contenido">
+            <div class="hero-icono">
+                <i class="bi bi-key-fill"></i>
+            </div>
+            <div class="hero-texto">
+                <h1>Gestión de Permisos</h1>
+                @if (rol()) {
+                    <div class="rol-info">
+                        <span class="rol-badge">
+                            <i class="bi bi-shield-fill"></i>
+                            {{ rol()!.nombre }}
+                        </span>
+                        <span class="rol-codigo">{{ rol()!.codigo }}</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <button type="button" class="btn-volver" (click)="cancelar()">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver a Roles</span>
+        </button>
+    </div>
+
+    @if (estaCargando()) {
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+            <p>Cargando permisos del sistema...</p>
+        </div>
+    } @else {
+        <!-- Panel de Control -->
+        <div class="panel-control">
+            <div class="control-busqueda">
+                <i class="bi bi-search"></i>
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre, descripción o módulo..."
+                    [ngModel]="busqueda()"
+                    (ngModelChange)="busqueda.set($event)"
+                >
+                @if (busqueda()) {
+                    <button type="button" class="btn-limpiar" (click)="busqueda.set('')">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                }
+            </div>
+            
+            <div class="control-acciones">
+                <div class="contador-permisos">
+                    <div class="contador-numero">{{ rolesPermisosService.contarSeleccionados() }}</div>
+                    <div class="contador-texto">
+                        <span>de {{ rolesPermisosService.contarTotal() }}</span>
+                        <small>seleccionados</small>
+                    </div>
+                </div>
+                
+                <div class="acciones-rapidas">
+                    <button 
+                        type="button" 
+                        class="btn-accion seleccionar"
+                        (click)="seleccionarTodos()"
+                        title="Seleccionar todos los permisos"
+                    >
+                        <i class="bi bi-check-all"></i>
+                        <span>Todos</span>
+                    </button>
+                    <button 
+                        type="button" 
+                        class="btn-accion quitar"
+                        (click)="deseleccionarTodos()"
+                        title="Quitar todos los permisos"
+                    >
+                        <i class="bi bi-x-lg"></i>
+                        <span>Ninguno</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de permisos agrupados -->
+        <div class="modulos-container">
+            @for (grupo of permisosFiltrados; track grupo.modulo) {
+                <div class="modulo-card" [class.expandido]="estaExpandido(grupo.modulo)">
+                    <div class="modulo-header" (click)="toggleModuloExpandido(grupo.modulo)">
+                        <div class="modulo-check" (click)="$event.stopPropagation()">
+                            <input
+                                type="checkbox"
+                                class="check-modulo"
+                                [id]="'modulo-' + grupo.modulo"
+                                [checked]="moduloCompleto(grupo.modulo)"
+                                [indeterminate]="moduloParcial(grupo.modulo)"
+                                (change)="toggleModulo(grupo.modulo)"
+                            >
+                        </div>
+                        <div class="modulo-info">
+                            <span class="modulo-nombre">{{ grupo.nombreModulo }}</span>
+                            <span class="modulo-contador">{{ grupo.permisos.length }} permisos</span>
+                        </div>
+                        <div class="modulo-toggle">
+                            <i class="bi" [class.bi-chevron-down]="!estaExpandido(grupo.modulo)" [class.bi-chevron-up]="estaExpandido(grupo.modulo)"></i>
+                        </div>
+                    </div>
+                    
+                    @if (estaExpandido(grupo.modulo)) {
+                        <div class="modulo-contenido">
+                            <div class="permisos-grid">
+                                @for (permiso of grupo.permisos; track permiso.id) {
+                                    <div 
+                                        class="permiso-item"
+                                        [class.activo]="estaSeleccionado(permiso.id)"
+                                        (click)="togglePermiso(permiso.id)"
+                                    >
+                                        <div class="permiso-check">
+                                            <input
+                                                type="checkbox"
+                                                [checked]="estaSeleccionado(permiso.id)"
+                                                (click)="$event.stopPropagation()"
+                                                (change)="togglePermiso(permiso.id)"
+                                            >
+                                        </div>
+                                        <div class="permiso-info">
+                                            <span class="permiso-nombre">{{ permiso.nombre }}</span>
+                                            @if (permiso.descripcion) {
+                                                <span class="permiso-desc">{{ permiso.descripcion }}</span>
+                                            }
+                                            <code class="permiso-codigo">{{ permiso.codigo }}</code>
+                                        </div>
+                                        <div class="permiso-estado">
+                                            @if (estaSeleccionado(permiso.id)) {
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (permisosFiltrados.length === 0) {
+            <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <h4>Sin resultados</h4>
+                <p>No se encontraron permisos que coincidan con "{{ busqueda() }}"</p>
+                <button type="button" class="btn btn-outline-primary" (click)="busqueda.set('')">
+                    Limpiar búsqueda
+                </button>
+            </div>
+        }
+
+        <!-- Barra de acción flotante -->
+        <div class="barra-accion">
+            <div class="barra-info">
+                <i class="bi bi-info-circle"></i>
+                <span>Los cambios se aplicarán después de guardar</span>
+            </div>
+            <div class="barra-botones">
+                <button type="button" class="btn-cancelar" (click)="cancelar()">
+                    Cancelar
+                </button>
+                <button 
+                    type="button" 
+                    class="btn-guardar"
+                    [disabled]="guardando()"
+                    (click)="guardar()"
+                >
+                    @if (guardando()) {
+                        <span class="spinner-border spinner-border-sm"></span>
+                        Guardando...
+                    } @else {
+                        <i class="bi bi-check-lg"></i>
+                        Guardar Permisos
+                    }
+                </button>
+            </div>
+        </div>
+    }
+</div>

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import {
     Usuario,
@@ -9,7 +9,8 @@ import {
     ActualizarUsuarioDto,
     CambiarContrasenaDto,
     FiltrosUsuario,
-    RespuestaPaginada
+    RespuestaPaginada,
+    RespuestaApi
 } from '../interfaces';
 
 @Injectable({
@@ -46,10 +47,11 @@ export class UsuariosService {
             params = params.set('activo', filtros.activo.toString());
         }
 
-        return this.http.get<RespuestaPaginada<Usuario>>(this.apiUrl, { params }).pipe(
-            tap(respuesta => {
-                this.usuarios.set(respuesta.datos);
-                this.totalUsuarios.set(respuesta.total);
+        return this.http.get<RespuestaApi<RespuestaPaginada<Usuario>>>(this.apiUrl, { params }).pipe(
+            map(respuesta => respuesta.datos),
+            tap(datos => {
+                this.usuarios.set(datos.datos);
+                this.totalUsuarios.set(datos.total);
                 this.cargando.set(false);
             }),
             catchError(error => {
@@ -60,12 +62,15 @@ export class UsuariosService {
     }
 
     obtenerUsuarioPorId(id: number): Observable<Usuario> {
-        return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
+        return this.http.get<RespuestaApi<Usuario>>(`${this.apiUrl}/${id}`).pipe(
+            map(respuesta => respuesta.datos)
+        );
     }
 
-    crearUsuario(datos: CrearUsuarioDto): Observable<Usuario> {
+    crearUsuario(datos: CrearUsuarioDto): Observable<{ usuario: Usuario; correoEnviado: boolean }> {
         this.cargando.set(true);
-        return this.http.post<Usuario>(this.apiUrl, datos).pipe(
+        return this.http.post<RespuestaApi<{ usuario: Usuario; correoEnviado: boolean }>>(this.apiUrl, datos).pipe(
+            map(respuesta => respuesta.datos),
             tap(() => this.cargando.set(false)),
             catchError(error => {
                 this.cargando.set(false);
@@ -76,7 +81,8 @@ export class UsuariosService {
 
     actualizarUsuario(id: number, datos: ActualizarUsuarioDto): Observable<Usuario> {
         this.cargando.set(true);
-        return this.http.patch<Usuario>(`${this.apiUrl}/${id}`, datos).pipe(
+        return this.http.patch<RespuestaApi<{ usuario: Usuario }>>(`${this.apiUrl}/${id}`, datos).pipe(
+            map(respuesta => respuesta.datos.usuario),
             tap(() => this.cargando.set(false)),
             catchError(error => {
                 this.cargando.set(false);
@@ -86,19 +92,20 @@ export class UsuariosService {
     }
 
     cambiarContrasena(id: number, datos: CambiarContrasenaDto): Observable<void> {
-        return this.http.patch<void>(`${this.apiUrl}/${id}/contrasena`, datos);
+        return this.http.patch<RespuestaApi<void>>(`${this.apiUrl}/${id}/contrasena`, datos).pipe(
+            map(() => undefined)
+        );
     }
 
     cambiarEstado(id: number, activo: boolean): Observable<Usuario> {
-        return this.http.patch<Usuario>(`${this.apiUrl}/${id}/estado`, { activo });
-    }
-
-    eliminarUsuario(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+        return this.http.patch<RespuestaApi<{ usuario: Usuario }>>(`${this.apiUrl}/${id}/estado`, { activo }).pipe(
+            map(respuesta => respuesta.datos.usuario)
+        );
     }
 
     obtenerRoles(): Observable<Rol[]> {
-        return this.http.get<Rol[]>(`${environment.apiUrl}/admin/roles`).pipe(
+        return this.http.get<RespuestaApi<Rol[]>>(`${environment.apiUrl}/admin/roles`).pipe(
+            map(respuesta => respuesta.datos),
             tap(roles => this.roles.set(roles))
         );
     }

@@ -119,6 +119,104 @@ $danger: #ef4444;
     }
 }
 
+// Selector de teléfono internacional
+.telefono-internacional {
+    .selector-pais {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        min-width: 110px;
+        
+        .bandera {
+            font-size: 1.2rem;
+        }
+        
+        .codigo {
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        &:hover {
+            background: #f1f5f9;
+        }
+
+        &::after {
+            margin-left: auto;
+        }
+    }
+
+    .form-control {
+        border-radius: 0 8px 8px 0;
+    }
+}
+
+.dropdown-menu-paises {
+    max-height: 300px;
+    overflow-y: auto;
+    min-width: 280px;
+    padding: 0.5rem;
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:hover {
+            background: #f1f5f9;
+        }
+
+        .bandera {
+            font-size: 1.3rem;
+        }
+
+        .nombre-pais {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+
+        .codigo-pais {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+    }
+}
+
+// Selector de país para dirección
+.selector-pais-direccion {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 0.625rem 0.875rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    
+    .bandera {
+        font-size: 1.3rem;
+    }
+
+    &:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    &::after {
+        margin-left: auto;
+    }
+}
+
 .form-check-input {
     width: 2.5rem;
     height: 1.25rem;
@@ -239,7 +337,18 @@ $danger: #ef4444;
 .preview-correo {
     font-size: 0.85rem;
     color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.preview-cargo {
+    font-size: 0.8rem;
+    color: #475569;
     margin-bottom: 0.75rem;
+}
+
+.preview-contacto {
+    padding-top: 0.75rem;
+    border-top: 1px solid #f1f5f9;
 }
 
 .badge-rol-preview {
@@ -326,5 +435,117 @@ $danger: #ef4444;
         .btn {
             width: 100%;
         }
+    }
+}
+
+// Modal de éxito
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+
+.modal-contenido {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: modalEntrada 0.3s ease-out;
+}
+
+@keyframes modalEntrada {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header-custom {
+    padding: 2rem 2rem 1rem;
+    text-align: center;
+    border-radius: 16px 16px 0 0;
+
+    &.exito {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        
+        .modal-icono {
+            background: white;
+            color: $success;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+    }
+
+    h5 {
+        margin: 0;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1.25rem;
+    }
+}
+
+.modal-icono {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+}
+
+.modal-body-custom {
+    padding: 1.5rem 2rem;
+}
+
+.modal-footer-custom {
+    padding: 1rem 2rem 2rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.icono-correo-enviado {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    
+    i {
+        font-size: 2.5rem;
+        color: #3b82f6;
+    }
+}
+
+.icono-correo-error {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    
+    i {
+        font-size: 2.5rem;
+        color: #d97706;
     }
 }
