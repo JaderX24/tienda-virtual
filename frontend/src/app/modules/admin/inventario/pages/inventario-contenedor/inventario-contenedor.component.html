@@ -1,0 +1,43 @@
+<div class="pagina-inventario">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-info">
+            <div>
+                <h1 class="pagina-titulo">
+                    <i class="bi bi-boxes"></i>
+                    Gestión de Inventario
+                </h1>
+                <p class="pagina-subtitulo">Control completo del inventario, movimientos y análisis</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas -->
+    <ul class="nav nav-tabs pestanas-inventario mb-4">
+        <li class="nav-item">
+            <button
+                class="nav-link"
+                [class.active]="pestanaActiva() === 'dashboard'"
+                (click)="cambiarPestana('dashboard')">
+                <i class="bi bi-graph-up me-2"></i>
+                Dashboard y Análisis
+            </button>
+        </li>
+        <li class="nav-item">
+            <button
+                class="nav-link"
+                [class.active]="pestanaActiva() === 'administracion'"
+                (click)="cambiarPestana('administracion')">
+                <i class="bi bi-clipboard-data me-2"></i>
+                Administración
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenido dinámico -->
+    @if (pestanaActiva() === 'dashboard') {
+        <app-dashboard-inventario />
+    } @else {
+        <app-admin-inventario />
+    }
+</div>

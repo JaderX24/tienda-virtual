@@ -1,0 +1,264 @@
+<div class="pagina-categorias">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-info">
+            <h1 class="pagina-titulo">
+                <i class="bi bi-grid-fill"></i>
+                Gestión de Categorías
+            </h1>
+            <p class="pagina-subtitulo">
+                Administra las categorías de productos del catálogo
+            </p>
+        </div>
+        <div class="header-acciones">
+            <a routerLink="nueva" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>
+                Nueva Categoría
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card filtros-card mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Nombre o descripción..."
+                            [ngModel]="busqueda()"
+                            (ngModelChange)="busqueda.set($event)"
+                            (keyup.enter)="buscar()">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select
+                        class="form-select"
+                        [ngModel]="estadoSeleccionado()"
+                        (ngModelChange)="estadoSeleccionado.set($event)">
+                        <option [ngValue]="null">Todos</option>
+                        <option [ngValue]="true">Activas</option>
+                        <option [ngValue]="false">Inactivas</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary flex-grow-1" (click)="buscar()">
+                            <i class="bi bi-search me-1"></i> Buscar
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido -->
+    @if (cargando()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando categorías...</p>
+                </div>
+            </div>
+        </div>
+    } @else if (errorCarga()) {
+        <div class="alert alert-danger d-flex align-items-center mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span>{{ errorCarga() }}</span>
+            <button type="button" class="btn btn-outline-danger btn-sm ms-auto" (click)="cargarCategorias()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Reintentar
+            </button>
+        </div>
+    } @else {
+        <!-- Resumen -->
+        <div class="resumen-bar mb-3">
+            <span class="resumen-texto">
+                <strong>{{ totalCategorias() }}</strong> categorías encontradas
+            </span>
+        </div>
+
+        <!-- Tabla de categorías -->
+        <div class="card tabla-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="th-categoria">Categoría</th>
+                            <th class="th-padre">Categoría Padre</th>
+                            <th class="th-sub">Subcategorías</th>
+                            <th class="th-orden">Orden</th>
+                            <th class="th-estado">Estado</th>
+                            <th class="th-acciones text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (categoria of categoriasFiltradas(); track categoria.id) {
+                            <tr>
+                                <td>
+                                    <div class="categoria-info">
+                                        <div class="categoria-avatar" [class.inactivo]="!categoria.activa">
+                                            <span>{{ obtenerIniciales(categoria.nombre) }}</span>
+                                        </div>
+                                        <div class="categoria-datos">
+                                            <span class="categoria-nombre">{{ categoria.nombre }}</span>
+                                            <span class="categoria-slug">{{ categoria.slug }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (categoria.categoriaPadreId) {
+                                        <span class="badge-padre">
+                                            <i class="bi bi-folder2 me-1"></i>
+                                            {{ obtenerNombrePadre(categoria.categoriaPadreId) }}
+                                        </span>
+                                    } @else {
+                                        <span class="text-muted fst-italic">Raíz</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge-subcategorias">
+                                        {{ contarSubcategorias(categoria.id) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="orden-numero">{{ categoria.orden }}</span>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge-estado"
+                                        [class.activo]="categoria.activa"
+                                        [class.inactivo]="!categoria.activa">
+                                        <i class="bi" [class.bi-check-circle-fill]="categoria.activa" [class.bi-x-circle-fill]="!categoria.activa"></i>
+                                        {{ categoria.activa ? 'Activa' : 'Inactiva' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="acciones-celda">
+                                        <a
+                                            [routerLink]="[categoria.id, 'editar']"
+                                            class="btn-accion"
+                                            title="Editar categoría">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button
+                                            class="btn-accion"
+                                            [class.activar]="!categoria.activa"
+                                            [class.desactivar]="categoria.activa"
+                                            [title]="categoria.activa ? 'Desactivar categoría' : 'Activar categoría'"
+                                            (click)="abrirModalEstado(categoria)">
+                                            <i class="bi" [class.bi-toggle-on]="categoria.activa" [class.bi-toggle-off]="!categoria.activa"></i>
+                                        </button>
+                                        <button
+                                            class="btn-accion eliminar"
+                                            title="Eliminar categoría"
+                                            (click)="abrirModalEliminar(categoria)">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="bi bi-grid"></i>
+                                        <h5>No se encontraron categorías</h5>
+                                        <p>Intenta cambiar los filtros de búsqueda o crea una nueva categoría</p>
+                                        <a routerLink="nueva" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg me-2"></i>
+                                            Nueva Categoría
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal Cambiar Estado -->
+@if (mostrarModalEstado()) {
+    <div class="modal-overlay" (click)="cerrarModalEstado()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+            <div class="modal-header-custom" [class.activar]="!categoriaSeleccionada()?.activa" [class.desactivar]="categoriaSeleccionada()?.activa">
+                <div class="modal-icono">
+                    <i class="bi" [class.bi-toggle-on]="!categoriaSeleccionada()?.activa" [class.bi-toggle-off]="categoriaSeleccionada()?.activa"></i>
+                </div>
+                <h5>{{ categoriaSeleccionada()?.activa ? 'Desactivar' : 'Activar' }} Categoría</h5>
+            </div>
+            <div class="modal-body-custom">
+                @if (categoriaSeleccionada()?.activa) {
+                    <p>¿Estás seguro de que deseas desactivar la categoría <strong>{{ categoriaSeleccionada()?.nombre }}</strong>?</p>
+                    <p class="text-muted small">Los productos asociados a esta categoría dejarán de ser visibles en el catálogo.</p>
+                } @else {
+                    <p>¿Deseas activar la categoría <strong>{{ categoriaSeleccionada()?.nombre }}</strong>?</p>
+                    <p class="text-muted small">La categoría y sus productos estarán disponibles en el catálogo nuevamente.</p>
+                }
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn btn-secondary" (click)="cerrarModalEstado()" [disabled]="procesando()">
+                    Cancelar
+                </button>
+                <button
+                    class="btn"
+                    [class.btn-success]="!categoriaSeleccionada()?.activa"
+                    [class.btn-warning]="categoriaSeleccionada()?.activa"
+                    (click)="confirmarCambioEstado()"
+                    [disabled]="procesando()">
+                    @if (procesando()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    {{ categoriaSeleccionada()?.activa ? 'Desactivar' : 'Activar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal Eliminar -->
+@if (mostrarModalEliminar()) {
+    <div class="modal-overlay" (click)="cerrarModalEliminar()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+            <div class="modal-header-custom eliminar">
+                <div class="modal-icono">
+                    <i class="bi bi-trash3"></i>
+                </div>
+                <h5>Eliminar Categoría</h5>
+            </div>
+            <div class="modal-body-custom">
+                <p>¿Estás seguro de que deseas eliminar la categoría <strong>{{ categoriaSeleccionada()?.nombre }}</strong>?</p>
+                <p class="text-muted small">Esta acción desactivará la categoría. Los productos asociados no serán eliminados.</p>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn btn-secondary" (click)="cerrarModalEliminar()" [disabled]="procesando()">
+                    Cancelar
+                </button>
+                <button
+                    class="btn btn-danger"
+                    (click)="confirmarEliminar()"
+                    [disabled]="procesando()">
+                    @if (procesando()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    }
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+}

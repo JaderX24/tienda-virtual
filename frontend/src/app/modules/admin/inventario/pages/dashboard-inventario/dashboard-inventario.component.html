@@ -1,0 +1,296 @@
+@if (cargando()) {
+    <div class="loading-dashboard">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3 text-muted">Cargando dashboard de inventario...</p>
+    </div>
+} @else {
+    <!-- KPIs principales -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="kpi-card kpi-primary">
+                <div class="kpi-icono">
+                    <i class="bi bi-boxes"></i>
+                </div>
+                <div class="kpi-valor">{{ formatearNumero(resumen()?.totalProductos || 0) }}</div>
+                <div class="kpi-label">Total Productos</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="kpi-card kpi-success">
+                <div class="kpi-icono">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="kpi-valor">{{ formatearNumero(resumen()?.productosActivos || 0) }}</div>
+                <div class="kpi-label">Activos</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="kpi-card kpi-danger">
+                <div class="kpi-icono">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+                <div class="kpi-valor">{{ resumen()?.sinStock || 0 }}</div>
+                <div class="kpi-label">Sin Stock</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="kpi-card kpi-warning">
+                <div class="kpi-icono">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div class="kpi-valor">{{ resumen()?.stockBajo || 0 }}</div>
+                <div class="kpi-label">Stock Bajo</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="kpi-card kpi-info">
+                <div class="kpi-icono">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <div class="kpi-valor">{{ formatearMoneda(resumen()?.valorTotalInventario || 0) }}</div>
+                <div class="kpi-label">Valor Inventario</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="kpi-card kpi-purple">
+                <div class="kpi-icono">
+                    <i class="bi bi-percent"></i>
+                </div>
+                <div class="kpi-valor">{{ calcularMargen() }}%</div>
+                <div class="kpi-label">Margen Promedio</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de movimientos -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="movimiento-card">
+                <div class="movimiento-icono mov-hoy">
+                    <i class="bi bi-calendar-day"></i>
+                </div>
+                <div class="movimiento-info">
+                    <span class="movimiento-valor">{{ resumen()?.totalMovimientosHoy || 0 }}</span>
+                    <span class="movimiento-label">Movimientos hoy</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="movimiento-card">
+                <div class="movimiento-icono mov-semana">
+                    <i class="bi bi-calendar-week"></i>
+                </div>
+                <div class="movimiento-info">
+                    <span class="movimiento-valor">{{ resumen()?.totalMovimientosSemana || 0 }}</span>
+                    <span class="movimiento-label">Esta semana</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="movimiento-card">
+                <div class="movimiento-icono mov-mes">
+                    <i class="bi bi-calendar-month"></i>
+                </div>
+                <div class="movimiento-info">
+                    <span class="movimiento-valor">{{ resumen()?.totalMovimientosMes || 0 }}</span>
+                    <span class="movimiento-label">Este mes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fila de gráficas principales -->
+    <div class="row g-4 mb-4">
+        <!-- Gráfica de líneas: Movimientos por día -->
+        <div class="col-xl-8">
+            <div class="card grafica-card">
+                <div class="card-header grafica-header">
+                    <h5 class="grafica-titulo">
+                        <i class="bi bi-graph-up"></i>
+                        Movimientos de Inventario (últimos 30 días)
+                    </h5>
+                </div>
+                <div class="card-body grafica-body">
+                    <canvas #graficaLineas></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica donut: Distribución por tipo -->
+        <div class="col-xl-4">
+            <div class="card grafica-card">
+                <div class="card-header grafica-header">
+                    <h5 class="grafica-titulo">
+                        <i class="bi bi-pie-chart"></i>
+                        Distribución por Tipo
+                    </h5>
+                </div>
+                <div class="card-body grafica-body d-flex align-items-center justify-content-center">
+                    <canvas #graficaDonut></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fila de gráficas secundarias -->
+    <div class="row g-4 mb-4">
+        <!-- Top productos por valor -->
+        <div class="col-xl-7">
+            <div class="card grafica-card">
+                <div class="card-header grafica-header">
+                    <h5 class="grafica-titulo">
+                        <i class="bi bi-bar-chart"></i>
+                        Top Productos por Valor de Inventario
+                    </h5>
+                </div>
+                <div class="card-body grafica-body">
+                    <canvas #graficaBarras></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Valor por categoría -->
+        <div class="col-xl-5">
+            <div class="card grafica-card">
+                <div class="card-header grafica-header">
+                    <h5 class="grafica-titulo">
+                        <i class="bi bi-diagram-3"></i>
+                        Valor por Categoría
+                    </h5>
+                </div>
+                <div class="card-body grafica-body">
+                    <canvas #graficaBarrasH></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fila: Tendencia + Alertas de stock -->
+    <div class="row g-4 mb-4">
+        <!-- Gráfica de área: Tendencia acumulada -->
+        <div class="col-xl-6">
+            <div class="card grafica-card">
+                <div class="card-header grafica-header">
+                    <h5 class="grafica-titulo">
+                        <i class="bi bi-activity"></i>
+                        Tendencia Neta de Inventario
+                    </h5>
+                    <span class="badge bg-light text-dark">Entradas - Salidas acumulado</span>
+                </div>
+                <div class="card-body grafica-body">
+                    <canvas #graficaArea></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas de stock crítico -->
+        <div class="col-xl-6">
+            <div class="card grafica-card">
+                <div class="card-header grafica-header">
+                    <h5 class="grafica-titulo">
+                        <i class="bi bi-exclamation-octagon text-danger"></i>
+                        Alertas de Stock Crítico
+                    </h5>
+                    <span class="badge bg-danger">{{ productosStockCritico().length }} productos</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tabla-stock-critico">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-center">Mínimo</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (producto of productosStockCritico(); track producto.id) {
+                                    <tr>
+                                        <td>
+                                            <div class="producto-stock-info">
+                                                <span class="producto-nombre">{{ producto.nombre }}</span>
+                                                <small class="producto-sku text-muted">{{ producto.sku }}</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="fw-bold" [style.color]="obtenerColorEstado(producto.estado)">{{ producto.stock }}</span>
+                                        </td>
+                                        <td class="text-center text-muted">{{ producto.stockMinimo }}</td>
+                                        <td>
+                                            <span class="badge-estado" [class]="producto.estado">
+                                                <i class="bi" [ngClass]="obtenerIconoEstado(producto.estado)"></i>
+                                                {{ producto.estado === 'sin-stock' ? 'Sin stock' : 'Stock bajo' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (productosStockCritico().length === 0) {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            <i class="bi bi-check-circle text-success fs-3 d-block mb-2"></i>
+                                            No hay productos con stock crítico
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de top productos -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card grafica-card">
+                <div class="card-header grafica-header">
+                    <h5 class="grafica-titulo">
+                        <i class="bi bi-trophy"></i>
+                        Top Productos con Mayor Movimiento
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px" class="text-center">#</th>
+                                    <th>Producto</th>
+                                    <th class="text-center">Stock Actual</th>
+                                    <th class="text-center">Movimientos</th>
+                                    <th class="text-end">Valor Inventario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (producto of topProductos(); track producto.id; let i = $index) {
+                                    <tr>
+                                        <td class="text-center">
+                                            <span class="ranking-badge" [class.top-3]="i < 3">{{ i + 1 }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="producto-stock-info">
+                                                <span class="producto-nombre">{{ producto.nombre }}</span>
+                                                <small class="producto-sku text-muted">{{ producto.sku }}</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center fw-semibold">{{ formatearNumero(producto.stock) }}</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">
+                                                {{ producto.totalMovimientos }} mov.
+                                            </span>
+                                        </td>
+                                        <td class="text-end fw-bold text-primary">{{ formatearMoneda(producto.valorInventario) }}</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

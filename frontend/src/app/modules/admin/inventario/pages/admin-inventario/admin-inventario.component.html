@@ -1,0 +1,464 @@
+<div class="admin-inventario">
+    <!-- Sub-pestañas -->
+    <ul class="nav nav-pills sub-pestanas mb-4">
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="subPestana() === 'productos'" (click)="cambiarSubPestana('productos')">
+                <i class="bi bi-box-seam me-2"></i>
+                Stock de Productos
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="subPestana() === 'movimientos'" (click)="cambiarSubPestana('movimientos')">
+                <i class="bi bi-arrow-left-right me-2"></i>
+                Historial de Movimientos
+            </button>
+        </li>
+    </ul>
+
+    <!-- Vista de productos / stock -->
+    @if (subPestana() === 'productos') {
+        <div class="card filtros-card mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">Buscar producto</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input
+                                type="text"
+                                name="busquedaProducto"
+                                class="form-control"
+                                placeholder="Nombre, SKU..."
+                                [ngModel]="filtrosProducto().busqueda"
+                                (ngModelChange)="buscarProductos($event)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Estado de stock</label>
+                        <select
+                            name="estadoStock"
+                            class="form-select"
+                            [ngModel]="filtrosProducto().estadoStock"
+                            (ngModelChange)="filtrarEstadoStock($event)">
+                            <option value="todos">Todos</option>
+                            <option value="en-stock">En stock</option>
+                            <option value="stock-bajo">Stock bajo</option>
+                            <option value="sin-stock">Sin stock</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6 py-2 px-3">
+                            {{ totalProductos() }} productos
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (cargandoProductos()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        } @else {
+            <!-- Tabla desktop -->
+            <div class="card tabla-card d-none d-md-block">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Stock</th>
+                                <th class="text-center">Mínimo</th>
+                                <th class="text-end">Precio</th>
+                                <th class="text-end">Costo</th>
+                                <th class="text-end">Valor Stock</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (producto of productos(); track producto.id) {
+                                <tr>
+                                    <td>
+                                        <div class="producto-info">
+                                            <span class="producto-nombre">{{ producto.nombre }}</span>
+                                            @if (producto.categoria) {
+                                                <small class="text-muted">{{ producto.categoria.nombre }}</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-sku">{{ producto.sku }}</span>
+                                    </td>
+                                    <td class="text-center fw-bold">{{ producto.stock }}</td>
+                                    <td class="text-center text-muted">{{ producto.stockMinimo }}</td>
+                                    <td class="text-end">{{ formatearPrecio(producto.precio) }}</td>
+                                    <td class="text-end text-muted">
+                                        {{ producto.costo ? formatearPrecio(producto.costo) : '—' }}
+                                    </td>
+                                    <td class="text-end fw-semibold text-primary">
+                                        {{ formatearPrecio(producto.precio * producto.stock) }}
+                                    </td>
+                                    <td>
+                                        @let estado = obtenerEstadoStock(producto.stock, producto.stockMinimo);
+                                        <span class="badge-stock" [ngClass]="estado.clase">
+                                            <i class="bi" [ngClass]="estado.icono"></i>
+                                            {{ estado.texto }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button
+                                            class="btn btn-sm btn-outline-primary"
+                                            title="Ajustar stock"
+                                            (click)="abrirModalAjuste(producto)">
+                                            <i class="bi bi-plus-slash-minus"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td colspan="9" class="text-center py-5">
+                                        <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                                        <span class="text-muted">No se encontraron productos</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tarjetas móvil -->
+            <div class="d-md-none">
+                @for (producto of productos(); track producto.id) {
+                    <div class="card tarjeta-movil mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{ producto.nombre }}</h6>
+                                    <span class="badge-sku">{{ producto.sku }}</span>
+                                </div>
+                                @let estado = obtenerEstadoStock(producto.stock, producto.stockMinimo);
+                                <span class="badge-stock" [ngClass]="estado.clase">
+                                    <i class="bi" [ngClass]="estado.icono"></i>
+                                    {{ estado.texto }}
+                                </span>
+                            </div>
+                            <div class="row g-2 mt-2">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Stock</small>
+                                    <span class="fw-bold">{{ producto.stock }}</span>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Mínimo</small>
+                                    <span>{{ producto.stockMinimo }}</span>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Precio</small>
+                                    <span class="fw-bold text-primary">{{ formatearPrecio(producto.precio) }}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                <span class="text-muted">Valor: <strong class="text-primary">{{ formatearPrecio(producto.precio * producto.stock) }}</strong></span>
+                                <button class="btn btn-sm btn-outline-primary" (click)="abrirModalAjuste(producto)">
+                                    <i class="bi bi-plus-slash-minus me-1"></i> Ajustar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Paginación productos -->
+            @if (totalPaginasProductos() > 1) {
+                <nav class="paginacion-nav mt-4">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item" [class.disabled]="filtrosProducto().pagina === 1">
+                            <button class="page-link" (click)="cambiarPaginaProductos(filtrosProducto().pagina - 1)">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                        </li>
+                        @for (p of obtenerPaginas(totalPaginasProductos()); track p) {
+                            <li class="page-item" [class.active]="filtrosProducto().pagina === p">
+                                <button class="page-link" (click)="cambiarPaginaProductos(p)">{{ p }}</button>
+                            </li>
+                        }
+                        <li class="page-item" [class.disabled]="filtrosProducto().pagina === totalPaginasProductos()">
+                            <button class="page-link" (click)="cambiarPaginaProductos(filtrosProducto().pagina + 1)">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+    }
+
+    <!-- Vista de movimientos -->
+    @if (subPestana() === 'movimientos') {
+        <div class="card filtros-card mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">Buscar</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input
+                                type="text"
+                                name="busquedaMovimiento"
+                                class="form-control"
+                                placeholder="Producto, motivo..."
+                                [ngModel]="filtrosMovimiento().busqueda"
+                                (ngModelChange)="buscarMovimientos($event)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Tipo de movimiento</label>
+                        <select
+                            name="tipoMovimiento"
+                            class="form-select"
+                            [ngModel]="filtrosMovimiento().tipoMovimiento"
+                            (ngModelChange)="filtrarTipoMovimiento($event)">
+                            <option value="">Todos</option>
+                            <option value="entrada">Entrada</option>
+                            <option value="salida">Salida</option>
+                            <option value="ajuste">Ajuste</option>
+                            <option value="devolucion">Devolución</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6 py-2 px-3">
+                            {{ totalMovimientos() }} movimientos
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (cargandoMovimientos()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        } @else {
+            <!-- Tabla desktop movimientos -->
+            <div class="card tabla-card d-none d-md-block">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th class="text-center">Tipo</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-center">Stock Ant.</th>
+                                <th class="text-center">Stock Nuevo</th>
+                                <th>Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (mov of movimientos(); track mov.id) {
+                                <tr>
+                                    <td class="text-nowrap">
+                                        <small>{{ formatearFecha(mov.creadoEn) }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="producto-info">
+                                            <span class="producto-nombre">{{ mov.producto?.nombre || '—' }}</span>
+                                            <small class="text-muted">{{ mov.producto?.sku }}</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-tipo" [style.background]="obtenerColorTipo(mov.tipoMovimiento) + '1a'" [style.color]="obtenerColorTipo(mov.tipoMovimiento)">
+                                            <i class="bi" [ngClass]="obtenerIconoTipo(mov.tipoMovimiento)"></i>
+                                            {{ mov.tipoMovimiento | titlecase }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center fw-bold" [style.color]="mov.cantidad > 0 ? '#10b981' : '#ef4444'">
+                                        {{ mov.cantidad > 0 ? '+' : '' }}{{ mov.cantidad }}
+                                    </td>
+                                    <td class="text-center text-muted">{{ mov.stockAnterior }}</td>
+                                    <td class="text-center fw-semibold">{{ mov.stockNuevo }}</td>
+                                    <td>
+                                        <span class="motivo-texto" [title]="mov.motivo">{{ mov.motivo }}</span>
+                                    </td>
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                                        <span class="text-muted">No se encontraron movimientos</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tarjetas móvil movimientos -->
+            <div class="d-md-none">
+                @for (mov of movimientos(); track mov.id) {
+                    <div class="card tarjeta-movil mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ mov.producto?.nombre || '—' }}</h6>
+                                    <small class="text-muted">{{ formatearFecha(mov.creadoEn) }}</small>
+                                </div>
+                                <span class="badge-tipo" [style.background]="obtenerColorTipo(mov.tipoMovimiento) + '1a'" [style.color]="obtenerColorTipo(mov.tipoMovimiento)">
+                                    <i class="bi" [ngClass]="obtenerIconoTipo(mov.tipoMovimiento)"></i>
+                                    {{ mov.tipoMovimiento | titlecase }}
+                                </span>
+                            </div>
+                            <div class="row g-2 mt-2">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Cantidad</small>
+                                    <span class="fw-bold" [style.color]="mov.cantidad > 0 ? '#10b981' : '#ef4444'">
+                                        {{ mov.cantidad > 0 ? '+' : '' }}{{ mov.cantidad }}
+                                    </span>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Anterior</small>
+                                    <span>{{ mov.stockAnterior }}</span>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Nuevo</small>
+                                    <span class="fw-bold">{{ mov.stockNuevo }}</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-top">
+                                <small class="text-muted">{{ mov.motivo }}</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Paginación movimientos -->
+            @if (totalPaginasMovimientos() > 1) {
+                <nav class="paginacion-nav mt-4">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item" [class.disabled]="filtrosMovimiento().pagina === 1">
+                            <button class="page-link" (click)="cambiarPaginaMovimientos(filtrosMovimiento().pagina - 1)">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                        </li>
+                        @for (p of obtenerPaginas(totalPaginasMovimientos()); track p) {
+                            <li class="page-item" [class.active]="filtrosMovimiento().pagina === p">
+                                <button class="page-link" (click)="cambiarPaginaMovimientos(p)">{{ p }}</button>
+                            </li>
+                        }
+                        <li class="page-item" [class.disabled]="filtrosMovimiento().pagina === totalPaginasMovimientos()">
+                            <button class="page-link" (click)="cambiarPaginaMovimientos(filtrosMovimiento().pagina + 1)">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+    }
+
+    <!-- Modal de ajuste de stock -->
+    @if (mostrarModalAjuste()) {
+        <div class="modal-overlay" (click)="cerrarModalAjuste()">
+            <div class="modal-contenido" (click)="$event.stopPropagation()">
+                <div class="modal-cabecera">
+                    <h5 class="modal-titulo">
+                        <i class="bi bi-plus-slash-minus text-primary me-2"></i>
+                        Ajuste de Stock
+                    </h5>
+                    <button class="btn-cerrar" (click)="cerrarModalAjuste()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="modal-cuerpo">
+                    <div class="producto-resumen mb-4">
+                        <h6 class="fw-bold mb-1">{{ productoSeleccionado()?.nombre }}</h6>
+                        <div class="d-flex gap-3">
+                            <span class="text-muted">SKU: <strong>{{ productoSeleccionado()?.sku }}</strong></span>
+                            <span class="text-muted">Stock actual: <strong>{{ productoSeleccionado()?.stock }}</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tipo de movimiento <span class="text-danger">*</span></label>
+                        <select
+                            name="ajusteTipo"
+                            class="form-select"
+                            [ngModel]="ajusteTipo()"
+                            (ngModelChange)="ajusteTipo.set($event)">
+                            <option value="entrada">Entrada (agregar stock)</option>
+                            <option value="salida">Salida (retirar stock)</option>
+                            <option value="ajuste">Ajuste (corrección)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cantidad <span class="text-danger">*</span></label>
+                        <input
+                            type="number"
+                            name="ajusteCantidad"
+                            class="form-control"
+                            placeholder="Ej: 10"
+                            min="1"
+                            [ngModel]="ajusteCantidad()"
+                            (ngModelChange)="ajusteCantidad.set($event)">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Motivo <span class="text-danger">*</span></label>
+                        <textarea
+                            name="ajusteMotivo"
+                            class="form-control"
+                            rows="3"
+                            placeholder="Describe el motivo del ajuste..."
+                            [ngModel]="ajusteMotivo()"
+                            (ngModelChange)="ajusteMotivo.set($event)">
+                        </textarea>
+                    </div>
+
+                    @if (ajusteCantidad() && ajusteCantidad()! > 0) {
+                        <div class="preview-ajuste">
+                            <div class="d-flex justify-content-between">
+                                <span>Stock actual:</span>
+                                <strong>{{ productoSeleccionado()?.stock }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>{{ ajusteTipo() === 'salida' ? 'Salida:' : 'Entrada:' }}</span>
+                                <strong [class.text-success]="ajusteTipo() !== 'salida'" [class.text-danger]="ajusteTipo() === 'salida'">
+                                    {{ ajusteTipo() === 'salida' ? '-' : '+' }}{{ ajusteCantidad() }}
+                                </strong>
+                            </div>
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Stock resultante:</span>
+                                <strong class="text-primary fs-5">
+                                    {{ ajusteTipo() === 'salida' ? (productoSeleccionado()?.stock || 0) - (ajusteCantidad() || 0) : (productoSeleccionado()?.stock || 0) + (ajusteCantidad() || 0) }}
+                                </strong>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-pie">
+                    <button class="btn btn-secondary" (click)="cerrarModalAjuste()" [disabled]="guardandoAjuste()">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-primary" (click)="guardarAjuste()" [disabled]="guardandoAjuste()">
+                        @if (guardandoAjuste()) {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        <i class="bi bi-check-lg me-1"></i>
+                        Registrar Movimiento
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>

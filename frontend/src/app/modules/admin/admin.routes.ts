@@ -28,15 +28,21 @@ export const rutasAdmin: Routes = [
       },
       {
         path: 'productos',
-        loadComponent: () => import('./dashboard/dashboard-admin.component')
-          .then(m => m.DashboardAdminComponent),
+        loadChildren: () => import('./productos/productos.routes')
+          .then(m => m.rutasProductos),
         title: 'Productos - Panel Administrativo'
       },
       {
         path: 'categorias',
-        loadComponent: () => import('./dashboard/dashboard-admin.component')
-          .then(m => m.DashboardAdminComponent),
+        loadChildren: () => import('./categoria/categorias.routes')
+          .then(m => m.rutasCategorias),
         title: 'Categorías - Panel Administrativo'
+      },
+      {
+        path: 'marcas',
+        loadChildren: () => import('./marcas/marcas.routes')
+          .then(m => m.rutasMarcas),
+        title: 'Marcas - Panel Administrativo'
       },
       {
         path: 'pedidos',
@@ -52,8 +58,8 @@ export const rutasAdmin: Routes = [
       },
       {
         path: 'inventario',
-        loadComponent: () => import('./dashboard/dashboard-admin.component')
-          .then(m => m.DashboardAdminComponent),
+        loadChildren: () => import('./inventario/inventario.routes')
+          .then(m => m.rutasInventario),
         title: 'Inventario - Panel Administrativo'
       },
       {

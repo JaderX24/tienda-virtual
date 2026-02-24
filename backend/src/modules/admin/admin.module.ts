@@ -12,6 +12,10 @@ import { MetodosPagoModule } from './metodosPago/metodos-pago.module';
 import { ProveedoresEnvioModule } from './enviosProveedores/proveedores-envio.module';
 import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { ColaboradoresRolesPermisosModule } from './colaboradoresRolesPermisos/colaboradores-roles-permisos.module';
+import { ProductosAdminModule } from './productos/productos-admin.module';
+import { InventarioAdminModule } from './inventario/inventario-admin.module';
+import { CategoriasAdminModule } from './categoria/categorias-admin.module';
+import { MarcasAdminModule } from './marcas/marcas-admin.module';
 
 @Module({
     imports: [
@@ -26,6 +30,10 @@ import { ColaboradoresRolesPermisosModule } from './colaboradoresRolesPermisos/c
         ProveedoresEnvioModule,
         ColaboradoresModule,
         ColaboradoresRolesPermisosModule,
+        ProductosAdminModule,
+        InventarioAdminModule,
+        CategoriasAdminModule,
+        MarcasAdminModule,
     ],
     controllers: [AdminController],
     providers: [AdminService],

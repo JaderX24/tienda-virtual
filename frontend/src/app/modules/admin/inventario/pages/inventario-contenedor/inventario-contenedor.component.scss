@@ -1,0 +1,94 @@
+$primary: #6366f1;
+$primary-light: rgba(99, 102, 241, 0.1);
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$info: #3b82f6;
+
+.pagina-inventario {
+    padding: 1.5rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.pagina-header {
+    margin-bottom: 1.5rem;
+
+    .header-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .pagina-titulo {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+            color: $primary;
+            font-size: 1.4rem;
+        }
+    }
+
+    .pagina-subtitulo {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+}
+
+.pestanas-inventario {
+    border-bottom: 2px solid #e2e8f0;
+
+    .nav-link {
+        font-weight: 600;
+        color: #64748b;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.75rem 1.25rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+
+        &:hover {
+            color: $primary;
+            border-bottom-color: rgba($primary, 0.3);
+            background: transparent;
+        }
+
+        &.active {
+            color: $primary;
+            border-bottom-color: $primary;
+            background: transparent;
+        }
+
+        i {
+            font-size: 1.1rem;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .pagina-inventario {
+        padding: 1rem;
+    }
+
+    .pagina-header .pagina-titulo {
+        font-size: 1.3rem;
+    }
+
+    .pestanas-inventario .nav-link {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+
+        i {
+            font-size: 1rem;
+        }
+    }
+}

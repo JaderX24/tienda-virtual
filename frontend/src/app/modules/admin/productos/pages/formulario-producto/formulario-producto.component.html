@@ -1,0 +1,307 @@
+<div class="pagina-formulario-producto">
+    <!-- Encabezado -->
+    <div class="pagina-header">
+        <div class="header-info">
+            <a routerLink="/admin/productos" class="btn-volver">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="pagina-titulo">
+                    <i class="bi" [ngClass]="modoEdicion() ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+                    {{ modoEdicion() ? 'Editar Producto' : 'Nuevo Producto' }}
+                </h1>
+                <p class="pagina-subtitulo">
+                    {{ modoEdicion() ? 'Modifica los datos del producto' : 'Completa la información para crear un nuevo producto' }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    @if (cargandoDatos()) {
+        <div class="card">
+            <div class="card-body">
+                <div class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando datos del producto...</p>
+                </div>
+            </div>
+        </div>
+    } @else {
+        <form (ngSubmit)="guardar()" class="formulario-contenido">
+            <div class="row g-4">
+                <!-- Columna principal -->
+                <div class="col-lg-8">
+                    <!-- Información básica -->
+                    <div class="card seccion-card mb-4">
+                        <div class="card-header seccion-header">
+                            <h5 class="seccion-titulo">
+                                <i class="bi bi-info-circle"></i>
+                                Información Básica
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label class="form-label" for="nombre">Nombre del producto <span class="text-danger">*</span></label>
+                                    <input
+                                        type="text"
+                                        id="nombre"
+                                        name="nombre"
+                                        class="form-control"
+                                        [class.is-invalid]="tieneError('nombre')"
+                                        placeholder="Ej: Camiseta deportiva"
+                                        [ngModel]="nombre()"
+                                        (ngModelChange)="nombre.set($event)"
+                                        maxlength="255">
+                                    @if (tieneError('nombre')) {
+                                        <div class="invalid-feedback">{{ obtenerError('nombre') }}</div>
+                                    }
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="sku">SKU <span class="text-danger">*</span></label>
+                                    <input
+                                        type="text"
+                                        id="sku"
+                                        name="sku"
+                                        class="form-control text-uppercase"
+                                        [class.is-invalid]="tieneError('sku')"
+                                        placeholder="Ej: CAM-DEP-001"
+                                        [ngModel]="sku()"
+                                        (ngModelChange)="sku.set($event.toUpperCase())"
+                                        maxlength="50">
+                                    @if (tieneError('sku')) {
+                                        <div class="invalid-feedback">{{ obtenerError('sku') }}</div>
+                                    }
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="descripcionCorta">Descripción corta</label>
+                                    <input
+                                        type="text"
+                                        id="descripcionCorta"
+                                        name="descripcionCorta"
+                                        class="form-control"
+                                        placeholder="Breve descripción del producto (máx. 255 caracteres)"
+                                        [ngModel]="descripcionCorta()"
+                                        (ngModelChange)="descripcionCorta.set($event)"
+                                        maxlength="255">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="descripcion">Descripción completa</label>
+                                    <textarea
+                                        id="descripcion"
+                                        name="descripcion"
+                                        class="form-control"
+                                        rows="5"
+                                        placeholder="Descripción detallada del producto..."
+                                        [ngModel]="descripcion()"
+                                        (ngModelChange)="descripcion.set($event)">
+                                    </textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Precios -->
+                    <div class="card seccion-card mb-4">
+                        <div class="card-header seccion-header">
+                            <h5 class="seccion-titulo">
+                                <i class="bi bi-currency-dollar"></i>
+                                Precios
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="precio">Precio de venta <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">L</span>
+                                        <input
+                                            type="number"
+                                            id="precio"
+                                            name="precio"
+                                            class="form-control"
+                                            [class.is-invalid]="tieneError('precio')"
+                                            placeholder="0.00"
+                                            step="0.01"
+                                            min="0"
+                                            [ngModel]="precio()"
+                                            (ngModelChange)="precio.set($event)">
+                                    </div>
+                                    @if (tieneError('precio')) {
+                                        <div class="texto-error">{{ obtenerError('precio') }}</div>
+                                    }
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="precioComparacion">Precio de comparación</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">L</span>
+                                        <input
+                                            type="number"
+                                            id="precioComparacion"
+                                            name="precioComparacion"
+                                            class="form-control"
+                                            [class.is-invalid]="tieneError('precioComparacion')"
+                                            placeholder="0.00"
+                                            step="0.01"
+                                            min="0"
+                                            [ngModel]="precioComparacion()"
+                                            (ngModelChange)="precioComparacion.set($event)">
+                                    </div>
+                                    <small class="text-muted">Precio anterior para mostrar descuento</small>
+                                    @if (tieneError('precioComparacion')) {
+                                        <div class="texto-error">{{ obtenerError('precioComparacion') }}</div>
+                                    }
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="costo">Costo</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">L</span>
+                                        <input
+                                            type="number"
+                                            id="costo"
+                                            name="costo"
+                                            class="form-control"
+                                            [class.is-invalid]="tieneError('costo')"
+                                            placeholder="0.00"
+                                            step="0.01"
+                                            min="0"
+                                            [ngModel]="costo()"
+                                            (ngModelChange)="costo.set($event)">
+                                    </div>
+                                    <small class="text-muted">Costo interno del producto</small>
+                                    @if (tieneError('costo')) {
+                                        <div class="texto-error">{{ obtenerError('costo') }}</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna lateral -->
+                <div class="col-lg-4">
+                    <!-- Organización -->
+                    <div class="card seccion-card mb-4">
+                        <div class="card-header seccion-header">
+                            <h5 class="seccion-titulo">
+                                <i class="bi bi-folder"></i>
+                                Organización
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="categoriaId">Categoría <span class="text-danger">*</span></label>
+                                <select
+                                    id="categoriaId"
+                                    name="categoriaId"
+                                    class="form-select"
+                                    [class.is-invalid]="tieneError('categoriaId')"
+                                    [ngModel]="categoriaId()"
+                                    (ngModelChange)="categoriaId.set($event)">
+                                    <option [ngValue]="null">Seleccionar categoría</option>
+                                    @for (categoria of categorias(); track categoria.id) {
+                                        <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+                                    }
+                                </select>
+                                @if (tieneError('categoriaId')) {
+                                    <div class="invalid-feedback">{{ obtenerError('categoriaId') }}</div>
+                                }
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="marcaId">Marca</label>
+                                <select
+                                    id="marcaId"
+                                    name="marcaId"
+                                    class="form-select"
+                                    [ngModel]="marcaId()"
+                                    (ngModelChange)="marcaId.set($event)">
+                                    <option [ngValue]="null">Sin marca</option>
+                                    @for (marca of marcas(); track marca.id) {
+                                        <option [ngValue]="marca.id">{{ marca.nombre }}</option>
+                                    }
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="peso">Peso (kg)</label>
+                                <input
+                                    type="number"
+                                    id="peso"
+                                    name="peso"
+                                    class="form-control"
+                                    [class.is-invalid]="tieneError('peso')"
+                                    placeholder="0.000"
+                                    step="0.001"
+                                    min="0"
+                                    [ngModel]="peso()"
+                                    (ngModelChange)="peso.set($event)">
+                                @if (tieneError('peso')) {
+                                    <div class="invalid-feedback">{{ obtenerError('peso') }}</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="card seccion-card mb-4">
+                        <div class="card-header seccion-header">
+                            <h5 class="seccion-titulo">
+                                <i class="bi bi-toggles"></i>
+                                Estado
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="activo"
+                                    name="activo"
+                                    [ngModel]="activo()"
+                                    (ngModelChange)="activo.set($event)">
+                                <label class="form-check-label" for="activo">
+                                    <span class="switch-label">Producto activo</span>
+                                    <small class="switch-desc d-block text-muted">
+                                        El producto será visible en la tienda
+                                    </small>
+                                </label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="destacado"
+                                    name="destacado"
+                                    [ngModel]="destacado()"
+                                    (ngModelChange)="destacado.set($event)">
+                                <label class="form-check-label" for="destacado">
+                                    <span class="switch-label">Producto destacado</span>
+                                    <small class="switch-desc d-block text-muted">
+                                        Se mostrará en secciones especiales
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="acciones-formulario">
+                <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="guardando()">
+                    <i class="bi bi-x-lg me-2"></i>
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+                    @if (guardando()) {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                    } @else {
+                        <i class="bi" [ngClass]="modoEdicion() ? 'bi-check-lg' : 'bi-plus-lg'" class="me-2"></i>
+                    }
+                    {{ modoEdicion() ? 'Guardar Cambios' : 'Crear Producto' }}
+                </button>
+            </div>
+        </form>
+    }
+</div>

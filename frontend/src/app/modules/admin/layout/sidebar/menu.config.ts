@@ -117,14 +117,14 @@ export const MENU_ADMIN: SeccionMenu[] = [
                         ruta: '/admin/productos/crear',
                         permisos: [PERMISOS_ADMIN.PRODUCTOS_CREAR],
                     },
-                    {
-                        id: 'productos-inventario',
-                        titulo: 'Inventario',
-                        icono: 'bi-boxes',
-                        ruta: '/admin/productos/inventario',
-                        permisos: [PERMISOS_ADMIN.INVENTARIO_VER],
-                    },
                 ],
+            },
+            {
+                id: 'inventario',
+                titulo: 'Inventario',
+                icono: 'bi-boxes',
+                ruta: '/admin/inventario',
+                permisos: [PERMISOS_ADMIN.INVENTARIO_VER],
             },
             {
                 id: 'categorias',
