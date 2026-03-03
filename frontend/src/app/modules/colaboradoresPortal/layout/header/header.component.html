@@ -1,0 +1,116 @@
+<header class="header-colab" [class.sidebar-colapsado]="sidebarColapsado">
+    <div class="header-content">
+        <button type="button" class="btn-menu-mobile d-lg-none" (click)="toggleSidebarMobile.emit()">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <button type="button" class="btn-toggle-sidebar d-none d-lg-flex" (click)="toggleSidebar.emit()">
+            @if (!sidebarColapsado) {
+                <i class="bi bi-chevron-left"></i>
+            } @else {
+                <i class="bi bi-chevron-right"></i>
+            }
+        </button>
+
+        <div class="header-title d-none d-md-block">
+            <h5 class="mb-0">Portal de Colaboradores</h5>
+        </div>
+
+        <div class="flex-grow-1"></div>
+
+        <div class="header-actions">
+            <!-- Notificaciones -->
+            <div class="dropdown-wrapper">
+                <button type="button" class="btn-action" [class.activo]="mostrarNotificaciones" (click)="alternarNotificaciones()">
+                    <i class="bi bi-bell"></i>
+                    @if (contadorSinLeer() > 0) {
+                        <span class="badge-notification">{{ contadorSinLeer() }}</span>
+                    }
+                </button>
+
+                @if (mostrarNotificaciones) {
+                    <div class="dropdown-panel dropdown-notificaciones">
+                        <div class="dropdown-panel-header">
+                            <h6>Notificaciones</h6>
+                            @if (contadorSinLeer() > 0) {
+                                <button type="button" class="btn-link-small" (click)="marcarTodasComoLeidas()">
+                                    Marcar todas como leídas
+                                </button>
+                            }
+                        </div>
+                        <div class="dropdown-panel-body">
+                            @for (notificacion of notificaciones(); track notificacion.id) {
+                                <div class="notificacion-item" [class.no-leida]="!notificacion.leida" (click)="marcarComoLeida(notificacion)">
+                                    <div class="notificacion-icono" [ngClass]="'tipo-' + notificacion.tipo">
+                                        <i class="bi" [ngClass]="notificacion.icono"></i>
+                                    </div>
+                                    <div class="notificacion-contenido">
+                                        <p class="notificacion-titulo">{{ notificacion.titulo }}</p>
+                                        <p class="notificacion-mensaje">{{ notificacion.mensaje }}</p>
+                                        <span class="notificacion-tiempo">{{ obtenerTiempoRelativo(notificacion.fecha) }}</span>
+                                    </div>
+                                </div>
+                            } @empty {
+                                <div class="dropdown-panel-empty">
+                                    <i class="bi bi-bell-slash"></i>
+                                    <p>No hay notificaciones</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="dropdown-panel-footer">
+                            <a routerLink="/colaborador/notificaciones" class="btn-link-ver-todas" (click)="cerrarDropdowns()">
+                                Ver todas las notificaciones
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Perfil -->
+            <div class="dropdown-wrapper">
+                <button type="button" class="btn-perfil" [class.activo]="mostrarPerfil" (click)="alternarPerfil()">
+                    <div class="perfil-avatar"><i class="bi bi-person-fill"></i></div>
+                    <div class="perfil-info d-none d-md-flex">
+                        <span class="perfil-nombre">{{ usuario()?.nombre || 'Colaborador' }}</span>
+                        <span class="perfil-rol">{{ rolUsuario }}</span>
+                    </div>
+                    <i class="bi bi-chevron-down perfil-arrow d-none d-md-block"></i>
+                </button>
+
+                @if (mostrarPerfil) {
+                    <div class="dropdown-panel dropdown-perfil">
+                        <div class="dropdown-panel-header perfil-header">
+                            <div class="perfil-avatar-grande"><i class="bi bi-person-fill"></i></div>
+                            <div class="perfil-datos">
+                                <h6>{{ usuario()?.nombre || 'Colaborador' }}</h6>
+                                <small>{{ usuario()?.correo || '' }}</small>
+                            </div>
+                        </div>
+                        <div class="dropdown-panel-body">
+                            <a class="menu-item" routerLink="/colaborador/mi-perfil" (click)="cerrarDropdowns()">
+                                <i class="bi bi-person"></i>
+                                <span>Mi Perfil</span>
+                            </a>
+                            <a class="menu-item" routerLink="/colaborador/mi-actividad" (click)="cerrarDropdowns()">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Mi Actividad</span>
+                            </a>
+                            <div class="menu-divider"></div>
+                            <a class="menu-item" routerLink="/colaborador/mi-turno" (click)="cerrarDropdowns()">
+                                <i class="bi bi-calendar-check"></i>
+                                <span>Mi Turno</span>
+                            </a>
+                        </div>
+                        <div class="dropdown-panel-footer">
+                            <button type="button" class="btn-cerrar-sesion" (click)="cerrarSesion()">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Cerrar Sesión</span>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</header>

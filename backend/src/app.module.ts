@@ -18,15 +18,18 @@ import { LoggingInterceptor, TransformadorRespuestaInterceptor } from './common/
 import { CorrelacionIdMiddleware } from './common/middlewares';
 import { JwtAuthGuard } from './common/guards';
 
-import { AuthModule } from './modules/auth';
-import { ProductosModule } from './modules/productos';
-import { CategoriasModule } from './modules/categorias';
-import { InventarioModule } from './modules/inventario';
-import { PedidosModule } from './modules/pedidos';
-import { PagosModule } from './modules/pagos';
-import { EnviosModule } from './modules/envios';
-import { NotificacionesModule } from './modules/notificaciones';
 import { AdminModule } from './modules/admin';
+import { AuthColaboradorModule } from './modules/colaboradoresPortal/auth';
+import { DashboardColaboradorModule } from './modules/colaboradoresPortal/dashboard';
+import { MiTurnoModule } from './modules/colaboradoresPortal/miturno';
+import { InventarioColaboradorModule } from './modules/colaboradoresPortal/inventario';
+import { TransferenciaColaboradorModule } from './modules/colaboradoresPortal/transferencia';
+import { ConteoColaboradorModule } from './modules/colaboradoresPortal/conteos';
+import { ProductoColaboradorModule } from './modules/colaboradoresPortal/productos';
+import { ReportesColaboradorModule } from './modules/colaboradoresPortal/reportes';
+import { MiActividadColaboradorModule } from './modules/colaboradoresPortal/miactividad';
+import { NotificacionesColaboradorModule } from './modules/colaboradoresPortal/notificaciones';
+import { MiPerfilColaboradorModule } from './modules/colaboradoresPortal/miperfilcolab';
 
 @Module({
     imports: [
@@ -51,15 +54,18 @@ import { AdminModule } from './modules/admin';
 
         PrismaModule,
 
-        AuthModule,
-        ProductosModule,
-        CategoriasModule,
-        InventarioModule,
-        PedidosModule,
-        PagosModule,
-        EnviosModule,
-        NotificacionesModule,
         AdminModule,
+        AuthColaboradorModule,
+        DashboardColaboradorModule,
+        MiTurnoModule,
+        InventarioColaboradorModule,
+        TransferenciaColaboradorModule,
+        ConteoColaboradorModule,
+        ProductoColaboradorModule,
+        ReportesColaboradorModule,
+        MiActividadColaboradorModule,
+        NotificacionesColaboradorModule,
+        MiPerfilColaboradorModule,
     ],
     providers: [
         {

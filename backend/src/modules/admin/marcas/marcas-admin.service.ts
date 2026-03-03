@@ -38,7 +38,6 @@ export class MarcasAdminService {
         this.logger.log(`Marca creada: ${marca.nombre} (ID: ${marca.id})`);
 
         return {
-            exito: true,
             mensaje: MENSAJES_EXITO.CREADO_EXITOSAMENTE,
             marca,
         };
@@ -151,7 +150,6 @@ export class MarcasAdminService {
         this.logger.log(`Marca actualizada: ${marcaActualizada.nombre} (ID: ${id})`);
 
         return {
-            exito: true,
             mensaje: MENSAJES_EXITO.ACTUALIZADO_EXITOSAMENTE,
             marca: marcaActualizada,
         };
@@ -174,7 +172,6 @@ export class MarcasAdminService {
         );
 
         return {
-            exito: true,
             mensaje: MENSAJES_EXITO.ACTUALIZADO_EXITOSAMENTE,
             marca: marcaActualizada,
         };
@@ -206,7 +203,6 @@ export class MarcasAdminService {
         this.logger.log(`Marca eliminada (soft delete): ${marca.nombre} (ID: ${id})`);
 
         return {
-            exito: true,
             mensaje: MENSAJES_EXITO.ELIMINADO_EXITOSAMENTE,
         };
     }

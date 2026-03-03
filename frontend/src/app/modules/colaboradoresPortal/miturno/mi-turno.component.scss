@@ -1,0 +1,268 @@
+// Variables del tema
+$teal: #14b8a6;
+$teal-dark: #0f9688;
+$teal-light: rgba(20, 184, 166, 0.1);
+$teal-border: rgba(20, 184, 166, 0.2);
+
+.mi-turno-container {
+    max-width: 1200px;
+}
+
+// Tabs
+.nav-tabs {
+    border-bottom-color: #dee2e6;
+
+    .nav-link {
+        color: #6c757d;
+        border: none;
+        padding: 0.625rem 1rem;
+        font-weight: 500;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $teal;
+            border-color: transparent;
+        }
+
+        &.active {
+            color: $teal;
+            border-bottom: 2px solid $teal;
+            background: transparent;
+        }
+    }
+}
+
+// Spinner color
+.text-teal {
+    color: $teal !important;
+}
+
+.spinner-border.text-teal {
+    color: $teal !important;
+}
+
+// Tarjeta del turno
+.turno-card {
+    border-left: 4px solid $teal !important;
+}
+
+// Grid de horario programado
+.horario-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+
+    .horario-item {
+        text-align: center;
+    }
+
+    .horario-separador {
+        font-size: 1.25rem;
+    }
+}
+
+// Tarjetas de registro (entrada/salida)
+.registro-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: border-color 0.2s;
+
+    &.activo {
+        border-color: $teal-border;
+        background: $teal-light;
+    }
+}
+
+.registro-icono {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+// Tiempo transcurrido
+.tiempo-transcurrido {
+    padding: 1rem;
+    background: $teal-light;
+    border-radius: 0.5rem;
+    border: 1px dashed $teal-border;
+}
+
+// Horas trabajadas
+.horas-trabajadas {
+    padding: 1rem;
+    background: #f0fdf4;
+    border-radius: 0.5rem;
+    border: 1px dashed rgba(34, 197, 94, 0.2);
+}
+
+// Botón teal
+.btn-teal {
+    background-color: $teal;
+    border-color: $teal;
+    color: #fff;
+
+    &:hover,
+    &:focus {
+        background-color: $teal-dark;
+        border-color: $teal-dark;
+        color: #fff;
+    }
+
+    &:disabled {
+        background-color: $teal;
+        border-color: $teal;
+        opacity: 0.65;
+    }
+}
+
+// Estado sin turno
+.sin-turno-icono {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+        font-size: 2.5rem;
+        color: #adb5bd;
+    }
+}
+
+// Clases de puntualidad
+.puntualidad-anticipado,
+.puntualidad-puntual {
+    color: #198754;
+    font-weight: 500;
+}
+
+.puntualidad-leve_retraso {
+    color: #fd7e14;
+    font-weight: 500;
+}
+
+.puntualidad-retraso {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+// Badges de estado
+.badge-estado-programado {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.badge-estado-en_curso {
+    background-color: $teal-light;
+    color: $teal;
+}
+
+.badge-estado-finalizado {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+// Tabla
+.table {
+    th {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        color: #6c757d;
+        white-space: nowrap;
+    }
+
+    td {
+        vertical-align: middle;
+        font-size: 0.875rem;
+    }
+}
+
+// Paginación
+.pagination {
+    .page-link {
+        color: $teal;
+        border-color: #dee2e6;
+
+        &:hover {
+            background-color: $teal-light;
+            border-color: $teal;
+            color: $teal-dark;
+        }
+    }
+
+    .page-item.active .page-link {
+        background-color: $teal;
+        border-color: $teal;
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        color: #adb5bd;
+    }
+}
+
+// Modal backdrop
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal {
+    z-index: 1050;
+
+    .modal-content {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+        padding: 1rem 1.25rem;
+    }
+
+    .modal-body {
+        padding: 1.25rem;
+    }
+
+    .modal-footer {
+        padding: 0.75rem 1.25rem;
+    }
+}
+
+// Responsivo
+@media (max-width: 767.98px) {
+    .horario-grid {
+        gap: 0.75rem;
+
+        .horario-item span {
+            font-size: 1.125rem !important;
+        }
+    }
+
+    .table {
+        font-size: 0.8125rem;
+
+        th,
+        td {
+            padding: 0.5rem;
+        }
+    }
+
+    .turno-card .card-body {
+        padding: 1.25rem !important;
+    }
+}

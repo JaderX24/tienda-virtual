@@ -23,6 +23,18 @@
         box-shadow: 0 4px 12px rgba(13, 110, 253, 0.35);
       }
     }
+
+    .btn-outline-success {
+      &:hover {
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.35);
+      }
+    }
+
+    .btn-outline-secondary {
+      &:hover {
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.35);
+      }
+    }
   }
 }
 

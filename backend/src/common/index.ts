@@ -5,5 +5,6 @@ export * from './filters';
 export * from './interceptors';
 export * from './pipes';
 export * from './middlewares';
+export * from './strategies';
 export * from './utils';
 export * from './services';

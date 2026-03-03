@@ -1,0 +1,124 @@
+$teal: #14b8a6;
+$teal-dark: #0f9688;
+$teal-light: rgba(20, 184, 166, 0.1);
+
+.salidas-container {
+    max-width: 1200px;
+}
+
+.text-teal {
+    color: $teal !important;
+}
+
+.btn-teal {
+    background-color: $teal;
+    border-color: $teal;
+    color: #fff;
+
+    &:hover,
+    &:focus {
+        background-color: $teal-dark;
+        border-color: $teal-dark;
+        color: #fff;
+    }
+
+    &:disabled {
+        background-color: $teal;
+        border-color: $teal;
+        opacity: 0.65;
+    }
+}
+
+.spinner-border.text-teal {
+    color: $teal !important;
+}
+
+.table {
+    th {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        color: #6c757d;
+        white-space: nowrap;
+    }
+
+    td {
+        vertical-align: middle;
+        font-size: 0.875rem;
+    }
+}
+
+.pagination {
+    .page-link {
+        color: $teal;
+
+        &:hover {
+            background-color: $teal-light;
+            color: $teal-dark;
+        }
+    }
+
+    .page-item.active .page-link {
+        background-color: $teal;
+        border-color: $teal;
+        color: #fff;
+    }
+}
+
+// Lista desplegable de productos
+.lista-productos {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.item-producto {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.15s;
+
+    &:hover {
+        background-color: $teal-light;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+// Modal
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal {
+    z-index: 1050;
+
+    .modal-content {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .table {
+        font-size: 0.8125rem;
+
+        th,
+        td {
+            padding: 0.5rem;
+        }
+    }
+}

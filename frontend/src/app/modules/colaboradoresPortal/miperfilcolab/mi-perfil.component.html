@@ -1,0 +1,752 @@
+<div class="mi-perfil-container">
+    @if (cargando() && !perfil()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-muted mt-2">Cargando perfil...</p>
+        </div>
+    } @else {
+        @if (perfil(); as p) {
+            <!-- Cabecera del perfil -->
+            <div class="perfil-cabecera mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+                            <div class="perfil-avatar-grande">
+                                <span class="avatar-iniciales">{{ inicialAvatar }}</span>
+                            </div>
+                            <div class="flex-grow-1 text-center text-md-start">
+                                <h3 class="fw-bold mb-1">{{ p.nombreCompleto }}</h3>
+                                <p class="text-muted mb-1">
+                                    <i class="bi bi-briefcase me-1"></i>{{ p.cargo || 'Sin cargo asignado' }}
+                                    @if (p.rol) {
+                                        <span class="badge text-bg-primary ms-2">{{ p.rol.nombre }}</span>
+                                    }
+                                </p>
+                                <p class="text-muted mb-0 small">
+                                    <i class="bi bi-person-badge me-1"></i>{{ p.codigoColaborador }}
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-envelope me-1"></i>{{ p.correo }}
+                                    @if (p.esVerificado) {
+                                        <i class="bi bi-patch-check-fill text-success ms-1" title="Verificado"></i>
+                                    }
+                                </p>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <span class="badge text-bg-light border px-3 py-2">
+                                    <i class="bi bi-calendar3 me-1"></i>Desde {{ formatearFecha(p.fechaIngreso) }}
+                                </span>
+                                <span class="badge text-bg-light border px-3 py-2">
+                                    <i class="bi bi-clock me-1"></i>Último acceso: {{ tiempoRelativo(p.ultimoAcceso) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegación por secciones -->
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'general'"
+                        (click)="cambiarSeccion('general')">
+                        <i class="bi bi-person me-1"></i>General
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'seguridad'"
+                        (click)="cambiarSeccion('seguridad')">
+                        <i class="bi bi-shield-lock me-1"></i>Seguridad
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'preferencias'"
+                        (click)="cambiarSeccion('preferencias')">
+                        <i class="bi bi-palette me-1"></i>Preferencias
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'sesiones'"
+                        (click)="cambiarSeccion('sesiones')">
+                        <i class="bi bi-laptop me-1"></i>Sesiones
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'dispositivos'"
+                        (click)="cambiarSeccion('dispositivos')">
+                        <i class="bi bi-phone me-1"></i>Dispositivos
+                    </button>
+                </li>
+            </ul>
+
+            <!-- ==================== SECCIÓN GENERAL ==================== -->
+            @if (seccionActiva() === 'general') {
+                <div class="row g-4">
+                    <!-- Información personal -->
+                    <div class="col-12 col-lg-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Información Personal</h5>
+                                @if (!modoEdicion()) {
+                                    <button type="button" class="btn btn-outline-primary btn-sm" (click)="activarEdicion()">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </button>
+                                }
+                            </div>
+                            <div class="card-body">
+                                @if (modoEdicion()) {
+                                    <!-- Formulario de edición -->
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Nombre</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.nombre" placeholder="Nombre">
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Apellido</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.apellido" placeholder="Apellido">
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.telefono" placeholder="Ej: +504 9999-9999">
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Género</label>
+                                            <select class="form-select" [(ngModel)]="formPerfil.genero">
+                                                <option value="no_especificado">No especificado</option>
+                                                <option value="masculino">Masculino</option>
+                                                <option value="femenino">Femenino</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <hr class="my-2">
+                                            <h6 class="text-muted mb-3"><i class="bi bi-telephone me-1"></i>Contacto de Emergencia</h6>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Nombre del contacto</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.contactoEmergenciaNombre"
+                                                placeholder="Nombre completo">
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label">Teléfono de emergencia</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.telefonoEmergencia"
+                                                placeholder="Ej: +504 9999-9999">
+                                        </div>
+                                        <div class="col-12 d-flex gap-2 justify-content-end mt-3">
+                                            <button type="button" class="btn btn-outline-secondary" (click)="cancelarEdicion()"
+                                                [disabled]="guardando()">Cancelar</button>
+                                            <button type="button" class="btn btn-primary" (click)="guardarPerfil()"
+                                                [disabled]="guardando()">
+                                                @if (guardando()) {
+                                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                                }
+                                                Guardar cambios
+                                            </button>
+                                        </div>
+                                    </div>
+                                } @else {
+                                    <!-- Vista de lectura -->
+                                    <div class="row g-3">
+                                        <div class="col-6 col-md-4">
+                                            <div class="dato-label">Nombre</div>
+                                            <div class="dato-valor">{{ p.nombre }}</div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="dato-label">Apellido</div>
+                                            <div class="dato-valor">{{ p.apellido }}</div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="dato-label">Identidad</div>
+                                            <div class="dato-valor">{{ p.numeroIdentidad || 'No registrada' }}</div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="dato-label">Fecha de nacimiento</div>
+                                            <div class="dato-valor">{{ formatearFecha(p.fechaNacimiento) }}</div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="dato-label">Género</div>
+                                            <div class="dato-valor">{{ traducirGenero(p.genero) }}</div>
+                                        </div>
+                                        <div class="col-6 col-md-4">
+                                            <div class="dato-label">Teléfono</div>
+                                            <div class="dato-valor">{{ p.telefono || 'No registrado' }}</div>
+                                        </div>
+                                        <div class="col-12"><hr class="my-2"></div>
+                                        <div class="col-6 col-md-6">
+                                            <div class="dato-label">Contacto de emergencia</div>
+                                            <div class="dato-valor">{{ p.contactoEmergenciaNombre || 'No registrado' }}</div>
+                                        </div>
+                                        <div class="col-6 col-md-6">
+                                            <div class="dato-label">Teléfono de emergencia</div>
+                                            <div class="dato-valor">{{ p.telefonoEmergencia || 'No registrado' }}</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta lateral de info laboral -->
+                    <div class="col-12 col-lg-4">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0"><i class="bi bi-building me-2"></i>Información Laboral</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="info-item mb-3">
+                                    <div class="dato-label">Código</div>
+                                    <div class="dato-valor fw-semibold">{{ p.codigoColaborador }}</div>
+                                </div>
+                                <div class="info-item mb-3">
+                                    <div class="dato-label">Cargo</div>
+                                    <div class="dato-valor">{{ p.cargo || 'Sin cargo' }}</div>
+                                </div>
+                                <div class="info-item mb-3">
+                                    <div class="dato-label">Tipo de contrato</div>
+                                    <div class="dato-valor">{{ traducirContrato(p.tipoContrato) }}</div>
+                                </div>
+                                <div class="info-item mb-3">
+                                    <div class="dato-label">Fecha de ingreso</div>
+                                    <div class="dato-valor">{{ formatearFecha(p.fechaIngreso) }}</div>
+                                </div>
+                                @if (p.almacen) {
+                                    <div class="info-item">
+                                        <div class="dato-label">Almacén principal</div>
+                                        <div class="dato-valor">{{ p.almacen.nombre }}</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Roles y almacenes -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0"><i class="bi bi-person-gear me-2"></i>Roles y Almacenes</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="dato-label mb-2">Roles asignados</div>
+                                    @for (rol of p.roles; track rol.codigo) {
+                                        <span class="badge me-1 mb-1" [class]="rol.esPrincipal ? 'text-bg-primary' : 'text-bg-secondary'">
+                                            {{ rol.nombre }}
+                                            @if (rol.esPrincipal) {
+                                                <i class="bi bi-star-fill ms-1"></i>
+                                            }
+                                        </span>
+                                    } @empty {
+                                        <span class="text-muted">Sin roles asignados</span>
+                                    }
+                                </div>
+                                <div>
+                                    <div class="dato-label mb-2">Almacenes asignados</div>
+                                    @for (almacen of p.almacenes; track almacen.id) {
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <i class="bi bi-box-seam text-muted"></i>
+                                            <span>{{ almacen.nombre }}</span>
+                                            <span class="badge text-bg-light">{{ almacen.nivelAcceso }}</span>
+                                        </div>
+                                    } @empty {
+                                        <span class="text-muted">Sin almacenes asignados</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- ==================== SECCIÓN SEGURIDAD ==================== -->
+            @if (seccionActiva() === 'seguridad') {
+                @if (cargando()) {
+                    <div class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                    </div>
+                } @else {
+                    <div class="row g-4">
+                        <!-- Cambio de contraseña -->
+                        <div class="col-12 col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="bi bi-key me-2"></i>Contraseña</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <div class="icono-estado bg-light rounded-circle p-3">
+                                            <i class="bi bi-shield-check fs-4 text-success"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0 fw-semibold">Estado de la contraseña</p>
+                                            @if (p.contrasenaTemporal) {
+                                                <small class="text-danger">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>Contraseña temporal - debe cambiarla
+                                                </small>
+                                            } @else {
+                                                <small class="text-muted">
+                                                    Último cambio: {{ tiempoRelativo(p.ultimoCambioContrasena) }}
+                                                    @if (obtenerDiasDesdeUltimoCambio(); as dias) {
+                                                        ({{ dias }} días)
+                                                    }
+                                                </small>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    @if (!mostrarCambioContrasena()) {
+                                        <button type="button" class="btn btn-outline-primary w-100" (click)="abrirCambioContrasena()">
+                                            <i class="bi bi-key me-1"></i>Cambiar contraseña
+                                        </button>
+                                    } @else {
+                                        <div class="border rounded p-3 bg-light">
+                                            <div class="mb-3">
+                                                <label class="form-label">Contraseña actual</label>
+                                                <div class="input-group">
+                                                    <input [type]="mostrarContrasenaActual() ? 'text' : 'password'" class="form-control"
+                                                        [(ngModel)]="formContrasena.contrasenaActual" placeholder="Ingrese su contraseña actual">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                        (click)="mostrarContrasenaActual.set(!mostrarContrasenaActual())">
+                                                        <i class="bi" [ngClass]="mostrarContrasenaActual() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Nueva contraseña</label>
+                                                <div class="input-group">
+                                                    <input [type]="mostrarContrasenaNueva() ? 'text' : 'password'" class="form-control"
+                                                        [(ngModel)]="formContrasena.nuevaContrasena" placeholder="Mínimo 12 caracteres">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                        (click)="mostrarContrasenaNueva.set(!mostrarContrasenaNueva())">
+                                                        <i class="bi" [ngClass]="mostrarContrasenaNueva() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                                    </button>
+                                                </div>
+                                                @if (formContrasena.nuevaContrasena) {
+                                                    <div class="mt-2">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="progress flex-grow-1" style="height: 6px;">
+                                                                <div class="progress-bar" [ngClass]="obtenerFortalezaContrasena().clase"
+                                                                    [style.width.%]="obtenerFortalezaContrasena().nivel * 25"></div>
+                                                            </div>
+                                                            <small class="text-muted">{{ obtenerFortalezaContrasena().texto }}</small>
+                                                        </div>
+                                                        <div class="mt-1">
+                                                            <small [class]="formContrasena.nuevaContrasena.length >= 12 ? 'text-success' : 'text-muted'">
+                                                                <i class="bi" [ngClass]="formContrasena.nuevaContrasena.length >= 12 ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                                                                12+ caracteres
+                                                            </small>
+                                                            <small class="ms-2" [class]="tieneMayuscula() ? 'text-success' : 'text-muted'">
+                                                                <i class="bi" [ngClass]="tieneMayuscula() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                                                                Mayúscula
+                                                            </small>
+                                                            <small class="ms-2" [class]="tieneMinuscula() ? 'text-success' : 'text-muted'">
+                                                                <i class="bi" [ngClass]="tieneMinuscula() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                                                                Minúscula
+                                                            </small>
+                                                            <small class="ms-2" [class]="tieneNumero() ? 'text-success' : 'text-muted'">
+                                                                <i class="bi" [ngClass]="tieneNumero() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                                                                Número
+                                                            </small>
+                                                            <small class="ms-2" [class]="tieneEspecial() ? 'text-success' : 'text-muted'">
+                                                                <i class="bi" [ngClass]="tieneEspecial() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                                                                Especial
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Confirmar nueva contraseña</label>
+                                                <div class="input-group">
+                                                    <input [type]="mostrarContrasenaConfirmar() ? 'text' : 'password'" class="form-control"
+                                                        [(ngModel)]="formContrasena.confirmarContrasena" placeholder="Repita la nueva contraseña">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                        (click)="mostrarContrasenaConfirmar.set(!mostrarContrasenaConfirmar())">
+                                                        <i class="bi" [ngClass]="mostrarContrasenaConfirmar() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                                    </button>
+                                                </div>
+                                                @if (formContrasena.confirmarContrasena && formContrasena.nuevaContrasena !== formContrasena.confirmarContrasena) {
+                                                    <small class="text-danger">
+                                                        <i class="bi bi-exclamation-circle me-1"></i>Las contraseñas no coinciden
+                                                    </small>
+                                                }
+                                            </div>
+                                            <div class="d-flex gap-2 justify-content-end">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                    (click)="cancelarCambioContrasena()" [disabled]="guardando()">Cancelar</button>
+                                                <button type="button" class="btn btn-primary btn-sm"
+                                                    (click)="guardarContrasena()" [disabled]="guardando()">
+                                                    @if (guardando()) {
+                                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                                    }
+                                                    Cambiar contraseña
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuración de seguridad -->
+                        <div class="col-12 col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Configuración de Seguridad</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <div class="form-check form-switch mb-2">
+                                            <input type="checkbox" class="form-check-input" id="check2fa"
+                                                [(ngModel)]="formSeguridad.requiere2fa">
+                                            <label class="form-check-label fw-semibold" for="check2fa">
+                                                Autenticación de dos factores (2FA)
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block ms-4 mb-2">Añade una capa adicional de seguridad a tu cuenta</small>
+                                        @if (formSeguridad.requiere2fa) {
+                                            <div class="ms-4">
+                                                <label class="form-label">Método de verificación</label>
+                                                <select class="form-select form-select-sm" [(ngModel)]="formSeguridad.metodo2fa">
+                                                    <option value="correo">Correo electrónico</option>
+                                                    <option value="app">Aplicación autenticadora</option>
+                                                </select>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold">Sesiones simultáneas máximas</label>
+                                        <select class="form-select" [(ngModel)]="formSeguridad.maxSesionesSimultaneas">
+                                            <option [ngValue]="1">1 sesión</option>
+                                            <option [ngValue]="2">2 sesiones</option>
+                                            <option [ngValue]="3">3 sesiones</option>
+                                            <option [ngValue]="5">5 sesiones</option>
+                                        </select>
+                                        <small class="text-muted">Controla cuántos dispositivos pueden estar conectados al mismo tiempo</small>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" (click)="guardarSeguridad()"
+                                        [disabled]="guardando()">
+                                        @if (guardando()) {
+                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                        }
+                                        Guardar configuración
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actividad reciente de seguridad -->
+                        @if (resumenSeguridad(); as seg) {
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Actividad Reciente de Seguridad</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-6 col-md-3">
+                                                <div class="text-center p-3 bg-light rounded">
+                                                    <div class="fs-3 fw-bold text-primary">{{ seg.sesionesActivas }}</div>
+                                                    <small class="text-muted">Sesiones activas</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <div class="text-center p-3 bg-light rounded">
+                                                    <div class="fs-3 fw-bold text-info">{{ seg.dispositivosRegistrados }}</div>
+                                                    <small class="text-muted">Dispositivos</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <div class="p-3 bg-light rounded h-100 d-flex align-items-center">
+                                                    <div>
+                                                        <small class="text-muted d-block">Último cambio de contraseña</small>
+                                                        <span class="fw-semibold">{{ tiempoRelativo(seg.ultimoCambioContrasena) }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @if (seg.ultimosEventos.length > 0) {
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Evento</th>
+                                                            <th>Descripción</th>
+                                                            <th>IP</th>
+                                                            <th>Fecha</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @for (evento of seg.ultimosEventos; track evento.fecha) {
+                                                            <tr>
+                                                                <td>
+                                                                    <i class="bi me-1" [ngClass]="obtenerIconoSeveridad(evento.severidad)"></i>
+                                                                    {{ evento.tipoEvento }}
+                                                                </td>
+                                                                <td class="text-muted">{{ evento.descripcion || '-' }}</td>
+                                                                <td><code>{{ evento.ip || '-' }}</code></td>
+                                                                <td class="text-nowrap">{{ formatearFechaHora(evento.fecha) }}</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        } @else {
+                                            <p class="text-muted text-center mb-0">No hay actividad reciente</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+
+            <!-- ==================== SECCIÓN PREFERENCIAS ==================== -->
+            @if (seccionActiva() === 'preferencias') {
+                @if (cargando()) {
+                    <div class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                    </div>
+                } @else {
+                    <div class="row g-4">
+                        <!-- Tema de color -->
+                        <div class="col-12 col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="bi bi-palette me-2"></i>Tema de Color</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted mb-3">Selecciona el color principal de la interfaz</p>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        @for (tema of temasDisponibles; track tema.valor) {
+                                            <button type="button" class="tema-opcion"
+                                                [class.tema-seleccionado]="formPreferencias.temaColor === tema.valor"
+                                                [style.--tema-color]="tema.color"
+                                                (click)="seleccionarTema(tema.valor)">
+                                                <div class="tema-muestra" [style.backgroundColor]="tema.color"></div>
+                                                <small>{{ tema.nombre }}</small>
+                                                @if (formPreferencias.temaColor === tema.valor) {
+                                                    <i class="bi bi-check-circle-fill tema-check"></i>
+                                                }
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Interfaz -->
+                        <div class="col-12 col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="bi bi-layout-sidebar me-2"></i>Interfaz</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input type="checkbox" class="form-check-input" id="sidebarCompacto"
+                                            [(ngModel)]="formPreferencias.sidebarCompacto">
+                                        <label class="form-check-label" for="sidebarCompacto">
+                                            <span class="fw-semibold">Sidebar compacto</span>
+                                            <small class="d-block text-muted">Reduce el ancho del menú lateral</small>
+                                        </label>
+                                    </div>
+                                    <hr>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Idioma</label>
+                                        <select class="form-select" [(ngModel)]="formPreferencias.idioma">
+                                            <option value="es">Español</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label fw-semibold">Zona horaria</label>
+                                        <select class="form-select" [(ngModel)]="formPreferencias.zonaHoraria">
+                                            <option value="America/Tegucigalpa">America/Tegucigalpa (UTC-6)</option>
+                                            <option value="America/Guatemala">America/Guatemala (UTC-6)</option>
+                                            <option value="America/Mexico_City">America/México (UTC-6)</option>
+                                            <option value="America/Panama">America/Panamá (UTC-5)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notificaciones -->
+                        <div class="col-12 col-lg-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0"><i class="bi bi-bell me-2"></i>Notificaciones</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input type="checkbox" class="form-check-input" id="notifSonido"
+                                            [(ngModel)]="formPreferencias.notificacionesSonido">
+                                        <label class="form-check-label" for="notifSonido">
+                                            <span class="fw-semibold">Sonido de notificaciones</span>
+                                            <small class="d-block text-muted">Reproduce un sonido al recibir notificaciones</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input" id="notifEscritorio"
+                                            [(ngModel)]="formPreferencias.notificacionesEscritorio">
+                                        <label class="form-check-label" for="notifEscritorio">
+                                            <span class="fw-semibold">Notificaciones de escritorio</span>
+                                            <small class="d-block text-muted">Muestra notificaciones del sistema operativo</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón guardar -->
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary px-4" (click)="guardarPreferencias()"
+                                    [disabled]="guardando()">
+                                    @if (guardando()) {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    <i class="bi bi-check-lg me-1"></i>Guardar preferencias
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+
+            <!-- ==================== SECCIÓN SESIONES ==================== -->
+            @if (seccionActiva() === 'sesiones') {
+                @if (cargando()) {
+                    <div class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                    </div>
+                } @else {
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-laptop me-2"></i>Sesiones Activas ({{ sesiones().length }})</h5>
+                            @if (sesiones().length > 1) {
+                                <button type="button" class="btn btn-outline-danger btn-sm" (click)="cerrarTodasLasSesiones()">
+                                    <i class="bi bi-x-circle me-1"></i>Cerrar todas las demás
+                                </button>
+                            }
+                        </div>
+                        <div class="card-body p-0">
+                            @if (sesiones().length > 0) {
+                                <div class="list-group list-group-flush">
+                                    @for (sesion of sesiones(); track sesion.id; let i = $index) {
+                                        <div class="list-group-item">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="sesion-icono">
+                                                    <i class="bi bi-display fs-4 text-muted"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h6 class="mb-1">
+                                                                {{ sesion.navegador }} en {{ sesion.sistemaOperativo }}
+                                                                @if (i === 0) {
+                                                                    <span class="badge text-bg-success ms-1">Actual</span>
+                                                                }
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                <i class="bi bi-geo-alt me-1"></i>{{ sesion.ubicacion }}
+                                                                <span class="mx-1">·</span>
+                                                                <i class="bi bi-ethernet me-1"></i>{{ sesion.ip }}
+                                                            </small>
+                                                        </div>
+                                                        @if (i !== 0) {
+                                                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                                                (click)="cerrarSesion(sesion)">
+                                                                <i class="bi bi-x-lg"></i>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                    <div class="mt-1">
+                                                        <small class="text-muted">
+                                                            Iniciada: {{ formatearFechaHora(sesion.iniciadaEn) }}
+                                                            <span class="mx-1">·</span>
+                                                            Última actividad: {{ tiempoRelativo(sesion.ultimaActividad) }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            } @else {
+                                <div class="text-center py-4">
+                                    <i class="bi bi-laptop display-6 text-muted"></i>
+                                    <p class="text-muted mt-2">No hay sesiones activas</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <!-- ==================== SECCIÓN DISPOSITIVOS ==================== -->
+            @if (seccionActiva() === 'dispositivos') {
+                @if (cargando()) {
+                    <div class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                    </div>
+                } @else {
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0"><i class="bi bi-phone me-2"></i>Dispositivos Registrados ({{ dispositivos().length }})</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (dispositivos().length > 0) {
+                                <div class="list-group list-group-flush">
+                                    @for (dispositivo of dispositivos(); track dispositivo.id) {
+                                        <div class="list-group-item">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="dispositivo-icono">
+                                                    <i class="bi fs-3 text-muted" [ngClass]="obtenerIconoDispositivo(dispositivo.tipo)"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <h6 class="mb-1">
+                                                                {{ dispositivo.nombre }}
+                                                                @if (dispositivo.esConfiable) {
+                                                                    <span class="badge text-bg-success ms-1">
+                                                                        <i class="bi bi-shield-check me-1"></i>Confiable
+                                                                    </span>
+                                                                }
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                {{ dispositivo.navegador || 'Navegador desconocido' }}
+                                                                · {{ dispositivo.sistemaOperativo || 'SO desconocido' }}
+                                                            </small>
+                                                        </div>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                            (click)="eliminarDispositivo(dispositivo)">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="mt-1">
+                                                        <small class="text-muted">
+                                                            Registrado: {{ formatearFechaHora(dispositivo.registradoEn) }}
+                                                            @if (dispositivo.ultimoUso) {
+                                                                <span class="mx-1">·</span>
+                                                                Último uso: {{ tiempoRelativo(dispositivo.ultimoUso) }}
+                                                            }
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            } @else {
+                                <div class="text-center py-4">
+                                    <i class="bi bi-phone display-6 text-muted"></i>
+                                    <p class="text-muted mt-2">No hay dispositivos registrados</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        }
+    }
+</div>

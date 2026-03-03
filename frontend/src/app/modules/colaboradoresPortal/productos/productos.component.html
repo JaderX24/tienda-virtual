@@ -1,0 +1,599 @@
+<div class="productos-container">
+
+    <!-- ========================== VISTA LISTA ========================== -->
+    @if (vista() === 'lista') {
+
+        <!-- Encabezado -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">
+                <i class="bi bi-grid-3x3-gap me-2 text-teal"></i>Catálogo de Productos
+            </h5>
+            <span class="badge bg-light text-dark fs-6">
+                {{ totalProductos() }} productos
+            </span>
+        </div>
+
+        <!-- Tarjetas resumen -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="text-teal mb-1"><i class="bi bi-box-seam fs-4"></i></div>
+                        <h4 class="fw-bold mb-0">{{ resumen().productosActivos }}</h4>
+                        <small class="text-muted">Activos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="text-danger mb-1"><i class="bi bi-exclamation-triangle fs-4"></i></div>
+                        <h4 class="fw-bold mb-0">{{ resumen().agotados }}</h4>
+                        <small class="text-muted">Agotados</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="text-warning mb-1"><i class="bi bi-arrow-down-circle fs-4"></i></div>
+                        <h4 class="fw-bold mb-0">{{ resumen().stockBajo }}</h4>
+                        <small class="text-muted">Stock Bajo</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="text-secondary mb-1"><i class="bi bi-pause-circle fs-4"></i></div>
+                        <h4 class="fw-bold mb-0">{{ resumen().inactivos }}</h4>
+                        <small class="text-muted">Inactivos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Buscar producto</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" placeholder="Nombre, SKU..."
+                                [(ngModel)]="filtros.busqueda" (keyup.enter)="buscar()">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-medium">Categoría</label>
+                        <select class="form-select" [(ngModel)]="filtros.categoriaId" (change)="buscar()">
+                            <option [ngValue]="undefined">Todas</option>
+                            @for (cat of categorias(); track cat.id) {
+                                <option [ngValue]="cat.id">{{ cat.nombre }} ({{ cat.totalProductos }})</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-medium">Estado</label>
+                        <select class="form-select" [(ngModel)]="filtros.estado" (change)="buscar()">
+                            <option value="todos">Todos</option>
+                            <option value="activo">Activos</option>
+                            <option value="inactivo">Inactivos</option>
+                            <option value="agotado">Agotados</option>
+                            <option value="stock_bajo">Stock Bajo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button class="btn btn-teal flex-fill" (click)="buscar()">
+                            <i class="bi bi-search me-1"></i>Buscar
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()" title="Limpiar filtros">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary"
+                            (click)="mostrarFiltrosAvanzados = !mostrarFiltrosAvanzados"
+                            [class.active]="mostrarFiltrosAvanzados"
+                            title="Filtros avanzados">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros avanzados -->
+                @if (mostrarFiltrosAvanzados) {
+                    <hr class="my-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Marca</label>
+                            <select class="form-select" [(ngModel)]="filtros.marcaId" (change)="buscar()">
+                                <option [ngValue]="undefined">Todas</option>
+                                @for (marca of marcas(); track marca.id) {
+                                    <option [ngValue]="marca.id">{{ marca.nombre }} ({{ marca.totalProductos }})</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Precio desde (L)</label>
+                            <input type="number" class="form-control" placeholder="0.00"
+                                [(ngModel)]="precioDesde" min="0" step="0.01">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-medium">Precio hasta (L)</label>
+                            <input type="number" class="form-control" placeholder="0.00"
+                                [(ngModel)]="precioHasta" min="0" step="0.01">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-teal w-100" (click)="buscar()">
+                                <i class="bi bi-funnel-fill me-1"></i>Aplicar filtros
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Tabla de productos -->
+        @if (cargando()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-teal" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="text-muted mt-2">Cargando productos...</p>
+            </div>
+        } @else if (productos().length === 0) {
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <h6 class="mt-3 text-muted">No se encontraron productos</h6>
+                    <p class="text-muted small mb-0">Intenta con otros filtros de búsqueda</p>
+                </div>
+            </div>
+        } @else {
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;"></th>
+                                    <th class="cursor-pointer" (click)="cambiarOrden('nombre')">
+                                        Producto <i class="bi" [ngClass]="obtenerIconoOrden('nombre')"></i>
+                                    </th>
+                                    <th class="cursor-pointer" (click)="cambiarOrden('sku')">
+                                        SKU <i class="bi" [ngClass]="obtenerIconoOrden('sku')"></i>
+                                    </th>
+                                    <th>Categoría</th>
+                                    <th class="text-end cursor-pointer" (click)="cambiarOrden('precio')">
+                                        Precio <i class="bi" [ngClass]="obtenerIconoOrden('precio')"></i>
+                                    </th>
+                                    <th class="text-center cursor-pointer" (click)="cambiarOrden('stock')">
+                                        Stock <i class="bi" [ngClass]="obtenerIconoOrden('stock')"></i>
+                                    </th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center" style="width: 80px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (producto of productos(); track producto.id) {
+                                    <tr class="producto-fila" (click)="verDetalle(producto)">
+                                        <td>
+                                            @if (producto.imagen) {
+                                                <img [src]="producto.imagen" [alt]="producto.nombre"
+                                                    class="img-producto rounded" width="40" height="40">
+                                            } @else {
+                                                <div class="img-placeholder rounded d-flex align-items-center justify-content-center">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="fw-medium">{{ producto.nombre }}</div>
+                                            @if (producto.marca) {
+                                                <small class="text-muted">{{ producto.marca }}</small>
+                                            }
+                                            @if (producto.destacado) {
+                                                <i class="bi bi-star-fill text-warning ms-1" style="font-size: 0.7rem;" title="Destacado"></i>
+                                            }
+                                            @if (!producto.activo) {
+                                                <span class="badge text-bg-secondary ms-1">Inactivo</span>
+                                            }
+                                        </td>
+                                        <td class="text-muted small font-monospace">{{ producto.sku }}</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">{{ producto.categoria }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-medium">{{ formatearPrecio(producto.precio) }}</span>
+                                            @if (tieneDescuento(producto)) {
+                                                <br>
+                                                <small class="text-decoration-line-through text-muted">
+                                                    {{ formatearPrecio(producto.precioComparacion!) }}
+                                                </small>
+                                                <span class="badge text-bg-danger ms-1">-{{ calcularDescuento(producto) }}%</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="fw-bold"
+                                                [class.text-danger]="producto.stock <= 0"
+                                                [class.text-warning]="producto.stock > 0 && producto.stock <= producto.stockMinimo"
+                                                [class.text-success]="producto.stock > producto.stockMinimo">
+                                                {{ producto.stock }}
+                                            </span>
+                                            <small class="text-muted d-block">Min: {{ producto.stockMinimo }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge rounded-pill" [ngClass]="obtenerClaseEstadoStock(producto.estadoStock)">
+                                                {{ obtenerEtiquetaEstadoStock(producto.estadoStock) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-teal" (click)="verDetalle(producto); $event.stopPropagation()" title="Ver detalle">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            @if (totalPaginas() > 1) {
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">
+                        Mostrando página {{ paginaActual() }} de {{ totalPaginas() }}
+                        ({{ totalProductos() }} resultados)
+                    </small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item" [class.disabled]="paginaActual() === 1">
+                                <button class="page-link" (click)="cargarProductos(paginaActual() - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                            </li>
+                            @for (p of [].constructor(totalPaginas()); track $index) {
+                                @if ($index + 1 === 1 || $index + 1 === totalPaginas() ||
+                                    ($index + 1 >= paginaActual() - 2 && $index + 1 <= paginaActual() + 2)) {
+                                    <li class="page-item" [class.active]="paginaActual() === $index + 1">
+                                        <button class="page-link" (click)="cargarProductos($index + 1)">
+                                            {{ $index + 1 }}
+                                        </button>
+                                    </li>
+                                }
+                            }
+                            <li class="page-item" [class.disabled]="paginaActual() === totalPaginas()">
+                                <button class="page-link" (click)="cargarProductos(paginaActual() + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        }
+    }
+
+    <!-- ========================== VISTA DETALLE ========================== -->
+    @if (vista() === 'detalle') {
+
+        <!-- Botón volver -->
+        <button class="btn btn-outline-secondary mb-3" (click)="volverALista()">
+            <i class="bi bi-arrow-left me-1"></i>Volver al catálogo
+        </button>
+
+        @if (cargandoDetalle()) {
+            <div class="text-center py-5">
+                <div class="spinner-border text-teal" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="text-muted mt-2">Cargando detalle...</p>
+            </div>
+        } @else {
+          @if (productoDetalle(); as producto) {
+            <!-- Encabezado producto -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Imágenes -->
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            @if (producto.imagenes.length > 0) {
+                                <div class="imagen-principal-container mb-2">
+                                    <img [src]="producto.imagenes[imagenSeleccionada()].url"
+                                        [alt]="producto.imagenes[imagenSeleccionada()].altText || producto.nombre"
+                                        class="img-fluid rounded imagen-principal">
+                                </div>
+                                @if (producto.imagenes.length > 1) {
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        @for (img of producto.imagenes; track img.id; let i = $index) {
+                                            <img [src]="img.url" [alt]="img.altText || ''"
+                                                class="img-thumbnail miniatura"
+                                                [class.miniatura-activa]="imagenSeleccionada() === i"
+                                                (click)="seleccionarImagen(i)"
+                                                width="50" height="50">
+                                        }
+                                    </div>
+                                }
+                            } @else {
+                                <div class="img-placeholder-grande rounded d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Información principal -->
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h4 class="fw-bold mb-1">{{ producto.nombre }}</h4>
+                                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                                        <span class="badge bg-light text-dark font-monospace">{{ producto.sku }}</span>
+                                        @if (producto.categoria) {
+                                            <span class="badge bg-light text-dark">
+                                                <i class="bi bi-tag me-1"></i>
+                                                @if (producto.categoria.padre) {
+                                                    {{ producto.categoria.padre.nombre }} /
+                                                }
+                                                {{ producto.categoria.nombre }}
+                                            </span>
+                                        }
+                                        @if (producto.marca) {
+                                            <span class="badge bg-light text-dark">
+                                                <i class="bi bi-building me-1"></i>{{ producto.marca.nombre }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    @if (producto.destacado) {
+                                        <span class="badge text-bg-warning"><i class="bi bi-star-fill me-1"></i>Destacado</span>
+                                    }
+                                    <span class="badge" [ngClass]="producto.activo ? 'text-bg-success' : 'text-bg-secondary'">
+                                        {{ producto.activo ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            @if (producto.descripcionCorta) {
+                                <p class="text-muted mb-3">{{ producto.descripcionCorta }}</p>
+                            }
+
+                            <!-- Precios -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-auto">
+                                    <div class="detalle-item">
+                                        <label>Precio de venta</label>
+                                        <div class="fs-4 fw-bold text-teal">{{ formatearPrecio(producto.precio) }}</div>
+                                    </div>
+                                </div>
+                                @if (producto.precioComparacion) {
+                                    <div class="col-auto">
+                                        <div class="detalle-item">
+                                            <label>Precio anterior</label>
+                                            <div class="text-decoration-line-through text-muted">
+                                                {{ formatearPrecio(producto.precioComparacion) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                @if (producto.costo !== null) {
+                                    <div class="col-auto">
+                                        <div class="detalle-item">
+                                            <label>Costo</label>
+                                            <div>{{ formatearPrecio(producto.costo) }}</div>
+                                        </div>
+                                    </div>
+                                }
+                                @if (producto.margenGanancia !== null) {
+                                    <div class="col-auto">
+                                        <div class="detalle-item">
+                                            <label>Margen</label>
+                                            <div [class.text-success]="producto.margenGanancia > 20"
+                                                [class.text-warning]="producto.margenGanancia > 0 && producto.margenGanancia <= 20"
+                                                [class.text-danger]="producto.margenGanancia <= 0">
+                                                {{ producto.margenGanancia }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-auto">
+                                    <div class="detalle-item">
+                                        <label>Stock actual</label>
+                                        <div class="fs-5 fw-bold"
+                                            [class.text-danger]="producto.stock <= 0"
+                                            [class.text-warning]="producto.stock > 0 && producto.stock <= producto.stockMinimo"
+                                            [class.text-success]="producto.stock > producto.stockMinimo">
+                                            {{ producto.stock }} uds.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="detalle-item">
+                                        <label>Stock mínimo</label>
+                                        <div>{{ producto.stockMinimo }} uds.</div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="detalle-item">
+                                        <label>Estado stock</label>
+                                        <span class="badge rounded-pill" [ngClass]="obtenerClaseEstadoStock(producto.estadoStock)">
+                                            {{ obtenerEtiquetaEstadoStock(producto.estadoStock) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                @if (producto.peso !== null) {
+                                    <div class="col-auto">
+                                        <div class="detalle-item">
+                                            <label>Peso</label>
+                                            <div>{{ producto.peso }} kg</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Fechas -->
+                            <div class="row g-3">
+                                <div class="col-auto">
+                                    <div class="detalle-item">
+                                        <label>Creado</label>
+                                        <div class="small">{{ formatearFecha(producto.creadoEn) }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="detalle-item">
+                                        <label>Última actualización</label>
+                                        <div class="small">{{ formatearFecha(producto.actualizadoEn) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs: Descripción / Movimientos -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <button class="nav-link" [class.active]="tabActiva() === 'info'"
+                                (click)="cambiarTab('info')">
+                                <i class="bi bi-info-circle me-1"></i>Información
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" [class.active]="tabActiva() === 'movimientos'"
+                                (click)="cambiarTab('movimientos')">
+                                <i class="bi bi-arrow-left-right me-1"></i>Movimientos de inventario
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <!-- Tab Información -->
+                    @if (tabActiva() === 'info') {
+                        @if (producto.descripcion) {
+                            <h6 class="fw-bold mb-2">Descripción</h6>
+                            <p class="text-muted mb-0" style="white-space: pre-line;">{{ producto.descripcion }}</p>
+                        } @else {
+                            <p class="text-muted mb-0">Este producto no tiene descripción detallada.</p>
+                        }
+                    }
+
+                    <!-- Tab Movimientos -->
+                    @if (tabActiva() === 'movimientos') {
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0">Historial de movimientos</h6>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" style="width: auto;"
+                                    [(ngModel)]="filtroTipoMovimiento" (change)="filtrarMovimientos()">
+                                    <option value="">Todos los tipos</option>
+                                    <option value="entrada">Entradas</option>
+                                    <option value="salida">Salidas</option>
+                                    <option value="ajuste">Ajustes</option>
+                                    <option value="transferencia">Transferencias</option>
+                                    <option value="devolucion">Devoluciones</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        @if (cargandoMovimientos()) {
+                            <div class="text-center py-4">
+                                <div class="spinner-border spinner-border-sm text-teal" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                            </div>
+                        } @else if (movimientos().length === 0) {
+                            <div class="text-center py-4">
+                                <i class="bi bi-clock-history text-muted" style="font-size: 2rem;"></i>
+                                <p class="text-muted mt-2 mb-0">Sin movimientos registrados</p>
+                            </div>
+                        } @else {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th class="text-center">Cantidad</th>
+                                            <th class="text-center">Stock anterior</th>
+                                            <th class="text-center">Stock nuevo</th>
+                                            <th class="text-center">Diferencia</th>
+                                            <th>Motivo</th>
+                                            <th>Usuario</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (mov of movimientos(); track mov.id) {
+                                            <tr>
+                                                <td>
+                                                    <span class="badge" [ngClass]="obtenerClaseTipoMovimiento(mov.tipo)">
+                                                        <i class="bi me-1" [ngClass]="obtenerIconoTipoMovimiento(mov.tipo)"></i>
+                                                        {{ mov.tipo | titlecase }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-center fw-medium">{{ mov.cantidad }}</td>
+                                                <td class="text-center text-muted">{{ mov.stockAnterior }}</td>
+                                                <td class="text-center fw-medium">{{ mov.stockNuevo }}</td>
+                                                <td class="text-center">
+                                                    @if (obtenerDiferenciaMovimiento(mov) > 0) {
+                                                        <span class="text-success fw-bold">+{{ obtenerDiferenciaMovimiento(mov) }}</span>
+                                                    } @else if (obtenerDiferenciaMovimiento(mov) < 0) {
+                                                        <span class="text-danger fw-bold">{{ obtenerDiferenciaMovimiento(mov) }}</span>
+                                                    } @else {
+                                                        <span class="text-muted">0</span>
+                                                    }
+                                                </td>
+                                                <td class="small" style="max-width: 200px;">
+                                                    <span class="text-truncate d-block" [title]="mov.motivo">
+                                                        {{ mov.motivo }}
+                                                    </span>
+                                                </td>
+                                                <td class="small text-muted">{{ mov.usuario }}</td>
+                                                <td class="small text-nowrap">{{ formatearFecha(mov.fecha) }}</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Paginación movimientos -->
+                            @if (totalPaginasMovimientos() > 1) {
+                                <div class="d-flex justify-content-center mt-3">
+                                    <nav>
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item" [class.disabled]="paginaMovimientos() === 1">
+                                                <button class="page-link" (click)="cargarMovimientos(paginaMovimientos() - 1)">
+                                                    <i class="bi bi-chevron-left"></i>
+                                                </button>
+                                            </li>
+                                            @for (p of [].constructor(totalPaginasMovimientos()); track $index) {
+                                                <li class="page-item" [class.active]="paginaMovimientos() === $index + 1">
+                                                    <button class="page-link" (click)="cargarMovimientos($index + 1)">
+                                                        {{ $index + 1 }}
+                                                    </button>
+                                                </li>
+                                            }
+                                            <li class="page-item" [class.disabled]="paginaMovimientos() === totalPaginasMovimientos()">
+                                                <button class="page-link" (click)="cargarMovimientos(paginaMovimientos() + 1)">
+                                                    <i class="bi bi-chevron-right"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+          }
+        }
+    }
+</div>

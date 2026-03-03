@@ -1,0 +1,186 @@
+<div class="contenedor-login min-vh-100">
+    <div class="row g-0 min-vh-100">
+
+        <!-- Panel Izquierdo - Branding -->
+        <div class="col-lg-6 d-none d-lg-flex panel-branding">
+            <div class="contenido-branding">
+                <div class="logo-container mb-4">
+                    <div class="icono-portal">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <h2 class="titulo-branding">Portal de Colaboradores</h2>
+                <p class="descripcion-branding">
+                    Accede a tus herramientas de trabajo.
+                    Gestiona ventas, inventario y atención al cliente desde un solo lugar.
+                </p>
+                <div class="caracteristicas mt-5">
+                    <div class="caracteristica">
+                        <i class="bi bi-cart-check"></i>
+                        <span>Gestión de ventas</span>
+                    </div>
+                    <div class="caracteristica">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Control de inventario</span>
+                    </div>
+                    <div class="caracteristica">
+                        <i class="bi bi-clipboard-data"></i>
+                        <span>Reportes de desempeño</span>
+                    </div>
+                    <div class="caracteristica">
+                        <i class="bi bi-headset"></i>
+                        <span>Atención al cliente</span>
+                    </div>
+                </div>
+            </div>
+            <div class="overlay-pattern"></div>
+        </div>
+
+        <!-- Panel Derecho - Formulario -->
+        <div class="col-12 col-lg-6 panel-formulario">
+            <div class="contenedor-formulario">
+
+                <!-- Logo móvil -->
+                <div class="logo-movil d-lg-none text-center mb-4">
+                    <div class="icono-portal-movil">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+
+                <!-- Card de Login -->
+                <div class="card-login">
+                    <!-- Header -->
+                    <div class="login-header text-center">
+                        <div class="badge-rol mb-3">
+                            <i class="bi bi-shield-check me-1"></i>Acceso colaboradores
+                        </div>
+                        <h1 class="titulo-login">Bienvenido</h1>
+                        <p class="subtitulo-login">Ingresa tus credenciales para acceder al portal</p>
+                    </div>
+
+                    <!-- Mensaje de Error -->
+                    @if (mensajeError) {
+                        <div class="alerta-error">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                            <span>{{ mensajeError }}</span>
+                        </div>
+                    }
+
+                    <!-- Formulario -->
+                    <form [formGroup]="formularioInicioSesion" (ngSubmit)="iniciarSesion()" class="formulario-login">
+
+                        <!-- Campo Correo -->
+                        <div class="campo-formulario">
+                            <label for="correo" class="etiqueta-campo">
+                                Correo electrónico
+                            </label>
+                            <div class="input-wrapper" [class.input-error]="correo?.invalid && correo?.touched"
+                                [class.input-focus]="correoEnfocado">
+                                <i class="bi bi-envelope icono-input"></i>
+                                <input type="email" id="correo" formControlName="correo"
+                                    placeholder="colaborador@tiendavirtual.com" autocomplete="email"
+                                    (focus)="correoEnfocado = true" (blur)="correoEnfocado = false">
+                            </div>
+                            @if (correo?.invalid && correo?.touched) {
+                                <div class="mensaje-error">
+                                    @if (correo?.errors?.['required']) {
+                                        <i class="bi bi-info-circle"></i> El correo electrónico es requerido
+                                    } @else if (correo?.errors?.['email']) {
+                                        <i class="bi bi-info-circle"></i> Ingresa un correo electrónico válido
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Campo Contraseña -->
+                        <div class="campo-formulario">
+                            <label for="contrasena" class="etiqueta-campo">
+                                Contraseña
+                            </label>
+                            <div class="input-wrapper"
+                                [class.input-error]="contrasena?.invalid && contrasena?.touched"
+                                [class.input-focus]="contrasenaEnfocado">
+                                <i class="bi bi-key icono-input"></i>
+                                <input [type]="mostrarContrasena ? 'text' : 'password'" id="contrasena"
+                                    formControlName="contrasena" placeholder="Ingresa tu contraseña"
+                                    autocomplete="current-password" (focus)="contrasenaEnfocado = true"
+                                    (blur)="contrasenaEnfocado = false">
+                                <button class="btn-mostrar-contrasena" type="button"
+                                    (click)="alternarVisibilidadContrasena()" tabindex="-1">
+                                    <i class="bi"
+                                        [class.bi-eye]="!mostrarContrasena"
+                                        [class.bi-eye-slash]="mostrarContrasena"></i>
+                                </button>
+                            </div>
+                            @if (contrasena?.invalid && contrasena?.touched) {
+                                <div class="mensaje-error">
+                                    @if (contrasena?.errors?.['required']) {
+                                        <i class="bi bi-info-circle"></i> La contraseña es requerida
+                                    } @else if (contrasena?.errors?.['minlength']) {
+                                        <i class="bi bi-info-circle"></i> La contraseña debe tener al menos 12
+                                        caracteres
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Recordar -->
+                        <div class="opciones-extras">
+                            <label class="checkbox-recordar">
+                                <input type="checkbox" formControlName="recordarme">
+                                <span class="checkmark"></span>
+                                Recordarme
+                            </label>
+                        </div>
+
+                        <!-- Botón de Inicio de Sesión -->
+                        <button type="submit" class="btn-iniciar-sesion" [disabled]="cargando"
+                            [class.cargando]="cargando">
+                            @if (cargando) {
+                                <span class="spinner"></span>
+                                <span>Verificando...</span>
+                            } @else {
+                                <span>Iniciar Sesión</span>
+                                <i class="bi bi-arrow-right"></i>
+                            }
+                        </button>
+                    </form>
+
+                    <!-- Separador -->
+                    <div class="separador">
+                        <span>o</span>
+                    </div>
+
+                    <!-- Enlace para regresar -->
+                    <a routerLink="/" class="btn-volver">
+                        <i class="bi bi-arrow-left"></i>
+                        <span>Volver al inicio</span>
+                    </a>
+                </div>
+
+                <!-- Roles disponibles -->
+                <div class="roles-info mt-3">
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <span class="rol-tag">
+                            <i class="bi bi-person-workspace me-1"></i>Gerente
+                        </span>
+                        <span class="rol-tag">
+                            <i class="bi bi-shop me-1"></i>Vendedor
+                        </span>
+                        <span class="rol-tag">
+                            <i class="bi bi-box-seam me-1"></i>Bodeguero
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="footer-login">
+                    <p>
+                        <i class="bi bi-shield-check"></i>
+                        Conexión segura - Tienda Virtual 2026
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

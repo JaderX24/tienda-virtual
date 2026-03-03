@@ -144,10 +144,10 @@ export class ColaboradoresService {
     }
 
     obtenerEmpresas(): Observable<{ id: number; nombre: string }[]> {
-        return this.http.get<RespuestaApi<{ id: number; nombre: string }[]>>(
+        return this.http.get<RespuestaApi<RespuestaPaginada<{ id: number; nombre: string }>>>(
             `${environment.apiUrl}/admin/empresas`
         ).pipe(
-            map(respuesta => respuesta.datos)
+            map(respuesta => respuesta.datos.datos)
         );
     }
 }

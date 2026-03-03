@@ -1,0 +1,173 @@
+<div class="dashboard-colaborador">
+    <!-- Encabezado de bienvenida -->
+    <div class="bienvenida-card mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold mb-1">{{ saludo }}, {{ nombreUsuario() }} 👋</h2>
+                <p class="text-muted mb-0">
+                    {{ rolUsuario() }} &middot;
+                    {{ fechaFormateada }} &middot;
+                    {{ horaActual() }}
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a routerLink="/colaborador/mi-turno" class="btn btn-teal me-2">
+                    <i class="bi bi-clock me-1"></i>Mi Turno
+                </a>
+                <a routerLink="/colaborador/inventario" class="btn btn-outline-secondary">
+                    <i class="bi bi-box-seam me-1"></i>Inventario
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de carga -->
+    @if (cargando()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-teal" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-muted mt-2">Cargando datos del dashboard...</p>
+        </div>
+    } @else {
+        <!-- Tarjetas resumen -->
+        <div class="row g-3 mb-4">
+            @for (tarjeta of tarjetas(); track tarjeta.titulo) {
+                <div class="col-6 col-lg-3">
+                    <div class="card tarjeta-resumen border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <p class="tarjeta-titulo text-muted mb-1">{{ tarjeta.titulo }}</p>
+                                    <h3 class="tarjeta-valor fw-bold mb-0">{{ tarjeta.valor }}</h3>
+                                    @if (tarjeta.tendencia) {
+                                        <small [class]="tarjeta.tendenciaPositiva ? 'text-success' : 'text-danger'">
+                                            <i class="bi" [class.bi-arrow-up]="tarjeta.tendenciaPositiva" [class.bi-arrow-down]="!tarjeta.tendenciaPositiva"></i>
+                                            {{ tarjeta.tendencia }} vs ayer
+                                        </small>
+                                    }
+                                </div>
+                                <div class="tarjeta-icono" [ngClass]="'bg-' + tarjeta.color + '-subtle'">
+                                    <i class="bi {{ tarjeta.icono }}" [ngClass]="'text-' + tarjeta.color"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="row g-4">
+            <!-- Actividad reciente -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-activity me-2 text-teal"></i>Actividad Reciente</h6>
+                        <a routerLink="/colaborador/mi-actividad" class="btn btn-sm btn-outline-secondary">Ver todo</a>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (actividadesRecientes().length === 0) {
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox text-muted fs-1"></i>
+                                <p class="text-muted mt-2 mb-0">Sin actividad reciente</p>
+                            </div>
+                        } @else {
+                            <div class="list-group list-group-flush">
+                                @for (actividad of actividadesRecientes(); track actividad.id) {
+                                    <div class="list-group-item border-0 px-4 py-3">
+                                        <div class="d-flex align-items-start">
+                                            <div class="actividad-icono me-3" [ngClass]="'bg-' + actividad.color + '-subtle'">
+                                                <i class="bi {{ actividad.icono }}" [ngClass]="'text-' + actividad.color"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <p class="mb-0 fw-medium">{{ actividad.descripcion }}</p>
+                                                <small class="text-muted">{{ actividad.hora }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tareas del día -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-list-check me-2 text-teal"></i>Tareas del Día</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (tareasDelDia().length > 0) {
+                            <div class="progreso-tareas mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small class="text-muted">Progreso</small>
+                                    <small class="fw-bold">{{ tareasCompletadas }}/{{ totalTareas }}</small>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-teal" role="progressbar"
+                                        [style.width.%]="progresoTareas"
+                                        [attr.aria-valuenow]="progresoTareas" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ul class="list-unstyled mb-0">
+                                @for (tarea of tareasDelDia(); track tarea.id) {
+                                    <li class="tarea-item d-flex align-items-center py-2">
+                                        <i class="bi me-2 fs-5" [class.bi-check-circle-fill]="tarea.completada" [class.text-success]="tarea.completada"
+                                            [class.bi-circle]="!tarea.completada" [class.text-muted]="!tarea.completada"></i>
+                                        <span [class.text-decoration-line-through]="tarea.completada" [class.text-muted]="tarea.completada">
+                                            {{ tarea.tarea }}
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        } @else {
+                            <div class="text-center py-3">
+                                <i class="bi bi-calendar-check text-muted fs-2"></i>
+                                <p class="text-muted mt-2 mb-0">Sin tareas programadas para hoy</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Accesos rápidos -->
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-lightning me-2 text-teal"></i>Accesos Rápidos</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <a routerLink="/colaborador/inventario/conteos" class="btn btn-light acceso-rapido w-100">
+                                    <i class="bi bi-clipboard-data text-teal"></i>
+                                    <span>Conteos</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/colaborador/transferencias" class="btn btn-light acceso-rapido w-100">
+                                    <i class="bi bi-arrow-left-right text-teal"></i>
+                                    <span>Transferencias</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/colaborador/productos" class="btn btn-light acceso-rapido w-100">
+                                    <i class="bi bi-search text-teal"></i>
+                                    <span>Buscar Producto</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a routerLink="/colaborador/reportes" class="btn btn-light acceso-rapido w-100">
+                                    <i class="bi bi-file-earmark-bar-graph text-teal"></i>
+                                    <span>Reportes</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

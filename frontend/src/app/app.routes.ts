@@ -11,6 +11,10 @@ export const routes: Routes = [
     loadChildren: () => import('./modules/store/store.routes').then(m => m.rutasTienda)
   },
   {
+    path: 'colaborador',
+    loadChildren: () => import('./modules/colaboradoresPortal/colaborador.routes').then(m => m.rutasColaborador)
+  },
+  {
     path: 'admin',
     loadChildren: () => import('./modules/admin/admin.routes').then(m => m.rutasAdmin)
   }

@@ -1,0 +1,553 @@
+<div class="mi-turno-container">
+    <!-- Mensajes de estado -->
+    @if (mensajeExito()) {
+        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <i class="bi bi-check-circle me-2"></i>{{ mensajeExito() }}
+            <button type="button" class="btn-close" (click)="mensajeExito.set('')"></button>
+        </div>
+    }
+    @if (mensajeError()) {
+        <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>{{ mensajeError() }}
+            <button type="button" class="btn-close" (click)="mensajeError.set('')"></button>
+        </div>
+    }
+
+    <!-- Tabs de navegación -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="tabActivo() === 'hoy'" (click)="cambiarTab('hoy')">
+                <i class="bi bi-clock me-1"></i>Turno de Hoy
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="tabActivo() === 'semana'" (click)="cambiarTab('semana')">
+                <i class="bi bi-calendar-week me-1"></i>Resumen Semanal
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="tabActivo() === 'historial'" (click)="cambiarTab('historial')">
+                <i class="bi bi-clock-history me-1"></i>Historial
+            </button>
+        </li>
+    </ul>
+
+    @if (cargando()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-teal" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-muted mt-2">Cargando información del turno...</p>
+        </div>
+    } @else {
+        <!-- TAB: Turno de Hoy -->
+        @if (tabActivo() === 'hoy') {
+            @if (turnoHoy(); as turno) {
+                <div class="row g-4">
+                    <!-- Tarjeta principal del turno -->
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm turno-card">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-4">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">
+                                            <i class="bi bi-building me-2 text-teal"></i>
+                                            {{ turno.almacen?.nombre || 'Almacén' }}
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            @if (turno.almacen?.direccion) {
+                                                <i class="bi bi-geo-alt me-1"></i>{{ turno.almacen?.direccion }}
+                                            }
+                                        </p>
+                                    </div>
+                                    <span class="badge rounded-pill fs-6" [ngClass]="obtenerClaseEstado(turno.estado)">
+                                        {{ obtenerEtiquetaEstado(turno.estado) }}
+                                    </span>
+                                </div>
+
+                                <!-- Horario programado -->
+                                <div class="horario-grid mb-4">
+                                    <div class="horario-item">
+                                        <small class="text-muted d-block">Inicio programado</small>
+                                        <span class="fw-bold fs-5">{{ formatearHora(turno.horaInicioProgramada) }}</span>
+                                    </div>
+                                    <div class="horario-separador">
+                                        <i class="bi bi-arrow-right text-muted"></i>
+                                    </div>
+                                    <div class="horario-item">
+                                        <small class="text-muted d-block">Fin programado</small>
+                                        <span class="fw-bold fs-5">{{ formatearHora(turno.horaFinProgramada) }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Entrada / Salida real -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-sm-6">
+                                        <div class="registro-card" [class.activo]="turno.horaEntrada">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="registro-icono bg-success-subtle me-2">
+                                                    <i class="bi bi-box-arrow-in-right text-success"></i>
+                                                </div>
+                                                <span class="fw-medium">Entrada</span>
+                                            </div>
+                                            @if (turno.horaEntrada) {
+                                                <span class="fs-4 fw-bold">{{ formatearHora(turno.horaEntrada) }}</span>
+                                                <small class="d-block mt-1" [ngClass]="obtenerClasePuntualidad(turno.puntualidad)">
+                                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                                    {{ obtenerEtiquetaPuntualidad(turno.puntualidad) }}
+                                                </small>
+                                            } @else {
+                                                <span class="fs-5 text-muted">Pendiente</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="registro-card" [class.activo]="turno.horaSalida">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="registro-icono bg-danger-subtle me-2">
+                                                    <i class="bi bi-box-arrow-right text-danger"></i>
+                                                </div>
+                                                <span class="fw-medium">Salida</span>
+                                            </div>
+                                            @if (turno.horaSalida) {
+                                                <span class="fs-4 fw-bold">{{ formatearHora(turno.horaSalida) }}</span>
+                                            } @else {
+                                                <span class="fs-5 text-muted">Pendiente</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (turno.estado === 'en_curso') {
+                                    <div class="tiempo-transcurrido text-center mb-4">
+                                        <small class="text-muted d-block mb-1">Tiempo en turno</small>
+                                        <span class="fs-3 fw-bold text-teal">{{ tiempoTranscurrido() }}</span>
+                                    </div>
+                                }
+
+                                @if (turno.horasTrabajadas !== null && turno.estado === 'finalizado') {
+                                    <div class="horas-trabajadas text-center mb-4">
+                                        <small class="text-muted d-block mb-1">Total horas trabajadas</small>
+                                        <span class="fs-3 fw-bold text-teal">{{ turno.horasTrabajadas }} h</span>
+                                    </div>
+                                }
+
+                                <!-- Botones de acción -->
+                                <div class="d-flex gap-2 justify-content-center">
+                                    @if (turno.estado === 'programado') {
+                                        <button class="btn btn-teal btn-lg px-4"
+                                            (click)="abrirNotas('entrada')"
+                                            [disabled]="procesando()">
+                                            @if (procesando()) {
+                                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                            }
+                                            <i class="bi bi-box-arrow-in-right me-2"></i>Registrar Entrada
+                                        </button>
+                                    }
+                                    @if (turno.estado === 'en_curso') {
+                                        <button class="btn btn-outline-danger btn-lg px-4"
+                                            (click)="abrirNotas('salida')"
+                                            [disabled]="procesando()">
+                                            @if (procesando()) {
+                                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                            }
+                                            <i class="bi bi-box-arrow-right me-2"></i>Registrar Salida
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actividad del turno -->
+                        @if (actividades().length > 0) {
+                            <div class="card border-0 shadow-sm mt-4">
+                                <div class="card-header bg-white border-bottom py-3">
+                                    <h6 class="fw-bold mb-0">
+                                        <i class="bi bi-activity me-2 text-teal"></i>Actividad del Turno
+                                    </h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Operación</th>
+                                                    <th>Producto</th>
+                                                    <th class="text-center">Cantidad</th>
+                                                    <th>Almacén</th>
+                                                    <th>Hora</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (act of actividades(); track act.id) {
+                                                    <tr>
+                                                        <td>
+                                                            <i class="bi {{ obtenerIconoOperacion(act.tipo) }} me-2 text-teal"></i>
+                                                            {{ obtenerEtiquetaOperacion(act.tipo) }}
+                                                        </td>
+                                                        <td>
+                                                            <div>{{ act.producto }}</div>
+                                                            <small class="text-muted">{{ act.sku }}</small>
+                                                        </td>
+                                                        <td class="text-center fw-bold">{{ act.cantidad }}</td>
+                                                        <td>{{ act.almacen }}</td>
+                                                        <td class="text-muted">{{ formatearHora(act.fecha) }}</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Panel lateral -->
+                    <div class="col-lg-4">
+                        <!-- Reloj -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body text-center py-4">
+                                <i class="bi bi-clock fs-1 text-teal mb-2 d-block"></i>
+                                <span class="fs-2 fw-bold">{{ horaActual() }}</span>
+                                <p class="text-muted mt-1 mb-0">{{ formatearFechaCompleta(turno.fecha) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Info almacén -->
+                        @if (turno.almacen) {
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-white border-bottom py-3">
+                                    <h6 class="fw-bold mb-0">
+                                        <i class="bi bi-building me-2 text-teal"></i>Almacén
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2">
+                                            <small class="text-muted d-block">Nombre</small>
+                                            <span class="fw-medium">{{ turno.almacen.nombre }}</span>
+                                        </li>
+                                        <li class="mb-2">
+                                            <small class="text-muted d-block">Código</small>
+                                            <span class="fw-medium">{{ turno.almacen.codigo }}</span>
+                                        </li>
+                                        @if (turno.almacen.direccion) {
+                                            <li class="mb-2">
+                                                <small class="text-muted d-block">Dirección</small>
+                                                <span class="fw-medium">{{ turno.almacen.direccion }}</span>
+                                            </li>
+                                        }
+                                        @if (turno.almacen.telefono) {
+                                            <li>
+                                                <small class="text-muted d-block">Teléfono</small>
+                                                <span class="fw-medium">{{ turno.almacen.telefono }}</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Notas del turno -->
+                        @if (turno.notasEntrada || turno.notasSalida) {
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-white border-bottom py-3">
+                                    <h6 class="fw-bold mb-0">
+                                        <i class="bi bi-sticky me-2 text-teal"></i>Notas
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    @if (turno.notasEntrada) {
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="bi bi-box-arrow-in-right me-1"></i>Entrada
+                                            </small>
+                                            <p class="mb-0">{{ turno.notasEntrada }}</p>
+                                        </div>
+                                    }
+                                    @if (turno.notasSalida) {
+                                        <div>
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="bi bi-box-arrow-right me-1"></i>Salida
+                                            </small>
+                                            <p class="mb-0">{{ turno.notasSalida }}</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <!-- Sin turno programado -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <div class="sin-turno-icono mb-3">
+                            <i class="bi bi-calendar-x"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Sin turno programado para hoy</h5>
+                        <p class="text-muted mb-4">
+                            No tienes un turno asignado para el día de hoy.<br>
+                            Consulta con tu supervisor si crees que esto es un error.
+                        </p>
+                        <div class="card border-0 bg-light d-inline-block">
+                            <div class="card-body text-center py-3 px-4">
+                                <i class="bi bi-clock fs-1 text-teal d-block mb-2"></i>
+                                <span class="fs-3 fw-bold">{{ horaActual() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- TAB: Resumen Semanal -->
+        @if (tabActivo() === 'semana') {
+            @if (resumenSemanal(); as resumen) {
+                <!-- Tarjetas de resumen -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <p class="text-muted mb-1 small">Turnos Totales</p>
+                                <h3 class="fw-bold mb-0 text-primary">{{ resumen.totalTurnos }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <p class="text-muted mb-1 small">Completados</p>
+                                <h3 class="fw-bold mb-0 text-success">{{ resumen.turnosCompletados }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <p class="text-muted mb-1 small">Horas Trabajadas</p>
+                                <h3 class="fw-bold mb-0 text-teal">{{ resumen.horasTrabajadas }} h</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <p class="text-muted mb-1 small">Puntualidad</p>
+                                <h3 class="fw-bold mb-0" [ngClass]="resumen.puntualidad >= 80 ? 'text-success' : 'text-warning'">
+                                    {{ resumen.puntualidad }}%
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de turnos de la semana -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="fw-bold mb-0">
+                            <i class="bi bi-calendar-week me-2 text-teal"></i>Turnos de la Semana
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (turnosSemana().length > 0) {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Día</th>
+                                            <th>Almacén</th>
+                                            <th>Programado</th>
+                                            <th>Entrada</th>
+                                            <th>Salida</th>
+                                            <th class="text-center">Horas</th>
+                                            <th class="text-center">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (turno of turnosSemana(); track turno.id) {
+                                            <tr>
+                                                <td class="fw-medium">{{ formatearFecha(turno.fecha) }}</td>
+                                                <td>{{ turno.almacen?.nombre }}</td>
+                                                <td>
+                                                    {{ formatearHora(turno.horaInicioProgramada) }} -
+                                                    {{ formatearHora(turno.horaFinProgramada) }}
+                                                </td>
+                                                <td>{{ formatearHora(turno.horaEntrada) }}</td>
+                                                <td>{{ formatearHora(turno.horaSalida) }}</td>
+                                                <td class="text-center fw-bold">
+                                                    {{ turno.horasTrabajadas !== null ? turno.horasTrabajadas + ' h' : '-' }}
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge rounded-pill" [ngClass]="obtenerClaseEstado(turno.estado)">
+                                                        {{ obtenerEtiquetaEstado(turno.estado) }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        } @else {
+                            <div class="text-center py-4">
+                                <i class="bi bi-calendar-x text-muted fs-1"></i>
+                                <p class="text-muted mt-2 mb-0">Sin turnos programados esta semana</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- TAB: Historial -->
+        @if (tabActivo() === 'historial') {
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h6 class="fw-bold mb-0">
+                        <i class="bi bi-clock-history me-2 text-teal"></i>Historial de Turnos
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (historial().length > 0) {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Almacén</th>
+                                        <th>Entrada</th>
+                                        <th>Salida</th>
+                                        <th class="text-center">Horas</th>
+                                        <th class="text-center">Puntualidad</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (turno of historial(); track turno.id) {
+                                        <tr>
+                                            <td class="fw-medium">{{ formatearFecha(turno.fecha) }}</td>
+                                            <td>{{ turno.almacen?.nombre }}</td>
+                                            <td>{{ formatearHora(turno.horaEntrada) }}</td>
+                                            <td>{{ formatearHora(turno.horaSalida) }}</td>
+                                            <td class="text-center fw-bold">
+                                                {{ turno.horasTrabajadas !== null ? turno.horasTrabajadas + ' h' : '-' }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span [ngClass]="obtenerClasePuntualidad(turno.puntualidad)">
+                                                    {{ obtenerEtiquetaPuntualidad(turno.puntualidad) }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge rounded-pill" [ngClass]="obtenerClaseEstado(turno.estado)">
+                                                    {{ obtenerEtiquetaEstado(turno.estado) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        @if (totalPaginas() > 1) {
+                            <div class="d-flex justify-content-center py-3">
+                                <nav>
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <li class="page-item" [class.disabled]="paginaActual() === 1">
+                                            <button class="page-link" (click)="cargarHistorial(paginaActual() - 1)">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                        </li>
+                                        @for (p of [].constructor(totalPaginas()); track $index) {
+                                            <li class="page-item" [class.active]="paginaActual() === $index + 1">
+                                                <button class="page-link" (click)="cargarHistorial($index + 1)">
+                                                    {{ $index + 1 }}
+                                                </button>
+                                            </li>
+                                        }
+                                        <li class="page-item" [class.disabled]="paginaActual() === totalPaginas()">
+                                            <button class="page-link" (click)="cargarHistorial(paginaActual() + 1)">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        }
+                    } @else {
+                        <div class="text-center py-4">
+                            <i class="bi bi-clock-history text-muted fs-1"></i>
+                            <p class="text-muted mt-2 mb-0">Sin historial de turnos</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Modal de notas -->
+    @if (mostrarNotas()) {
+        <div class="modal-backdrop fade show" (click)="cerrarNotas()"></div>
+        <div class="modal fade show d-block" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom">
+                        <h5 class="modal-title fw-bold">
+                            @if (tipoNota() === 'entrada') {
+                                <i class="bi bi-box-arrow-in-right me-2 text-success"></i>Registrar Entrada
+                            } @else {
+                                <i class="bi bi-box-arrow-right me-2 text-danger"></i>Registrar Salida
+                            }
+                        </h5>
+                        <button type="button" class="btn-close" (click)="cerrarNotas()"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted mb-3">
+                            @if (tipoNota() === 'entrada') {
+                                Estás a punto de registrar tu entrada al turno. Puedes agregar notas opcionales.
+                            } @else {
+                                Estás a punto de registrar tu salida y finalizar el turno. Puedes agregar notas opcionales.
+                            }
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Notas (opcional)</label>
+                            @if (tipoNota() === 'entrada') {
+                                <textarea class="form-control" rows="3"
+                                    [(ngModel)]="notasEntrada"
+                                    placeholder="Ej: Inicio de turno normal, todo en orden..."
+                                    maxlength="500"></textarea>
+                            } @else {
+                                <textarea class="form-control" rows="3"
+                                    [(ngModel)]="notasSalida"
+                                    placeholder="Ej: Turno completado sin novedades..."
+                                    maxlength="500"></textarea>
+                            }
+                        </div>
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="bi bi-clock me-2"></i>
+                            <span>Hora actual: <strong>{{ horaActual() }}</strong></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" (click)="cerrarNotas()">Cancelar</button>
+                        @if (tipoNota() === 'entrada') {
+                            <button type="button" class="btn btn-teal" (click)="confirmarAccion()" [disabled]="procesando()">
+                                @if (procesando()) {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="bi bi-check-lg me-1"></i>Confirmar Entrada
+                            </button>
+                        } @else {
+                            <button type="button" class="btn btn-danger" (click)="confirmarAccion()" [disabled]="procesando()">
+                                @if (procesando()) {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="bi bi-check-lg me-1"></i>Confirmar Salida
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

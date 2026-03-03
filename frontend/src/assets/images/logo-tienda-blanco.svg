@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50">
-  <rect x="5" y="10" width="30" height="30" rx="6" fill="white"/>
-  <path d="M12 20 L20 32 L28 20 M20 20 L20 32" stroke="#4f46e5" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="45" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="white">Tienda Virtual</text>
-</svg>

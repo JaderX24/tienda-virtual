@@ -1,0 +1,31 @@
+<div class="layout-colaborador" [class.sidebar-colapsado]="sidebarColapsado()">
+    <app-toast-container />
+
+    <app-sidebar-colab
+        [colapsado]="sidebarColapsado()"
+        [mostrarMobile]="sidebarMobileMostrar()"
+        [usuario]="usuario()"
+        (toggleColapsado)="toggleSidebar()"
+        (cerrarMobile)="cerrarSidebarMobile()"
+    />
+
+    @if (sidebarMobileMostrar()) {
+        <div class="sidebar-overlay" (click)="cerrarSidebarMobile()"></div>
+    }
+
+    <div class="layout-main">
+        <app-header-colab
+            [sidebarColapsado]="sidebarColapsado()"
+            (toggleSidebar)="toggleSidebar()"
+            (toggleSidebarMobile)="toggleSidebarMobile()"
+        />
+
+        <main class="layout-content">
+            <div class="content-wrapper">
+                <router-outlet />
+            </div>
+        </main>
+
+        <app-footer-colab />
+    </div>
+</div>

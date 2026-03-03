@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { LoginAdminDto } from './dto';
 import { MENSAJES_ERROR, ROLES, PERMISOS_POR_ROL, TipoRol } from '../../../../common/constants';
-import { JwtPayload } from '../../../auth/strategies/jwt.strategy';
+import { JwtPayload } from '../../../../common/strategies';
 
 const ROLES_ADMINISTRATIVOS = [
     ROLES.SUPER_ADMIN,
@@ -146,7 +146,7 @@ export class InicioSesionAdministrativoService {
     }
 
     async refrescarToken(refreshToken: string) {
-        const sesion = await this.prisma.sesion.findUnique({
+        const sesion = await this.prisma.sesion.findFirst({
             where: { token: refreshToken },
             include: {
                 usuario: {
@@ -300,6 +300,14 @@ export class InicioSesionAdministrativoService {
         const diasExpiracion = parseInt(refreshExpiracion) || 7;
         const expiraEn = new Date();
         expiraEn.setDate(expiraEn.getDate() + diasExpiracion);
+
+        // Eliminar sesiones expiradas o anteriores del mismo usuario
+        await this.prisma.sesion.deleteMany({
+            where: {
+                usuarioId,
+                expiraEn: { lt: new Date() },
+            },
+        });
 
         await this.prisma.sesion.create({
             data: {

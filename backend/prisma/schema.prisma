@@ -80,7 +80,7 @@ model RolPermiso {
 model Sesion {
   id        Int      @id @default(autoincrement())
   usuarioId Int      @map("usuario_id")
-  token     String   @unique @db.VarChar(768)
+  token     String   @db.Text
   ip        String?  @db.VarChar(50)
   userAgent String?  @map("user_agent") @db.VarChar(500)
   expiraEn  DateTime @map("expira_en")
@@ -987,7 +987,7 @@ model ColabActividadInventario {
   id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   usuarioId               Int       @map("usuario_id") @db.UnsignedInt
   turnoId                 Int?      @map("turno_id") @db.UnsignedInt
-  almacenId               Int       @map("almacen_id") @db.UnsignedInt
+  almacenId               Int?      @map("almacen_id") @db.UnsignedInt
   tipoOperacion           String    @map("tipo_operacion") @db.VarChar(40)
   productoId              Int       @map("producto_id")
   varianteId              Int?      @map("variante_id")
@@ -1017,7 +1017,7 @@ model ColabActividadInventario {
 
   usuario                 ColabUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   turno                   ColabTurno? @relation(fields: [turnoId], references: [id], onDelete: SetNull)
-  almacen                 InventarioAlmacen @relation(fields: [almacenId], references: [id], onDelete: Cascade)
+  almacen                 InventarioAlmacen? @relation(fields: [almacenId], references: [id], onDelete: SetNull)
   producto                Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
 
   @@index([usuarioId], map: "idx_colab_act_usuario")

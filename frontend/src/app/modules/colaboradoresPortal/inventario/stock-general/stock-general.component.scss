@@ -1,0 +1,92 @@
+$teal: #14b8a6;
+$teal-dark: #0f9688;
+$teal-light: rgba(20, 184, 166, 0.1);
+
+.stock-general-container {
+    max-width: 1200px;
+}
+
+.text-teal {
+    color: $teal !important;
+}
+
+.btn-teal {
+    background-color: $teal;
+    border-color: $teal;
+    color: #fff;
+
+    &:hover,
+    &:focus {
+        background-color: $teal-dark;
+        border-color: $teal-dark;
+        color: #fff;
+    }
+
+    &:disabled {
+        background-color: $teal;
+        border-color: $teal;
+        opacity: 0.65;
+    }
+}
+
+.spinner-border.text-teal {
+    color: $teal !important;
+}
+
+.img-producto {
+    object-fit: cover;
+}
+
+.img-placeholder {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    font-size: 1.1rem;
+}
+
+.table {
+    th {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        color: #6c757d;
+        white-space: nowrap;
+    }
+
+    td {
+        vertical-align: middle;
+        font-size: 0.875rem;
+    }
+}
+
+.pagination {
+    .page-link {
+        color: $teal;
+
+        &:hover {
+            background-color: $teal-light;
+            color: $teal-dark;
+        }
+    }
+
+    .page-item.active .page-link {
+        background-color: $teal;
+        border-color: $teal;
+        color: #fff;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .table {
+        font-size: 0.8125rem;
+
+        th,
+        td {
+            padding: 0.5rem;
+        }
+    }
+}

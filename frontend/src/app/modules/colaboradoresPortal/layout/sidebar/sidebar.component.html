@@ -1,0 +1,83 @@
+<aside class="sidebar" [class.colapsado]="colapsado" [class.mostrar]="mostrarMobile">
+    <div class="sidebar-header">
+        <a routerLink="/colaborador/dashboard" class="sidebar-brand" (click)="cerrarMobile.emit()">
+            <img src="assets/images/logo_empresa.png" alt="TiendaVirtual" class="brand-logo">
+            @if (!colapsado) { <span class="brand-text">Portal Bodega</span> }
+        </a>
+        <button type="button" class="btn-toggle-sidebar d-lg-none" (click)="cerrarMobile.emit()" aria-label="Cerrar menú">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    @if (!colapsado) {
+        <div class="sidebar-user">
+            <div class="user-avatar"><i class="bi bi-person-circle"></i></div>
+            <div class="user-info">
+                <span class="user-name">{{ nombreUsuario }}</span>
+                <span class="user-role">{{ rolUsuario }}</span>
+            </div>
+        </div>
+    }
+
+    <nav class="sidebar-nav">
+        @for (seccion of menuCompleto(); track seccion.titulo) {
+            <div class="nav-section">
+                @if (!colapsado) { <h6 class="nav-section-title">{{ seccion.titulo }}</h6> }
+                @else { <div class="nav-section-divider"></div> }
+
+                <ul class="nav-menu">
+                    @for (item of seccion.items; track item.titulo) {
+                        <li class="nav-item" [class.activo]="estaActivo(item)" [class.expandido]="item.expandido || tieneHijosActivos(item)">
+                            @if (item.hijos && item.hijos.length > 0) {
+                                <a class="nav-link has-submenu" (click)="toggleSubmenu(item)" [class.activo]="estaActivo(item)"
+                                    [attr.data-tooltip]="colapsado ? item.titulo : null" [attr.title]="colapsado ? item.titulo : null">
+                                    <i class="nav-icon bi {{ item.icono }}"></i>
+                                    @if (!colapsado) {
+                                        <span class="nav-text">{{ item.titulo }}</span>
+                                        @if (item.badge) { <span class="nav-badge" [ngClass]="item.badge.clase">{{ item.badge.texto }}</span> }
+                                        <i class="nav-arrow bi" [class.bi-chevron-down]="item.expandido || tieneHijosActivos(item)"
+                                            [class.bi-chevron-right]="!item.expandido && !tieneHijosActivos(item)"></i>
+                                    }
+                                </a>
+                                @if (!colapsado) {
+                                    <ul class="nav-submenu" [class.mostrar]="item.expandido || tieneHijosActivos(item)">
+                                        @for (hijo of item.hijos; track hijo.titulo) {
+                                            <li class="nav-subitem" [class.activo]="estaActivo(hijo)">
+                                                <a class="nav-sublink" [routerLink]="hijo.ruta" (click)="cerrarMobile.emit()" [class.activo]="estaActivo(hijo)">
+                                                    <i class="nav-subicon bi {{ hijo.icono }}"></i>
+                                                    <span class="nav-subtext">{{ hijo.titulo }}</span>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            } @else {
+                                <a class="nav-link" [routerLink]="item.ruta" (click)="cerrarMobile.emit()" [class.activo]="estaActivo(item)"
+                                    [attr.data-tooltip]="colapsado ? item.titulo : null" [attr.title]="colapsado ? item.titulo : null">
+                                    <i class="nav-icon bi {{ item.icono }}"></i>
+                                    @if (!colapsado) {
+                                        <span class="nav-text">{{ item.titulo }}</span>
+                                        @if (item.badge) { <span class="nav-badge" [ngClass]="item.badge.clase">{{ item.badge.texto }}</span> }
+                                    }
+                                </a>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </nav>
+
+    <div class="sidebar-logout">
+        <button type="button" class="btn-logout" (click)="cerrarSesion()" [title]="colapsado ? 'Cerrar Sesión' : ''">
+            <i class="bi bi-box-arrow-left"></i>
+            @if (!colapsado) { <span>Cerrar Sesión</span> }
+        </button>
+    </div>
+
+    @if (!colapsado) {
+        <div class="sidebar-footer">
+            <small class="text-muted">© {{ anioActual }} TiendaVirtual</small>
+        </div>
+    }
+</aside>

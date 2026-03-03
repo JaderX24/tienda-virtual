@@ -1,0 +1,659 @@
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <i class="bi bi-bar-chart-line me-2"></i>Reportes
+            </h4>
+            <p class="text-muted mb-0">Consulta y análisis de inventario</p>
+        </div>
+    </div>
+
+    <!-- Filtros de Fecha Globales -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small fw-semibold">Fecha desde</label>
+                    <input type="date" class="form-control form-control-sm"
+                           [(ngModel)]="fechaDesde">
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small fw-semibold">Fecha hasta</label>
+                    <input type="date" class="form-control form-control-sm"
+                           [(ngModel)]="fechaHasta">
+                </div>
+                <div class="col-md-3 col-sm-6 d-flex gap-2">
+                    <button class="btn btn-primary btn-sm" (click)="aplicarFiltros()">
+                        <i class="bi bi-funnel me-1"></i>Filtrar
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" (click)="limpiarFiltros()">
+                        <i class="bi bi-x-circle me-1"></i>Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs de Navegación -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="tabActiva() === 'resumen'"
+                    (click)="cambiarTab('resumen')">
+                <i class="bi bi-speedometer2 me-1"></i>Resumen
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="tabActiva() === 'movimientos'"
+                    (click)="cambiarTab('movimientos')">
+                <i class="bi bi-arrow-left-right me-1"></i>Movimientos
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="tabActiva() === 'stock-critico'"
+                    (click)="cambiarTab('stock-critico')">
+                <i class="bi bi-exclamation-triangle me-1"></i>Stock Crítico
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="tabActiva() === 'mi-actividad'"
+                    (click)="cambiarTab('mi-actividad')">
+                <i class="bi bi-person-lines-fill me-1"></i>Mi Actividad
+            </button>
+        </li>
+    </ul>
+
+    <!-- Indicador de carga -->
+    @if (cargando()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-muted mt-2">Generando reporte...</p>
+        </div>
+    }
+
+    <!-- ====================== TAB RESUMEN ====================== -->
+    @if (tabActiva() === 'resumen' && !cargando()) {
+        <!-- Tarjetas de resumen -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Total Productos</p>
+                                <h3 class="fw-bold mb-0">{{ resumen().totalProductos }}</h3>
+                                <small class="text-success">{{ resumen().productosActivos }} activos</small>
+                            </div>
+                            <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-box-seam text-primary fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Valor del Inventario</p>
+                                <h3 class="fw-bold mb-0">{{ formatearMoneda(resumen().valorInventario) }}</h3>
+                                <small class="text-muted">Precio x Stock</small>
+                            </div>
+                            <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-currency-dollar text-success fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Entradas / Salidas</p>
+                                <h3 class="fw-bold mb-0">
+                                    <span class="text-success">{{ resumen().totalEntradas }}</span>
+                                    <span class="text-muted mx-1">/</span>
+                                    <span class="text-danger">{{ resumen().totalSalidas }}</span>
+                                </h3>
+                                <small class="text-muted">En el período</small>
+                            </div>
+                            <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-arrow-left-right text-info fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted small mb-1">Alertas de Stock</p>
+                                <h3 class="fw-bold mb-0">
+                                    <span class="text-danger">{{ resumen().agotados }}</span>
+                                    <span class="text-muted mx-1">+</span>
+                                    <span class="text-warning">{{ resumen().stockBajo }}</span>
+                                </h3>
+                                <small>
+                                    <span class="text-danger">Agotados</span> +
+                                    <span class="text-warning">Bajo</span>
+                                </small>
+                            </div>
+                            <div class="bg-danger bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Top Productos Más Movidos -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom-0 pt-3">
+                        <h6 class="fw-semibold mb-0">
+                            <i class="bi bi-trophy me-2 text-warning"></i>Productos Más Movidos
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (resumen().topProductos.length > 0) {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">#</th>
+                                            <th>Producto</th>
+                                            <th>SKU</th>
+                                            <th class="text-center">Movimientos</th>
+                                            <th class="text-center">Unidades</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (producto of resumen().topProductos; track producto.id; let i = $index) {
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <span class="badge rounded-pill"
+                                                          [class]="i < 3 ? 'bg-warning text-dark' : 'bg-light text-dark'">
+                                                        {{ i + 1 }}
+                                                    </span>
+                                                </td>
+                                                <td class="fw-medium">{{ producto.nombre }}</td>
+                                                <td><code>{{ producto.sku }}</code></td>
+                                                <td class="text-center">{{ producto.totalMovimientos }}</td>
+                                                <td class="text-center">{{ producto.totalUnidades }}</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        } @else {
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Sin movimientos en el período
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Movimientos por Categoría -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom-0 pt-3">
+                        <h6 class="fw-semibold mb-0">
+                            <i class="bi bi-tags me-2 text-primary"></i>Movimientos por Categoría
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        @if (categorias().length > 0) {
+                            @for (cat of categorias(); track cat.categoriaId) {
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="small fw-medium">{{ cat.categoria }}</span>
+                                        <span class="small text-muted">{{ cat.totalMovimientos }} mov.</span>
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar bg-success"
+                                                 [style.width.%]="obtenerPorcentajeBarra(cat.entradas, cat.totalMovimientos)">
+                                            </div>
+                                        </div>
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar bg-danger"
+                                                 [style.width.%]="obtenerPorcentajeBarra(cat.salidas, cat.totalMovimientos)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <small class="text-success">{{ cat.unidadesEntrada }} ent.</small>
+                                        <small class="text-danger">{{ cat.unidadesSalida }} sal.</small>
+                                    </div>
+                                </div>
+                            }
+                        } @else {
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Sin datos de categorías
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ====================== TAB MOVIMIENTOS ====================== -->
+    @if (tabActiva() === 'movimientos' && !cargando()) {
+        <!-- Filtros específicos -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body py-3">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Buscar producto</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control"
+                                   placeholder="Nombre o SKU del producto..."
+                                   [(ngModel)]="busqueda"
+                                   (keyup.enter)="cargarMovimientos(1)">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold">Tipo de operación</label>
+                        <select class="form-select form-select-sm" [(ngModel)]="tipoOperacionFiltro">
+                            <option value="">Todos</option>
+                            <option value="entrada">Entrada</option>
+                            <option value="salida">Salida</option>
+                            <option value="recepcion">Recepción</option>
+                            <option value="despacho">Despacho</option>
+                            <option value="ajuste_positivo">Ajuste (+)</option>
+                            <option value="ajuste_negativo">Ajuste (-)</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button class="btn btn-primary btn-sm" (click)="cargarMovimientos(1)">
+                            <i class="bi bi-search me-1"></i>Buscar
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" (click)="exportarMovimientos()">
+                            <i class="bi bi-download me-1"></i>Exportar CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de movimientos -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-semibold">Movimientos de Inventario</h6>
+                <span class="badge bg-secondary">{{ totalMovimientos() }} registros</span>
+            </div>
+            <div class="card-body p-0">
+                @if (movimientos().length > 0) {
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Producto</th>
+                                    <th>SKU</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-center">Anterior</th>
+                                    <th class="text-center">Nuevo</th>
+                                    <th>Almacén</th>
+                                    <th>Colaborador</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (mov of movimientos(); track mov.id) {
+                                    <tr>
+                                        <td class="ps-3 small">{{ formatearFecha(mov.fecha) }}</td>
+                                        <td>
+                                            <span class="badge rounded-pill {{ obtenerClaseTipoOperacion(mov.tipoOperacion) }}">
+                                                {{ mov.tipoOperacionTexto }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-medium text-truncate" style="max-width: 180px;">{{ mov.producto }}</td>
+                                        <td><code class="small">{{ mov.sku }}</code></td>
+                                        <td class="text-center fw-bold">{{ mov.cantidad }}</td>
+                                        <td class="text-center text-muted">{{ mov.cantidadAnterior }}</td>
+                                        <td class="text-center">{{ mov.cantidadNueva }}</td>
+                                        <td class="small">{{ mov.almacen }}</td>
+                                        <td class="small">{{ mov.colaborador }}</td>
+                                        <td class="small text-truncate" style="max-width: 150px;"
+                                            [title]="mov.motivo">
+                                            {{ mov.motivo }}
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    @if (totalPaginasMovimientos() > 1) {
+                        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Página {{ paginaMovimientos() }} de {{ totalPaginasMovimientos() }}
+                                ({{ totalMovimientos() }} registros)
+                            </small>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item" [class.disabled]="paginaMovimientos() <= 1">
+                                        <button class="page-link" (click)="paginaAnteriorMovimientos()">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                    </li>
+                                    <li class="page-item" [class.disabled]="paginaMovimientos() >= totalPaginasMovimientos()">
+                                        <button class="page-link" (click)="paginaSiguienteMovimientos()">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    }
+                } @else {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        <p>No se encontraron movimientos con los filtros seleccionados</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- ====================== TAB STOCK CRÍTICO ====================== -->
+    @if (tabActiva() === 'stock-critico' && !cargando()) {
+        <!-- Resumen crítico -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-start border-danger border-4 shadow-sm">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-danger bg-opacity-10 rounded-3 p-3 me-3">
+                                <i class="bi bi-x-circle text-danger fs-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-0">Agotados</p>
+                                <h4 class="fw-bold mb-0 text-danger">{{ resumenCritico().totalAgotados }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-start border-warning border-4 shadow-sm">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                                <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-0">Stock Bajo</p>
+                                <h4 class="fw-bold mb-0 text-warning">{{ resumenCritico().totalStockBajo }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-start border-secondary border-4 shadow-sm">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-3 p-3 me-3">
+                                <i class="bi bi-list-check text-secondary fs-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-muted small mb-0">Total Críticos</p>
+                                <h4 class="fw-bold mb-0">{{ totalCriticos() }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtro y exportar -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <div class="input-group input-group-sm" style="max-width: 320px;">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Buscar producto..."
+                       [(ngModel)]="busquedaCritico"
+                       (keyup.enter)="cargarStockCritico(1)">
+            </div>
+            <button class="btn btn-outline-success btn-sm" (click)="exportarStockCritico()">
+                <i class="bi bi-download me-1"></i>Exportar CSV
+            </button>
+        </div>
+
+        <!-- Tabla stock crítico -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                @if (productosCriticos().length > 0) {
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Producto</th>
+                                    <th>SKU</th>
+                                    <th>Categoría</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-center">Mínimo</th>
+                                    <th class="text-center">Diferencia</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (prod of productosCriticos(); track prod.id) {
+                                    <tr>
+                                        <td class="ps-3">
+                                            <div class="d-flex align-items-center">
+                                                @if (prod.imagen) {
+                                                    <img [src]="prod.imagen" [alt]="prod.nombre"
+                                                         class="rounded me-2"
+                                                         width="32" height="32"
+                                                         style="object-fit: cover;">
+                                                } @else {
+                                                    <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center"
+                                                         style="width: 32px; height: 32px;">
+                                                        <i class="bi bi-image text-muted small"></i>
+                                                    </div>
+                                                }
+                                                <span class="fw-medium">{{ prod.nombre }}</span>
+                                            </div>
+                                        </td>
+                                        <td><code class="small">{{ prod.sku }}</code></td>
+                                        <td class="small">{{ prod.categoria }}</td>
+                                        <td class="text-center fw-bold"
+                                            [class.text-danger]="prod.stock <= 0"
+                                            [class.text-warning]="prod.stock > 0">
+                                            {{ prod.stock }}
+                                        </td>
+                                        <td class="text-center text-muted">{{ prod.stockMinimo }}</td>
+                                        <td class="text-center fw-bold text-danger">{{ prod.diferencia }}</td>
+                                        <td class="text-end">{{ formatearMoneda(prod.precio) }}</td>
+                                        <td class="text-center">
+                                            <span [class]="obtenerClaseEstadoStock(prod.estado)">
+                                                {{ prod.estado === 'agotado' ? 'Agotado' : 'Bajo' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (totalPaginasCriticos() > 1) {
+                        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Página {{ paginaCriticos() }} de {{ totalPaginasCriticos() }}
+                            </small>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item" [class.disabled]="paginaCriticos() <= 1">
+                                        <button class="page-link" (click)="paginaAnteriorCriticos()">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                    </li>
+                                    <li class="page-item" [class.disabled]="paginaCriticos() >= totalPaginasCriticos()">
+                                        <button class="page-link" (click)="paginaSiguienteCriticos()">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    }
+                } @else {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+                        <p>No hay productos con stock crítico</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- ====================== TAB MI ACTIVIDAD ====================== -->
+    @if (tabActiva() === 'mi-actividad' && !cargando()) {
+        <!-- Tarjetas de actividad personal -->
+        <div class="row g-3 mb-4">
+            <div class="col-md col-sm-6">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-activity text-primary fs-3 d-block mb-1"></i>
+                        <h4 class="fw-bold mb-0">{{ resumenActividad().totalOperaciones }}</h4>
+                        <small class="text-muted">Total Operaciones</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md col-sm-6">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-box-arrow-in-down text-success fs-3 d-block mb-1"></i>
+                        <h4 class="fw-bold mb-0 text-success">{{ resumenActividad().entradas }}</h4>
+                        <small class="text-muted">Entradas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md col-sm-6">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-box-arrow-up text-danger fs-3 d-block mb-1"></i>
+                        <h4 class="fw-bold mb-0 text-danger">{{ resumenActividad().salidas }}</h4>
+                        <small class="text-muted">Salidas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md col-sm-6">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-wrench text-info fs-3 d-block mb-1"></i>
+                        <h4 class="fw-bold mb-0 text-info">{{ resumenActividad().ajustes }}</h4>
+                        <small class="text-muted">Ajustes</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md col-sm-6">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-clipboard-check text-warning fs-3 d-block mb-1"></i>
+                        <h4 class="fw-bold mb-0 text-warning">{{ resumenActividad().conteosRealizados }}</h4>
+                        <small class="text-muted">Conteos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de operaciones personales -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-semibold">Historial de Operaciones</h6>
+                <span class="badge bg-secondary">{{ totalActividad() }} registros</span>
+            </div>
+            <div class="card-body p-0">
+                @if (operacionesPersonales().length > 0) {
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Producto</th>
+                                    <th>SKU</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-center">Anterior</th>
+                                    <th class="text-center">Nuevo</th>
+                                    <th>Almacén</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (op of operacionesPersonales(); track op.id) {
+                                    <tr>
+                                        <td class="ps-3 small">{{ formatearFecha(op.fecha) }}</td>
+                                        <td>
+                                            <span class="badge rounded-pill {{ obtenerClaseTipoOperacion(op.tipoOperacion) }}">
+                                                {{ op.tipoOperacionTexto }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-medium text-truncate" style="max-width: 180px;">{{ op.producto }}</td>
+                                        <td><code class="small">{{ op.sku }}</code></td>
+                                        <td class="text-center fw-bold">{{ op.cantidad }}</td>
+                                        <td class="text-center text-muted">{{ op.cantidadAnterior }}</td>
+                                        <td class="text-center">{{ op.cantidadNueva }}</td>
+                                        <td class="small">{{ op.almacen }}</td>
+                                        <td class="small text-truncate" style="max-width: 150px;"
+                                            [title]="op.motivo">
+                                            {{ op.motivo }}
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (totalPaginasActividad() > 1) {
+                        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Página {{ paginaActividad() }} de {{ totalPaginasActividad() }}
+                            </small>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item" [class.disabled]="paginaActividad() <= 1">
+                                        <button class="page-link" (click)="paginaAnteriorActividad()">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                    </li>
+                                    <li class="page-item" [class.disabled]="paginaActividad() >= totalPaginasActividad()">
+                                        <button class="page-link" (click)="paginaSiguienteActividad()">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    }
+                } @else {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        <p>No tienes operaciones registradas en el período</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

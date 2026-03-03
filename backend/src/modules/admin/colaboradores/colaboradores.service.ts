@@ -4,9 +4,11 @@ import {
     ConflictException,
     Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { CorreoService } from '../../../common/services';
 import {
     CrearColaboradorDto,
     ActualizarColaboradorDto,
@@ -86,7 +88,11 @@ const CAMPOS_SELECCION = {
 export class ColaboradoresService {
     private readonly logger = new Logger(ColaboradoresService.name);
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private correoService: CorreoService,
+        private configService: ConfigService,
+    ) {}
 
     async crear(crearColaboradorDto: CrearColaboradorDto) {
         const { correo, codigoColaborador, numeroIdentidad } = crearColaboradorDto;
@@ -166,10 +172,25 @@ export class ColaboradoresService {
             `Colaborador creado: ${colaborador.nombre} ${colaborador.apellido} (${colaborador.codigoColaborador})`,
         );
 
+        // Obtener nombre del rol principal si tiene roles asignados
+        const nombreRol = colaborador.roles?.length > 0
+            ? colaborador.roles.find(r => r.esPrincipal)?.rol.nombre || colaborador.roles[0]?.rol.nombre
+            : undefined;
+
+        const urlFrontend = this.configService.get<string>('app.urlFrontend') || 'http://localhost:4200';
+
+        const correoEnviado = await this.correoService.enviarCorreoBienvenidaUsuario({
+            nombre: `${colaborador.nombre} ${colaborador.apellido}`,
+            correo: colaborador.correo,
+            contrasena: contrasenaTemporal,
+            nombreRol,
+            urlAcceso: `${urlFrontend}/colaborador/login`,
+        });
+
         return {
             mensaje: MENSAJES_EXITO.CREADO_EXITOSAMENTE,
             colaborador,
-            correoEnviado: false,
+            correoEnviado,
         };
     }
 

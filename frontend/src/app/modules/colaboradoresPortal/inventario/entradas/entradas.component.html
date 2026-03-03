@@ -1,0 +1,257 @@
+<div class="entradas-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0">
+            <i class="bi bi-box-arrow-in-down me-2 text-teal"></i>Entradas de Inventario
+        </h5>
+        <button class="btn btn-teal" (click)="abrirFormulario()">
+            <i class="bi bi-plus-lg me-1"></i>Nueva Entrada
+        </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-medium">Buscar</label>
+                    <input type="text" class="form-control" placeholder="Producto o SKU..."
+                        [(ngModel)]="busqueda" (keyup.enter)="buscar()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-medium">Almacen</label>
+                    <select class="form-select" [(ngModel)]="almacenFiltro">
+                        <option [value]="0">Todos</option>
+                        @for (alm of almacenes(); track alm.id) {
+                            <option [value]="alm.id">{{ alm.nombre }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-medium">Desde</label>
+                    <input type="date" class="form-control" [(ngModel)]="fechaDesde">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-medium">Hasta</label>
+                    <input type="date" class="form-control" [(ngModel)]="fechaHasta">
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button class="btn btn-teal flex-fill" (click)="buscar()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (cargando()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-teal" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="text-muted mt-2">Cargando entradas...</p>
+        </div>
+    } @else if (operaciones().length === 0) {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-box-arrow-in-down text-muted" style="font-size: 3rem;"></i>
+                <h6 class="mt-3 text-muted">Sin entradas registradas</h6>
+                <p class="text-muted small mb-3">No se encontraron registros de entrada</p>
+                <button class="btn btn-teal btn-sm" (click)="abrirFormulario()">
+                    <i class="bi bi-plus-lg me-1"></i>Registrar primera entrada
+                </button>
+            </div>
+        </div>
+    } @else {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Tipo</th>
+                                <th class="text-center">Cantidad</th>
+                                <th>Almacen</th>
+                                <th>Motivo</th>
+                                <th class="text-center">Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (op of operaciones(); track op.id) {
+                                <tr>
+                                    <td class="text-muted small text-nowrap">{{ formatearFecha(op.fecha) }}</td>
+                                    <td>
+                                        <div class="fw-medium">{{ op.producto }}</div>
+                                        <small class="text-muted">{{ op.sku }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success-subtle text-success">
+                                            {{ obtenerEtiquetaOperacion(op.tipoOperacion) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center fw-bold text-success">+{{ op.cantidad }}</td>
+                                    <td class="small">{{ op.almacen }}</td>
+                                    <td class="small text-muted text-truncate" style="max-width: 200px;">
+                                        {{ op.motivo }}
+                                    </td>
+                                    <td class="text-center small">
+                                        <span class="text-muted">{{ op.cantidadAnterior }}</span>
+                                        <i class="bi bi-arrow-right mx-1 text-muted" style="font-size: 0.7rem;"></i>
+                                        <span class="fw-bold">{{ op.cantidadNueva }}</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @if (totalPaginas() > 1) {
+            <div class="d-flex justify-content-center mt-3">
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" [class.disabled]="paginaActual() === 1">
+                            <button class="page-link" (click)="cargarEntradas(paginaActual() - 1)">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                        </li>
+                        @for (p of [].constructor(totalPaginas()); track $index) {
+                            <li class="page-item" [class.active]="paginaActual() === $index + 1">
+                                <button class="page-link" (click)="cargarEntradas($index + 1)">
+                                    {{ $index + 1 }}
+                                </button>
+                            </li>
+                        }
+                        <li class="page-item" [class.disabled]="paginaActual() === totalPaginas()">
+                            <button class="page-link" (click)="cargarEntradas(paginaActual() + 1)">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+
+    <!-- Modal Nueva Entrada -->
+    @if (mostrarFormulario()) {
+        <div class="modal-backdrop fade show" (click)="cerrarFormulario()"></div>
+        <div class="modal fade show d-block" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-box-arrow-in-down me-2 text-success"></i>Registrar Entrada
+                        </h5>
+                        <button type="button" class="btn-close" (click)="cerrarFormulario()"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <!-- Producto -->
+                            <div class="col-12">
+                                <label class="form-label fw-medium">Producto <span class="text-danger">*</span></label>
+                                <div class="position-relative">
+                                    <input type="text" class="form-control"
+                                        placeholder="Escriba para buscar producto por nombre o SKU..."
+                                        [(ngModel)]="busquedaProducto"
+                                        (input)="buscarProducto()"
+                                        (focus)="mostrarListaProductos.set(true)"
+                                        autocomplete="off">
+                                    @if (mostrarListaProductos()) {
+                                        <div class="lista-productos">
+                                            @if (buscandoProductos()) {
+                                                <div class="text-center py-3">
+                                                    <span class="spinner-border spinner-border-sm text-teal me-2"></span>
+                                                    <span class="text-muted small">Buscando productos...</span>
+                                                </div>
+                                            } @else if (productosFiltrados().length === 0) {
+                                                <div class="text-center py-3 text-muted small">
+                                                    <i class="bi bi-search me-1"></i>No se encontraron productos
+                                                </div>
+                                            } @else {
+                                                @for (prod of productosFiltrados(); track prod.id) {
+                                                    <div class="item-producto" (click)="seleccionarProducto(prod)">
+                                                        <div class="fw-medium">{{ prod.nombre }}</div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <small class="text-muted">{{ prod.sku }}</small>
+                                                            <small [class.text-danger]="prod.stock <= 0"
+                                                                [class.text-success]="prod.stock > 0">
+                                                                Stock: {{ prod.stock }}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <!-- Almacen -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Almacen</label>
+                                <select class="form-select" [(ngModel)]="formulario.almacenId">
+                                    <option [value]="0">Sin asignar</option>
+                                    @for (alm of almacenes(); track alm.id) {
+                                        <option [value]="alm.id">{{ alm.nombre }}</option>
+                                    }
+                                </select>
+                            </div>
+                            <!-- Cantidad -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Cantidad <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" min="1"
+                                    [(ngModel)]="formulario.cantidad" placeholder="0">
+                            </div>
+                            <!-- Motivo -->
+                            <div class="col-12">
+                                <label class="form-label fw-medium">Motivo <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control"
+                                    [(ngModel)]="formulario.motivo"
+                                    placeholder="Ej: Compra a proveedor, reposicion de stock...">
+                            </div>
+                            <!-- Documento -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Tipo de documento</label>
+                                <select class="form-select" [(ngModel)]="documentoTipo">
+                                    <option value="">Sin documento</option>
+                                    <option value="factura">Factura</option>
+                                    <option value="orden_compra">Orden de compra</option>
+                                    <option value="guia_remision">Guia de remision</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Numero de documento</label>
+                                <input type="text" class="form-control"
+                                    [(ngModel)]="documentoNumero" placeholder="Ej: FAC-001234">
+                            </div>
+                            <!-- Notas -->
+                            <div class="col-12">
+                                <label class="form-label fw-medium">Notas adicionales</label>
+                                <textarea class="form-control" rows="2"
+                                    [(ngModel)]="notasEntrada" maxlength="500"
+                                    placeholder="Observaciones opcionales..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" (click)="cerrarFormulario()">
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn btn-teal" (click)="registrarEntrada()" [disabled]="procesando()">
+                            @if (procesando()) {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="bi bi-check-lg me-1"></i>Registrar Entrada
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

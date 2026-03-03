@@ -4,6 +4,7 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ColaboradoresService } from '../../services';
 import { Colaborador, ColaboradorRol, CrearColaboradorDto, ActualizarColaboradorDto } from '../../interfaces';
+import { ToastService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-formulario-colaborador',
@@ -17,6 +18,7 @@ export class FormularioColaboradorComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private colaboradoresService = inject(ColaboradoresService);
+    private toastService = inject(ToastService);
 
     formulario!: FormGroup;
     empresas = signal<{ id: number; nombre: string }[]>([]);
@@ -276,6 +278,7 @@ export class FormularioColaboradorComponent implements OnInit {
                 this.correoEnviado.set(respuesta.correoEnviado);
                 this.correoColaboradorCreado.set(datos.correo);
                 this.mostrarInfoCreacion.set(true);
+                this.toastService.success('Colaborador registrado correctamente');
             },
             error: (err) => {
                 this.guardando.set(false);
@@ -328,15 +331,49 @@ export class FormularioColaboradorComponent implements OnInit {
     }
 
     private procesarErrorServidor(err: any): void {
-        if (err.error?.message) {
-            const mensajes = Array.isArray(err.error.message)
+        let mensajeError = 'Error al procesar la solicitud. Intente nuevamente.';
+
+        if (err.error?.mensaje) {
+            mensajeError = err.error.mensaje;
+        } else if (err.error?.message) {
+            mensajeError = Array.isArray(err.error.message)
                 ? err.error.message.join(', ')
                 : err.error.message;
-            this.errorServidor.set(mensajes);
-        } else if (err.error?.mensaje) {
-            this.errorServidor.set(err.error.mensaje);
-        } else {
-            this.errorServidor.set('Error al procesar la solicitud. Intente nuevamente.');
+        } else if (err.error?.errores?.length) {
+            mensajeError = err.error.errores.join(', ');
+        }
+
+        this.errorServidor.set(mensajeError);
+        this.toastService.error(mensajeError);
+
+        // Marcar campos específicos como inválidos según el error del servidor
+        if (err.status === 409) {
+            this.marcarCampoConflicto(mensajeError);
+        }
+
+        // Hacer scroll al mensaje de error
+        setTimeout(() => {
+            const alertaError = document.querySelector('.alert-danger');
+            if (alertaError) {
+                alertaError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
+    }
+
+    private marcarCampoConflicto(mensaje: string): void {
+        const mensajeLower = mensaje.toLowerCase();
+
+        if (mensajeLower.includes('correo')) {
+            this.formulario.get('correo')?.setErrors({ servidorConflicto: 'Ya existe un colaborador con este correo' });
+            this.formulario.get('correo')?.markAsTouched();
+        }
+        if (mensajeLower.includes('código') || mensajeLower.includes('codigo')) {
+            this.formulario.get('codigoColaborador')?.setErrors({ servidorConflicto: 'Ya existe un colaborador con este código' });
+            this.formulario.get('codigoColaborador')?.markAsTouched();
+        }
+        if (mensajeLower.includes('identidad')) {
+            this.formulario.get('numeroIdentidad')?.setErrors({ servidorConflicto: 'Ya existe un colaborador con este número de identidad' });
+            this.formulario.get('numeroIdentidad')?.markAsTouched();
         }
     }
 
@@ -379,6 +416,7 @@ export class FormularioColaboradorComponent implements OnInit {
         if (errores['menorDeEdad']) return 'Debe tener al menos 18 años';
         if (errores['min']) return `El valor mínimo es ${errores['min'].min}`;
         if (errores['max']) return `El valor máximo es ${errores['max'].max}`;
+        if (errores['servidorConflicto']) return errores['servidorConflicto'];
 
         return 'Campo inválido';
     }
