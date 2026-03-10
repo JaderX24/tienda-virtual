@@ -1,34 +1,32 @@
-<div class="container-fluid py-4">
+<div class="container-fluid py-3 py-md-4">
     <!-- Encabezado -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="bi bi-person-lines-fill me-2"></i>Mi Actividad
-            </h4>
-            <p class="text-muted mb-0">Historial de eventos, operaciones y sesiones</p>
-        </div>
+    <div class="mb-3 mb-md-4">
+        <h4 class="fw-bold mb-1">
+            <i class="bi bi-person-lines-fill me-2"></i>{{ 'actividad.titulo' | traducir }}
+        </h4>
+        <p class="text-muted mb-0 small">{{ 'actividad.descripcion' | traducir }}</p>
     </div>
 
     <!-- Filtros de Fecha Globales -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body py-3">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-3 col-sm-6">
-                    <label class="form-label small fw-semibold">Fecha desde</label>
+    <div class="card border-0 shadow-sm mb-3 mb-md-4">
+        <div class="card-body py-2 py-md-3">
+            <div class="row g-2 g-md-3 align-items-end">
+                <div class="col-6 col-md-3">
+                    <label class="form-label small fw-semibold">{{ 'comun.fechaDesde' | traducir }}</label>
                     <input type="date" class="form-control form-control-sm"
                            [(ngModel)]="fechaDesde">
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <label class="form-label small fw-semibold">Fecha hasta</label>
+                <div class="col-6 col-md-3">
+                    <label class="form-label small fw-semibold">{{ 'comun.fechaHasta' | traducir }}</label>
                     <input type="date" class="form-control form-control-sm"
                            [(ngModel)]="fechaHasta">
                 </div>
-                <div class="col-md-3 col-sm-6 d-flex gap-2">
+                <div class="col-12 col-md-3 d-flex gap-2">
                     <button class="btn btn-primary btn-sm" (click)="aplicarFiltros()">
-                        <i class="bi bi-funnel me-1"></i>Filtrar
+                        <i class="bi bi-funnel me-1"></i>{{ 'comun.filtrar' | traducir }}
                     </button>
                     <button class="btn btn-outline-secondary btn-sm" (click)="limpiarFiltros()">
-                        <i class="bi bi-x-circle me-1"></i>Limpiar
+                        <i class="bi bi-x-circle me-1"></i>{{ 'comun.limpiar' | traducir }}
                     </button>
                 </div>
             </div>
@@ -36,35 +34,35 @@
     </div>
 
     <!-- Tabs de Navegación -->
-    <ul class="nav nav-tabs mb-4">
+    <ul class="nav nav-tabs mb-3 mb-md-4">
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'resumen'"
                     (click)="cambiarTab('resumen')">
-                <i class="bi bi-speedometer2 me-1"></i>Resumen
+                <i class="bi bi-speedometer2 me-1"></i><span class="d-none d-sm-inline">{{ 'reportes.resumen' | traducir }}</span><span class="d-sm-none">{{ 'reportes.resumen' | traducir }}</span>
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'timeline'"
                     (click)="cambiarTab('timeline')">
-                <i class="bi bi-clock-history me-1"></i>Timeline
+                <i class="bi bi-clock-history me-1"></i><span>{{ 'actividad.timeline' | traducir }}</span>
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'bitacora'"
                     (click)="cambiarTab('bitacora')">
-                <i class="bi bi-shield-lock me-1"></i>Bitácora
+                <i class="bi bi-shield-lock me-1"></i><span>{{ 'actividad.bitacora' | traducir }}</span>
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'operaciones'"
                     (click)="cambiarTab('operaciones')">
-                <i class="bi bi-box-seam me-1"></i>Operaciones
+                <i class="bi bi-box-seam me-1"></i><span>{{ 'actividad.operaciones' | traducir }}</span>
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'sesiones'"
                     (click)="cambiarTab('sesiones')">
-                <i class="bi bi-laptop me-1"></i>Sesiones
+                <i class="bi bi-laptop me-1"></i><span>{{ 'actividad.sesiones' | traducir }}</span>
             </button>
         </li>
     </ul>
@@ -73,86 +71,86 @@
     @if (cargando()) {
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
             </div>
-            <p class="text-muted mt-2">Cargando datos...</p>
+            <p class="text-muted mt-2">{{ 'comun.cargandoDatos' | traducir }}</p>
         </div>
     }
 
     <!-- ====================== TAB RESUMEN ====================== -->
     @if (tabActiva() === 'resumen' && !cargando()) {
         <!-- Fila principal de KPIs -->
-        <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6">
+        <div class="row g-2 g-md-3 mb-3 mb-md-4">
+            <div class="col-xl-3 col-md-6 col-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Eventos de Seguridad</p>
+                                <p class="text-muted small mb-1">{{ 'actividad.eventosSeg' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">{{ resumen().totalEventosBitacora }}</h3>
                                 <div class="mt-1">
-                                    <span class="badge bg-success-subtle text-success me-1">{{ resumen().loginExitosos }} logins</span>
+                                    <span class="badge bg-success-subtle text-success me-1">{{ resumen().loginExitosos }} {{ 'actividad.logins' | traducir }}</span>
                                     @if (resumen().loginFallidos > 0) {
-                                        <span class="badge bg-danger-subtle text-danger">{{ resumen().loginFallidos }} fallidos</span>
+                                        <span class="badge bg-danger-subtle text-danger">{{ resumen().loginFallidos }} {{ 'actividad.fallidos' | traducir }}</span>
                                     }
                                 </div>
                             </div>
-                            <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                            <div class="bg-primary bg-opacity-10 rounded-3 p-2 p-sm-3 d-none d-sm-block">
                                 <i class="bi bi-shield-check text-primary fs-4"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-3 col-md-6 col-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Operaciones Inventario</p>
+                                <p class="text-muted small mb-1">{{ 'actividad.opInventario' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">{{ resumen().totalOperacionesInventario }}</h3>
                                 <div class="mt-1">
-                                    <span class="badge bg-success-subtle text-success me-1">{{ resumen().entradasInventario }} ent.</span>
-                                    <span class="badge bg-danger-subtle text-danger">{{ resumen().salidasInventario }} sal.</span>
+                                    <span class="badge bg-success-subtle text-success me-1">{{ resumen().entradasInventario }} {{ 'comun.ent' | traducir }}</span>
+                                    <span class="badge bg-danger-subtle text-danger">{{ resumen().salidasInventario }} {{ 'comun.sal' | traducir }}</span>
                                 </div>
                             </div>
-                            <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                            <div class="bg-success bg-opacity-10 rounded-3 p-2 p-sm-3 d-none d-sm-block">
                                 <i class="bi bi-box-seam text-success fs-4"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-3 col-md-6 col-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Conteos Realizados</p>
+                                <p class="text-muted small mb-1">{{ 'actividad.conteosRealizados' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">{{ resumen().totalConteosRealizados }}</h3>
                                 <div class="mt-1">
-                                    <span class="badge bg-info-subtle text-info">{{ resumen().ajustesInventario }} ajustes</span>
+                                    <span class="badge bg-info-subtle text-info">{{ resumen().ajustesInventario }} {{ 'comun.ajustes' | traducir }}</span>
                                 </div>
                             </div>
-                            <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                            <div class="bg-info bg-opacity-10 rounded-3 p-2 p-sm-3 d-none d-sm-block">
                                 <i class="bi bi-clipboard-check text-info fs-4"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-3 col-md-6 col-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Sesiones</p>
+                                <p class="text-muted small mb-1">{{ 'actividad.sesiones' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">{{ resumen().totalSesiones }}</h3>
                                 <div class="mt-1">
-                                    <span class="badge bg-warning-subtle text-warning">{{ resumen().transferenciasInventario }} transf.</span>
+                                    <span class="badge bg-warning-subtle text-warning">{{ resumen().transferenciasInventario }} {{ 'comun.transf' | traducir }}</span>
                                 </div>
                             </div>
-                            <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                            <div class="bg-warning bg-opacity-10 rounded-3 p-2 p-sm-3 d-none d-sm-block">
                                 <i class="bi bi-laptop text-warning fs-4"></i>
                             </div>
                         </div>
@@ -162,12 +160,12 @@
         </div>
 
         <!-- Última actividad -->
-        <div class="row g-3 mb-4">
+        <div class="row g-2 g-md-3 mb-3 mb-md-4">
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <h6 class="fw-semibold mb-3">
-                            <i class="bi bi-box-arrow-in-right text-primary me-2"></i>Último Inicio de Sesión
+                            <i class="bi bi-box-arrow-in-right text-primary me-2"></i>{{ 'actividad.ultimoLogin' | traducir }}
                         </h6>
                         @if (resumen().ultimoLogin) {
                             <div class="d-flex align-items-center">
@@ -177,12 +175,12 @@
                                 <div>
                                     <p class="mb-0 fw-medium">{{ formatearFecha(resumen().ultimoLogin!.fecha) }}</p>
                                     <small class="text-muted">
-                                        <i class="bi bi-geo-alt me-1"></i>IP: {{ resumen().ultimoLogin!.ip }}
+                                        <i class="bi bi-geo-alt me-1"></i>{{ 'actividad.ip' | traducir }}: {{ resumen().ultimoLogin!.ip }}
                                     </small>
                                 </div>
                             </div>
                         } @else {
-                            <p class="text-muted mb-0">Sin registros de inicio de sesión</p>
+                            <p class="text-muted mb-0">{{ 'actividad.sinLoginReg' | traducir }}</p>
                         }
                     </div>
                 </div>
@@ -191,7 +189,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <h6 class="fw-semibold mb-3">
-                            <i class="bi bi-arrow-left-right text-success me-2"></i>Última Operación
+                            <i class="bi bi-arrow-left-right text-success me-2"></i>{{ 'actividad.ultimaOp' | traducir }}
                         </h6>
                         @if (resumen().ultimaOperacion) {
                             <div class="d-flex align-items-center">
@@ -206,7 +204,7 @@
                                 </div>
                             </div>
                         } @else {
-                            <p class="text-muted mb-0">Sin operaciones registradas</p>
+                            <p class="text-muted mb-0">{{ 'actividad.sinOpReg' | traducir }}</p>
                         }
                     </div>
                 </div>
@@ -217,7 +215,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-bottom-0 pt-3">
                 <h6 class="fw-semibold mb-0">
-                    <i class="bi bi-pie-chart me-2 text-primary"></i>Desglose de Actividad en el Período
+                    <i class="bi bi-pie-chart me-2 text-primary"></i>{{ 'actividad.desglose' | traducir }}
                 </h6>
             </div>
             <div class="card-body">
@@ -226,42 +224,42 @@
                         <div class="p-3 bg-light rounded-3 text-center">
                             <i class="bi bi-box-arrow-in-down text-success fs-4 d-block mb-1"></i>
                             <h5 class="fw-bold mb-0">{{ resumen().entradasInventario }}</h5>
-                            <small class="text-muted">Entradas</small>
+                            <small class="text-muted">{{ 'reportes.entrada' | traducir }}</small>
                         </div>
                     </div>
                     <div class="col-md-4 col-6">
                         <div class="p-3 bg-light rounded-3 text-center">
                             <i class="bi bi-box-arrow-up text-danger fs-4 d-block mb-1"></i>
                             <h5 class="fw-bold mb-0">{{ resumen().salidasInventario }}</h5>
-                            <small class="text-muted">Salidas</small>
+                            <small class="text-muted">{{ 'reportes.salida' | traducir }}</small>
                         </div>
                     </div>
                     <div class="col-md-4 col-6">
                         <div class="p-3 bg-light rounded-3 text-center">
                             <i class="bi bi-wrench text-info fs-4 d-block mb-1"></i>
                             <h5 class="fw-bold mb-0">{{ resumen().ajustesInventario }}</h5>
-                            <small class="text-muted">Ajustes</small>
+                            <small class="text-muted">{{ 'comun.ajustes' | traducir }}</small>
                         </div>
                     </div>
                     <div class="col-md-4 col-6">
                         <div class="p-3 bg-light rounded-3 text-center">
                             <i class="bi bi-arrow-left-right text-primary fs-4 d-block mb-1"></i>
                             <h5 class="fw-bold mb-0">{{ resumen().transferenciasInventario }}</h5>
-                            <small class="text-muted">Transferencias</small>
+                            <small class="text-muted">{{ 'reportes.transferencia' | traducir }}</small>
                         </div>
                     </div>
                     <div class="col-md-4 col-6">
                         <div class="p-3 bg-light rounded-3 text-center">
                             <i class="bi bi-clipboard-check text-warning fs-4 d-block mb-1"></i>
                             <h5 class="fw-bold mb-0">{{ resumen().totalConteosRealizados }}</h5>
-                            <small class="text-muted">Conteos</small>
+                            <small class="text-muted">{{ 'conteos.titulo' | traducir }}</small>
                         </div>
                     </div>
                     <div class="col-md-4 col-6">
                         <div class="p-3 bg-light rounded-3 text-center">
                             <i class="bi bi-shield-check text-secondary fs-4 d-block mb-1"></i>
                             <h5 class="fw-bold mb-0">{{ resumen().loginExitosos }}</h5>
-                            <small class="text-muted">Inicios de Sesión</small>
+                            <small class="text-muted">{{ 'actividad.iniciosSesion' | traducir }}</small>
                         </div>
                     </div>
                 </div>
@@ -274,9 +272,9 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-semibold">
-                    <i class="bi bi-clock-history me-2"></i>Actividad Cronológica
+                    <i class="bi bi-clock-history me-2"></i>{{ 'actividad.cronologica' | traducir }}
                 </h6>
-                <span class="badge bg-secondary">{{ totalTimeline() }} eventos</span>
+                <span class="badge bg-secondary">{{ totalTimeline() }} {{ 'actividad.eventos' | traducir }}</span>
             </div>
             <div class="card-body">
                 @if (timeline().length > 0) {
@@ -291,7 +289,7 @@
                                         <div>
                                             <span class="fw-semibold">{{ evento.titulo }}</span>
                                             <span class="badge bg-{{ evento.color }}-subtle text-{{ evento.color }} ms-2 small">
-                                                {{ evento.origen === 'bitacora' ? 'Seguridad' : evento.origen === 'inventario' ? 'Inventario' : 'Conteo' }}
+                                                {{ evento.origen === 'bitacora' ? ('actividad.seguridad' | traducir) : evento.origen === 'inventario' ? ('actividad.inventario' | traducir) : ('actividad.conteo' | traducir) }}
                                             </span>
                                         </div>
                                         <small class="text-muted">{{ tiempoRelativo(evento.fecha) }}</small>
@@ -315,8 +313,8 @@
                     @if (totalPaginasTimeline() > 1) {
                         <div class="d-flex justify-content-between align-items-center mt-4">
                             <small class="text-muted">
-                                Página {{ paginaTimeline() }} de {{ totalPaginasTimeline() }}
-                                ({{ totalTimeline() }} eventos)
+                                {{ 'reportes.pagina' | traducir }} {{ paginaTimeline() }} {{ 'productos.de' | traducir }} {{ totalPaginasTimeline() }}
+                                ({{ totalTimeline() }} {{ 'actividad.eventos' | traducir }})
                             </small>
                             <nav>
                                 <ul class="pagination pagination-sm mb-0">
@@ -337,7 +335,7 @@
                 } @else {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        <p>No hay actividad registrada en el período</p>
+                        <p>{{ 'actividad.sinActividad' | traducir }}</p>
                     </div>
                 }
             </div>
@@ -347,52 +345,52 @@
     <!-- ====================== TAB BITÁCORA ====================== -->
     @if (tabActiva() === 'bitacora' && !cargando()) {
         <!-- Filtros específicos -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body py-3">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label small fw-semibold">Tipo de evento</label>
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-2 py-md-3">
+                <div class="row g-2 g-md-3 align-items-end">
+                    <div class="col-6 col-md-3">
+                        <label class="form-label small fw-semibold">{{ 'actividad.tipoEvento' | traducir }}</label>
                         <select class="form-select form-select-sm" [(ngModel)]="tipoEventoFiltro">
-                            <option value="">Todos</option>
-                            <option value="login_exitoso">Inicio de sesión</option>
-                            <option value="login_fallido">Login fallido</option>
-                            <option value="logout">Cierre de sesión</option>
-                            <option value="cambio_contrasena">Cambio contraseña</option>
-                            <option value="recuperacion_contrasena">Recuperación contraseña</option>
-                            <option value="bloqueo_cuenta">Bloqueo cuenta</option>
-                            <option value="desbloqueo_cuenta">Desbloqueo cuenta</option>
-                            <option value="dispositivo_nuevo">Dispositivo nuevo</option>
-                            <option value="acceso_denegado">Acceso denegado</option>
-                            <option value="sesion_forzada">Sesión forzada</option>
-                            <option value="multiples_intentos">Múltiples intentos</option>
+                            <option value="">{{ 'comun.todos' | traducir }}</option>
+                            <option value="login_exitoso">{{ 'actividad.inicioSesion' | traducir }}</option>
+                            <option value="login_fallido">{{ 'actividad.loginFallido' | traducir }}</option>
+                            <option value="logout">{{ 'actividad.cierreSesion' | traducir }}</option>
+                            <option value="cambio_contrasena">{{ 'actividad.cambioContrasena' | traducir }}</option>
+                            <option value="recuperacion_contrasena">{{ 'actividad.recupContrasena' | traducir }}</option>
+                            <option value="bloqueo_cuenta">{{ 'actividad.bloqueoCuenta' | traducir }}</option>
+                            <option value="desbloqueo_cuenta">{{ 'actividad.desbloqueo' | traducir }}</option>
+                            <option value="dispositivo_nuevo">{{ 'actividad.dispNuevo' | traducir }}</option>
+                            <option value="acceso_denegado">{{ 'actividad.accesoDenegado' | traducir }}</option>
+                            <option value="sesion_forzada">{{ 'actividad.sesionForzada' | traducir }}</option>
+                            <option value="multiples_intentos">{{ 'actividad.multIntentos' | traducir }}</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label small fw-semibold">Severidad</label>
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small fw-semibold">{{ 'actividad.severidad' | traducir }}</label>
                         <select class="form-select form-select-sm" [(ngModel)]="severidadFiltro">
-                            <option value="">Todas</option>
-                            <option value="info">Información</option>
-                            <option value="warn">Advertencia</option>
-                            <option value="error">Error</option>
-                            <option value="critical">Crítico</option>
+                            <option value="">{{ 'comun.todas' | traducir }}</option>
+                            <option value="info">{{ 'actividad.informacion' | traducir }}</option>
+                            <option value="warn">{{ 'actividad.advertencia' | traducir }}</option>
+                            <option value="error">{{ 'actividad.error' | traducir }}</option>
+                            <option value="critical">{{ 'actividad.critico' | traducir }}</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label small fw-semibold">Buscar</label>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label small fw-semibold">{{ 'comun.buscar' | traducir }}</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
                             <input type="text" class="form-control"
-                                   placeholder="Buscar en descripción..."
+                                   [placeholder]="'actividad.buscarDesc' | traducir"
                                    [(ngModel)]="busquedaBitacora"
                                    (keyup.enter)="cargarBitacora(1)">
                         </div>
                     </div>
-                    <div class="col-md-4 d-flex gap-2">
+                    <div class="col-12 col-md-4 d-flex gap-2">
                         <button class="btn btn-primary btn-sm" (click)="cargarBitacora(1)">
-                            <i class="bi bi-search me-1"></i>Buscar
+                            <i class="bi bi-search me-1"></i>{{ 'comun.buscar' | traducir }}
                         </button>
                         <button class="btn btn-outline-success btn-sm" (click)="exportarBitacora()">
-                            <i class="bi bi-download me-1"></i>Exportar CSV
+                            <i class="bi bi-download me-1"></i>{{ 'comun.exportarCsv' | traducir }}
                         </button>
                     </div>
                 </div>
@@ -402,21 +400,22 @@
         <!-- Tabla bitácora -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Eventos de Seguridad</h6>
-                <span class="badge bg-secondary">{{ totalBitacora() }} registros</span>
+                <h6 class="mb-0 fw-semibold">{{ 'actividad.eventosSeg' | traducir }}</h6>
+                <span class="badge bg-secondary">{{ totalBitacora() }} {{ 'reportes.registros' | traducir }}</span>
             </div>
             <div class="card-body p-0">
                 @if (eventosBitacora().length > 0) {
-                    <div class="table-responsive">
+                    <!-- Vista desktop: tabla -->
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-hover table-striped mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-3">Fecha</th>
-                                    <th>Evento</th>
-                                    <th>Severidad</th>
-                                    <th>Descripción</th>
-                                    <th>IP</th>
-                                    <th>Navegador</th>
+                                    <th class="ps-3">{{ 'comun.fecha' | traducir }}</th>
+                                    <th>{{ 'actividad.tipoEvento' | traducir }}</th>
+                                    <th>{{ 'actividad.severidad' | traducir }}</th>
+                                    <th>{{ 'comun.descripcion' | traducir }}</th>
+                                    <th>{{ 'actividad.ip' | traducir }}</th>
+                                    <th>{{ 'comun.navegador' | traducir }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -448,11 +447,34 @@
                         </table>
                     </div>
 
+                    <!-- Vista móvil: lista de cards -->
+                    <div class="d-md-none p-2">
+                        @for (evento of eventosBitacora(); track evento.id) {
+                            <div class="lista-movil-item">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="badge rounded-pill {{ obtenerClaseSeveridad(evento.severidad) }}">
+                                        {{ evento.tipoEventoTexto }}
+                                    </span>
+                                    <span class="d-flex align-items-center gap-1 small">
+                                        <i class="bi {{ obtenerIconoSeveridad(evento.severidad) }}"></i>
+                                        {{ evento.severidadTexto }}
+                                    </span>
+                                </div>
+                                <p class="mb-1 small">{{ evento.descripcion }}</p>
+                                <div class="d-flex flex-wrap gap-2 text-muted" style="font-size: 0.75rem;">
+                                    <span><i class="bi bi-calendar3 me-1"></i>{{ formatearFecha(evento.fecha) }}</span>
+                                    <span><i class="bi bi-wifi me-1"></i>{{ evento.ip }}</span>
+                                    <span><i class="bi bi-globe me-1"></i>{{ evento.navegador }}</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
                     @if (totalPaginasBitacora() > 1) {
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                Página {{ paginaBitacora() }} de {{ totalPaginasBitacora() }}
-                                ({{ totalBitacora() }} registros)
+                                {{ 'reportes.pagina' | traducir }} {{ paginaBitacora() }} {{ 'productos.de' | traducir }} {{ totalPaginasBitacora() }}
+                                ({{ totalBitacora() }} {{ 'reportes.registros' | traducir }})
                             </small>
                             <nav>
                                 <ul class="pagination pagination-sm mb-0">
@@ -473,7 +495,7 @@
                 } @else {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-shield-check fs-1 d-block mb-2 text-success"></i>
-                        <p>No se encontraron eventos de seguridad</p>
+                        <p>{{ 'actividad.sinEventos' | traducir }}</p>
                     </div>
                 }
             </div>
@@ -483,38 +505,38 @@
     <!-- ====================== TAB OPERACIONES ====================== -->
     @if (tabActiva() === 'operaciones' && !cargando()) {
         <!-- Filtros específicos -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body py-3">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Buscar producto</label>
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-2 py-md-3">
+                <div class="row g-2 g-md-3 align-items-end">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small fw-semibold">{{ 'reportes.buscarProducto' | traducir }}</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
                             <input type="text" class="form-control"
-                                   placeholder="Nombre o SKU..."
+                                   [placeholder]="'reportes.placeholderBuscar' | traducir"
                                    [(ngModel)]="busquedaOperaciones"
                                    (keyup.enter)="cargarOperaciones(1)">
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label small fw-semibold">Tipo de operación</label>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label small fw-semibold">{{ 'reportes.tipoOperacion' | traducir }}</label>
                         <select class="form-select form-select-sm" [(ngModel)]="tipoOperacionFiltro">
-                            <option value="">Todos</option>
-                            <option value="entrada">Entrada</option>
-                            <option value="salida">Salida</option>
-                            <option value="recepcion">Recepción</option>
-                            <option value="despacho">Despacho</option>
-                            <option value="ajuste_positivo">Ajuste (+)</option>
-                            <option value="ajuste_negativo">Ajuste (-)</option>
-                            <option value="transferencia">Transferencia</option>
+                            <option value="">{{ 'comun.todos' | traducir }}</option>
+                            <option value="entrada">{{ 'reportes.entrada' | traducir }}</option>
+                            <option value="salida">{{ 'reportes.salida' | traducir }}</option>
+                            <option value="recepcion">{{ 'reportes.recepcion' | traducir }}</option>
+                            <option value="despacho">{{ 'reportes.despacho' | traducir }}</option>
+                            <option value="ajuste_positivo">{{ 'reportes.ajusteMas' | traducir }}</option>
+                            <option value="ajuste_negativo">{{ 'reportes.ajusteMenos' | traducir }}</option>
+                            <option value="transferencia">{{ 'reportes.transferencia' | traducir }}</option>
                         </select>
                     </div>
-                    <div class="col-md-3 d-flex gap-2">
+                    <div class="col-6 col-md-3 d-flex gap-2">
                         <button class="btn btn-primary btn-sm" (click)="cargarOperaciones(1)">
-                            <i class="bi bi-search me-1"></i>Buscar
+                            <i class="bi bi-search me-1"></i>{{ 'comun.buscar' | traducir }}
                         </button>
                         <button class="btn btn-outline-success btn-sm" (click)="exportarOperaciones()">
-                            <i class="bi bi-download me-1"></i>Exportar CSV
+                            <i class="bi bi-download me-1"></i><span class="d-none d-sm-inline">{{ 'comun.exportarCsv' | traducir }}</span><span class="d-sm-none">CSV</span>
                         </button>
                     </div>
                 </div>
@@ -524,24 +546,25 @@
         <!-- Tabla operaciones -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Operaciones de Inventario</h6>
-                <span class="badge bg-secondary">{{ totalOperaciones() }} registros</span>
+                <h6 class="mb-0 fw-semibold">{{ 'actividad.opInventarioTit' | traducir }}</h6>
+                <span class="badge bg-secondary">{{ totalOperaciones() }} {{ 'reportes.registros' | traducir }}</span>
             </div>
             <div class="card-body p-0">
                 @if (operaciones().length > 0) {
-                    <div class="table-responsive">
+                    <!-- Vista desktop: tabla -->
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-hover table-striped mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-3">Fecha</th>
-                                    <th>Tipo</th>
-                                    <th>Producto</th>
-                                    <th>SKU</th>
-                                    <th class="text-center">Cantidad</th>
-                                    <th class="text-center">Anterior</th>
-                                    <th class="text-center">Nuevo</th>
-                                    <th>Almacén</th>
-                                    <th>Motivo</th>
+                                    <th class="ps-3">{{ 'comun.fecha' | traducir }}</th>
+                                    <th>{{ 'comun.tipo' | traducir }}</th>
+                                    <th>{{ 'comun.producto' | traducir }}</th>
+                                    <th>{{ 'comun.sku' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.cantidad' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.anterior' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.nuevo' | traducir }}</th>
+                                    <th>{{ 'comun.almacen' | traducir }}</th>
+                                    <th>{{ 'comun.motivo' | traducir }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -569,11 +592,39 @@
                         </table>
                     </div>
 
+                    <!-- Vista móvil: lista de cards -->
+                    <div class="d-md-none p-2">
+                        @for (op of operaciones(); track op.id) {
+                            <div class="lista-movil-item">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="fw-medium small">{{ op.producto }}</span>
+                                    <span class="badge rounded-pill {{ obtenerClaseTipoOperacion(op.tipoOperacion) }}">
+                                        {{ op.tipoOperacionTexto }}
+                                    </span>
+                                </div>
+                                <div class="d-flex gap-3 mb-1" style="font-size: 0.8rem;">
+                                    <span class="fw-bold">{{ op.cantidad }} uds</span>
+                                    <span class="text-muted">{{ op.cantidadAnterior }} → {{ op.cantidadNueva }}</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 text-muted" style="font-size: 0.75rem;">
+                                    <span><i class="bi bi-calendar3 me-1"></i>{{ formatearFecha(op.fecha) }}</span>
+                                    <span><i class="bi bi-upc me-1"></i>{{ op.sku }}</span>
+                                    @if (op.almacen) {
+                                        <span><i class="bi bi-building me-1"></i>{{ op.almacen }}</span>
+                                    }
+                                </div>
+                                @if (op.motivo || op.notas) {
+                                    <p class="mb-0 mt-1 text-muted small fst-italic">{{ op.motivo || op.notas }}</p>
+                                }
+                            </div>
+                        }
+                    </div>
+
                     @if (totalPaginasOperaciones() > 1) {
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                Página {{ paginaOperaciones() }} de {{ totalPaginasOperaciones() }}
-                                ({{ totalOperaciones() }} registros)
+                                {{ 'reportes.pagina' | traducir }} {{ paginaOperaciones() }} {{ 'productos.de' | traducir }} {{ totalPaginasOperaciones() }}
+                                ({{ totalOperaciones() }} {{ 'reportes.registros' | traducir }})
                             </small>
                             <nav>
                                 <ul class="pagination pagination-sm mb-0">
@@ -594,7 +645,7 @@
                 } @else {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        <p>No se encontraron operaciones con los filtros seleccionados</p>
+                        <p>{{ 'actividad.sinOpFiltros' | traducir }}</p>
                     </div>
                 }
             </div>
@@ -605,23 +656,24 @@
     @if (tabActiva() === 'sesiones' && !cargando()) {
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Historial de Sesiones</h6>
-                <span class="badge bg-secondary">{{ totalSesiones() }} registros</span>
+                <h6 class="mb-0 fw-semibold">{{ 'actividad.histSesiones' | traducir }}</h6>
+                <span class="badge bg-secondary">{{ totalSesiones() }} {{ 'reportes.registros' | traducir }}</span>
             </div>
             <div class="card-body p-0">
                 @if (sesiones().length > 0) {
-                    <div class="table-responsive">
+                    <!-- Vista desktop: tabla -->
+                    <div class="table-responsive d-none d-md-block">
                         <table class="table table-hover table-striped mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-3">Inicio</th>
-                                    <th>Última Actividad</th>
-                                    <th>IP</th>
-                                    <th>Ubicación</th>
-                                    <th>Navegador</th>
-                                    <th>Sistema</th>
-                                    <th class="text-center">Estado</th>
-                                    <th>Cierre</th>
+                                    <th class="ps-3">{{ 'comun.inicio' | traducir }}</th>
+                                    <th>{{ 'comun.ultimaActividad' | traducir }}</th>
+                                    <th>{{ 'actividad.ip' | traducir }}</th>
+                                    <th>{{ 'comun.ubicacion' | traducir }}</th>
+                                    <th>{{ 'comun.navegador' | traducir }}</th>
+                                    <th>{{ 'comun.sistema' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.estado' | traducir }}</th>
+                                    <th>{{ 'comun.cierre' | traducir }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -646,10 +698,10 @@
                                         <td class="text-center">
                                             @if (sesion.esActiva) {
                                                 <span class="badge bg-success rounded-pill">
-                                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Activa
+                                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>{{ 'actividad.activa' | traducir }}
                                                 </span>
                                             } @else {
-                                                <span class="badge bg-secondary rounded-pill">Cerrada</span>
+                                                <span class="badge bg-secondary rounded-pill">{{ 'actividad.cerrada' | traducir }}</span>
                                             }
                                         </td>
                                         <td class="small">
@@ -659,7 +711,7 @@
                                                 </span>
                                             } @else {
                                                 @if (!sesion.esActiva) {
-                                                    <span class="text-muted">Expirada</span>
+                                                    <span class="text-muted">{{ 'actividad.expirada' | traducir }}</span>
                                                 } @else {
                                                     <span class="text-muted">-</span>
                                                 }
@@ -671,11 +723,50 @@
                         </table>
                     </div>
 
+                    <!-- Vista móvil: lista de cards -->
+                    <div class="d-md-none p-2">
+                        @for (sesion of sesiones(); track sesion.id) {
+                            <div class="lista-movil-item" [class.border-start]="sesion.esActiva" [class.border-success]="sesion.esActiva" [style.border-left-width]="sesion.esActiva ? '3px' : ''">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-globe"></i>
+                                        <span class="fw-medium small">{{ sesion.navegador }}</span>
+                                        <span class="text-muted small">/ {{ sesion.sistemaOperativo }}</span>
+                                    </div>
+                                    @if (sesion.esActiva) {
+                                        <span class="badge bg-success rounded-pill">
+                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.4rem;"></i>{{ 'actividad.activa' | traducir }}
+                                        </span>
+                                    } @else {
+                                        <span class="badge bg-secondary rounded-pill">{{ 'actividad.cerrada' | traducir }}</span>
+                                    }
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 text-muted" style="font-size: 0.75rem;">
+                                    <span><i class="bi bi-calendar3 me-1"></i>{{ formatearFecha(sesion.inicio) }}</span>
+                                    <span><i class="bi bi-clock me-1"></i>{{ tiempoRelativo(sesion.ultimaActividad) }}</span>
+                                    <span><i class="bi bi-wifi me-1"></i>{{ sesion.ip }}</span>
+                                    @if (sesion.ciudad || sesion.pais) {
+                                        <span><i class="bi bi-geo-alt me-1"></i>{{ sesion.ciudad }}{{ sesion.ciudad && sesion.pais ? ', ' : '' }}{{ sesion.pais }}</span>
+                                    }
+                                </div>
+                                @if (!sesion.esActiva) {
+                                    <div class="mt-1" style="font-size: 0.75rem;">
+                                        @if (sesion.cerradaEn) {
+                                            <span class="text-muted"><i class="bi bi-x-circle me-1"></i>{{ sesion.motivoCierre || tiempoRelativo(sesion.cerradaEn) }}</span>
+                                        } @else {
+                                            <span class="text-muted"><i class="bi bi-clock-history me-1"></i>{{ 'actividad.expirada' | traducir }}</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
                     @if (totalPaginasSesiones() > 1) {
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                Página {{ paginaSesiones() }} de {{ totalPaginasSesiones() }}
-                                ({{ totalSesiones() }} registros)
+                                {{ 'reportes.pagina' | traducir }} {{ paginaSesiones() }} {{ 'productos.de' | traducir }} {{ totalPaginasSesiones() }}
+                                ({{ totalSesiones() }} {{ 'reportes.registros' | traducir }})
                             </small>
                             <nav>
                                 <ul class="pagination pagination-sm mb-0">
@@ -696,7 +787,7 @@
                 } @else {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-laptop fs-1 d-block mb-2"></i>
-                        <p>No se encontraron sesiones en el período</p>
+                        <p>{{ 'actividad.sinSesionesPeriodo' | traducir }}</p>
                     </div>
                 }
             </div>

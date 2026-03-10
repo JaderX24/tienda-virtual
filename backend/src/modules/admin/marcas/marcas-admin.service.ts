@@ -9,6 +9,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CrearMarcaDto, ActualizarMarcaDto, FiltroMarcaDto } from './dto';
 import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
+import { generarSlug } from '../../../common/utils';
 
 @Injectable()
 export class MarcasAdminService {
@@ -28,7 +29,7 @@ export class MarcasAdminService {
         const marca = await this.prisma.marca.create({
             data: {
                 nombre: crearMarcaDto.nombre,
-                slug: this.generarSlug(crearMarcaDto.nombre),
+                slug: generarSlug(crearMarcaDto.nombre),
                 descripcion: crearMarcaDto.descripcion,
                 logo: crearMarcaDto.logo,
                 activa: crearMarcaDto.activa ?? true,
@@ -130,7 +131,7 @@ export class MarcasAdminService {
 
         if (actualizarMarcaDto.nombre !== undefined) {
             datosActualizacion.nombre = actualizarMarcaDto.nombre;
-            datosActualizacion.slug = this.generarSlug(actualizarMarcaDto.nombre);
+            datosActualizacion.slug = generarSlug(actualizarMarcaDto.nombre);
         }
         if (actualizarMarcaDto.descripcion !== undefined) {
             datosActualizacion.descripcion = actualizarMarcaDto.descripcion;
@@ -225,14 +226,5 @@ export class MarcasAdminService {
             marcasConProductos,
             marcasSinProductos: totalMarcas - marcasConProductos,
         };
-    }
-
-    private generarSlug(nombre: string): string {
-        return nombre
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
     }
 }

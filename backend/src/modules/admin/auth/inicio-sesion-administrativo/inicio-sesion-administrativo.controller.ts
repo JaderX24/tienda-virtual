@@ -22,7 +22,7 @@ import {
 import { Request } from 'express';
 import { InicioSesionAdministrativoService } from './inicio-sesion-administrativo.service';
 import { LoginAdminDto, RespuestaLoginAdminDto, RespuestaErrorLoginDto } from './dto';
-import { JwtAuthGuard } from '../../../../common/guards';
+import { JwtAdminGuard } from '../../../../common/guards';
 import { UsuarioActual } from '../../../../common/decorators';
 
 @ApiTags('Admin - Autenticación')
@@ -84,7 +84,7 @@ export class InicioSesionAdministrativoController {
 
     @Post('logout')
     @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAdminGuard)
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Cerrar sesión',
@@ -130,7 +130,7 @@ export class InicioSesionAdministrativoController {
     }
 
     @Get('sesiones')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAdminGuard)
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Obtener sesiones activas',
@@ -145,7 +145,7 @@ export class InicioSesionAdministrativoController {
     }
 
     @Delete('sesiones')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAdminGuard)
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Cerrar todas las sesiones',

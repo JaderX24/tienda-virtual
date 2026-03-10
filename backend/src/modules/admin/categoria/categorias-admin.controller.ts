@@ -17,14 +17,14 @@ import {
     FiltroCategoriaDto,
     CambiarEstadoCategoriaDto,
 } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Categorías')
 @Controller('admin/categorias')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class CategoriasAdminController {
     constructor(private readonly categoriasAdminService: CategoriasAdminService) {}
 

@@ -2,6 +2,8 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { IdiomaService } from '../../../core/services/idioma.service';
 import {
     ReportesService,
     ResumenInventario,
@@ -19,13 +21,14 @@ type TabActiva = 'resumen' | 'movimientos' | 'stock-critico' | 'mi-actividad';
 @Component({
     selector: 'app-reportes',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './reportes.component.html',
     styleUrl: './reportes.component.scss',
 })
 export class ReportesComponent implements OnInit, OnDestroy {
     private reportesService = inject(ReportesService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     // Estado general
@@ -114,7 +117,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                 this.cargando.set(false);
             },
             error: () => {
-                this.toastService.error('Error al cargar resumen de reportes');
+                this.toastService.error(this.idiomaService.t('toast.errorCargarResumenRep'));
                 this.cargando.set(false);
             },
         });
@@ -144,7 +147,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar movimientos');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarMovimientos'));
                     this.cargando.set(false);
                 },
             });
@@ -173,7 +176,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar stock crítico');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarStockCritico'));
                     this.cargando.set(false);
                 },
             });
@@ -202,7 +205,7 @@ export class ReportesComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar actividad');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarActividadRep'));
                     this.cargando.set(false);
                 },
             });
@@ -230,12 +233,12 @@ export class ReportesComponent implements OnInit, OnDestroy {
         const filtros = this.obtenerFiltrosBase();
         if (this.tipoOperacionFiltro) filtros.tipoOperacion = this.tipoOperacionFiltro;
         this.reportesService.exportarMovimientosCsv(filtros);
-        this.toastService.success('Exportación iniciada');
+        this.toastService.success(this.idiomaService.t('toast.exportIniciada'));
     }
 
     exportarStockCritico(): void {
         this.reportesService.exportarStockCriticoCsv();
-        this.toastService.success('Exportación iniciada');
+        this.toastService.success(this.idiomaService.t('toast.exportIniciada'));
     }
 
     // Paginación

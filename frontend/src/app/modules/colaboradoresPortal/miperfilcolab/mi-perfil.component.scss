@@ -10,11 +10,11 @@
     height: 90px;
     min-width: 90px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    background: linear-gradient(135deg, var(--tema-primario), var(--tema-primario-oscuro));
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+    box-shadow: 0 4px 15px rgba(var(--tema-primario-rgb), 0.3);
 }
 
 .avatar-iniciales {
@@ -25,23 +25,36 @@
 }
 
 // Tabs
-.nav-tabs .nav-link {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #6c757d;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 0.6rem 1rem;
+.perfil-tabs-contenedor {
+    position: relative;
+}
 
-    &.active {
-        color: #14b8a6;
-        border-bottom-color: #14b8a6;
-        background-color: transparent;
-    }
+.nav-tabs {
+    .nav-link {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #6c757d;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 0.6rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
 
-    &:hover:not(.active) {
-        color: #333;
-        border-bottom-color: #dee2e6;
+        .tab-texto {
+            display: inline;
+        }
+
+        &.active {
+            color: var(--tema-primario);
+            border-bottom-color: var(--tema-primario);
+            background-color: transparent;
+        }
+
+        &:hover:not(.active) {
+            color: #333;
+            border-bottom-color: #dee2e6;
+        }
     }
 }
 
@@ -72,7 +85,7 @@
 
 // Badges
 .badge.text-bg-primary {
-    background-color: #14b8a6 !important;
+    background-color: var(--tema-primario) !important;
 }
 
 // Tema color selector
@@ -96,8 +109,8 @@
     }
 
     &.tema-seleccionado {
-        border-color: var(--tema-color, #14b8a6);
-        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+        border-color: var(--tema-primario);
+        box-shadow: 0 0 0 3px rgba(var(--tema-primario-rgb), 0.15);
     }
 
     small {
@@ -118,25 +131,53 @@
     top: 4px;
     right: 4px;
     font-size: 0.85rem;
-    color: var(--tema-color, #14b8a6);
+    color: var(--tema-primario);
 }
 
 // Switches
 .form-check-input:checked {
-    background-color: #14b8a6;
-    border-color: #14b8a6;
+    background-color: var(--tema-primario);
+    border-color: var(--tema-primario);
 }
 
 .form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(var(--tema-primario-rgb), 0.25);
 }
 
-// Sesiones e dispositivos
+// Sesiones y dispositivos
 .sesion-icono,
 .dispositivo-icono {
     width: 50px;
     min-width: 50px;
     text-align: center;
+}
+
+.dispositivo-icono-grande {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    border-radius: 12px;
+    background: #f0f4f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    i {
+        font-size: 1.5rem;
+        color: #6c757d;
+    }
+
+    .indicador-activo {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #198754;
+        border: 2px solid #fff;
+    }
 }
 
 // Icono estado seguridad
@@ -177,45 +218,237 @@ code {
     }
 }
 
-// Responsivo
+// Eventos móvil
+.evento-movil {
+    &:last-child {
+        border-bottom: none !important;
+    }
+}
+
+// Responsivo para tablets
 @media (max-width: 767.98px) {
     .mi-perfil-container {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 
     .perfil-avatar-grande {
-        width: 70px;
-        height: 70px;
-        min-width: 70px;
+        width: 68px;
+        height: 68px;
+        min-width: 68px;
     }
 
     .avatar-iniciales {
         font-size: 1.5rem;
     }
 
+    // Tabs: distribuir equitativamente en todo el ancho
+    .perfil-tabs-contenedor {
+        margin-left: -0.75rem;
+        margin-right: -0.75rem;
+        padding: 0;
+        overflow: hidden;
+    }
+
     .nav-tabs {
-        overflow-x: auto;
+        display: flex;
         flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid #dee2e6;
+        width: 100%;
 
         .nav-item {
-            flex-shrink: 0;
+            flex: 1 1 0;
+            min-width: 0;
+            text-align: center;
         }
 
         .nav-link {
-            font-size: 0.82rem;
-            padding: 0.5rem 0.75rem;
+            flex-direction: column;
+            gap: 0.15rem;
+            padding: 0.5rem 0.15rem;
+            font-size: 0.65rem;
+            justify-content: center;
+            width: 100%;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            i {
+                font-size: 1.1rem;
+            }
         }
     }
 
-    .tema-opcion {
-        min-width: 60px;
+    // Cards más compactas
+    .card {
+        border-radius: 0.5rem;
+
+        .card-header {
+            padding: 0.65rem 0.85rem;
+
+            h5, h6 {
+                font-size: 0.88rem;
+            }
+        }
+
+        .card-body {
+            padding: 0.75rem 0.85rem;
+        }
+    }
+
+    // Datos de lectura
+    .dato-label {
+        font-size: 0.68rem;
+        margin-bottom: 1px;
+    }
+
+    .dato-valor {
+        font-size: 0.88rem;
+        word-break: break-word;
+    }
+
+    // Sección seguridad
+    .icono-estado {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
         padding: 0.4rem;
+    }
+
+    .min-width-0 {
+        min-width: 0;
+    }
+
+    .form-check-label {
+        font-size: 0.88rem;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+    }
+
+    .input-group {
+        .form-control {
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            font-size: 0.85rem;
+        }
+    }
+
+    // Sesiones y dispositivos
+    .sesion-icono,
+    .dispositivo-icono {
+        width: 36px;
+        min-width: 36px;
+
+        i {
+            font-size: 1.25rem;
+        }
+    }
+
+    .dispositivo-icono-grande {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 10px;
+
+        i {
+            font-size: 1.2rem;
+        }
+    }
+
+    // Icono estado seguridad
+    .icono-estado {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+    }
+
+    // Temas
+    .tema-opcion {
+        min-width: 56px;
+        padding: 0.35rem;
     }
 
     .tema-muestra {
         width: 28px;
         height: 28px;
+    }
+
+    // Tabla
+    .table {
+        font-size: 0.78rem;
+
+        th, td {
+            padding: 0.4rem 0.5rem;
+        }
+    }
+
+    // Lista de sesiones/dispositivos
+    .list-group-item {
+        padding: 0.65rem 0.75rem;
+
+        h6 {
+            font-size: 0.85rem;
+        }
+
+        small {
+            font-size: 0.75rem;
+        }
+    }
+
+    // Cabecera badges
+    .perfil-cabecera .badge {
+        font-size: 0.72rem;
+    }
+}
+
+// Pantallas muy pequeñas (< 400px)
+@media (max-width: 399.98px) {
+    .mi-perfil-container {
+        padding: 0.5rem;
+    }
+
+    .perfil-tabs-contenedor {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+
+    .perfil-avatar-grande {
+        width: 58px;
+        height: 58px;
+        min-width: 58px;
+    }
+
+    .avatar-iniciales {
+        font-size: 1.3rem;
+    }
+
+    .nav-tabs .nav-link {
+        font-size: 0.6rem;
+        padding: 0.4rem 0.1rem;
+
+        i {
+            font-size: 0.95rem;
+        }
+    }
+
+    .card {
+        .card-header {
+            padding: 0.5rem 0.7rem;
+        }
+
+        .card-body {
+            padding: 0.6rem 0.7rem;
+        }
+    }
+
+    .dato-label {
+        font-size: 0.65rem;
+    }
+
+    .dato-valor {
+        font-size: 0.82rem;
     }
 }

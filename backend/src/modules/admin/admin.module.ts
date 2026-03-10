@@ -5,7 +5,7 @@ import { InicioSesionAdministrativoModule } from './auth/inicio-sesion-administr
 import { UsuariosModule } from './usuarios';
 import { RolesModule } from './roles';
 import { PermisosModule } from './permisos';
-import { GeneralModule } from './general';
+import { ParametrosAdminModule } from './parametrosforadmin';
 import { EmpresasModule } from './empresas/empresas.module';
 import { TiendasModule } from './tiendas/tiendas.module';
 import { MetodosPagoModule } from './metodosPago/metodos-pago.module';
@@ -23,7 +23,7 @@ import { MarcasAdminModule } from './marcas/marcas-admin.module';
         UsuariosModule,
         RolesModule,
         PermisosModule,
-        GeneralModule,
+        ParametrosAdminModule,
         EmpresasModule,
         TiendasModule,
         MetodosPagoModule,

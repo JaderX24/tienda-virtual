@@ -14,12 +14,12 @@ import {
     ApiQuery,
 } from '@nestjs/swagger';
 import { DashboardColaboradorService } from './dashboard-colaborador.service';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 
 @ApiTags('Colaboradores - Dashboard')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 @Controller('colaborador/dashboard')
 export class DashboardColaboradorController {
     constructor(

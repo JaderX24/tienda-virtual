@@ -2,6 +2,8 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { IdiomaService } from '../../../../core/services/idioma.service';
 import {
     InventarioService,
     ProductoStock,
@@ -11,12 +13,13 @@ import {
 @Component({
     selector: 'app-stock-general',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './stock-general.component.html',
     styleUrl: './stock-general.component.scss',
 })
 export class StockGeneralComponent implements OnInit, OnDestroy {
     private inventarioService = inject(InventarioService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     productos = signal<ProductoStock[]>([]);
@@ -96,9 +99,9 @@ export class StockGeneralComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaEstado(estado: string): string {
         const mapa: Record<string, string> = {
-            disponible: 'Disponible',
-            bajo: 'Stock Bajo',
-            agotado: 'Agotado',
+            disponible: this.idiomaService.t('etiqueta.disponible'),
+            bajo: this.idiomaService.t('productos.stockBajo'),
+            agotado: this.idiomaService.t('productos.agotado'),
         };
         return mapa[estado] || estado;
     }

@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
 import {
     TransferenciaService,
     Transferencia,
@@ -10,17 +11,19 @@ import {
     DatosTransferencia,
 } from './services/transferencia.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { IdiomaService } from '../../../core/services/idioma.service';
 
 @Component({
     selector: 'app-transferencias',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './transferencias.component.html',
     styleUrl: './transferencias.component.scss',
 })
 export class TransferenciasComponent implements OnInit, OnDestroy {
     private transferenciaService = inject(TransferenciaService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     transferencias = signal<Transferencia[]>([]);
@@ -193,35 +196,35 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
 
     registrarTransferencia(): void {
         if (!this.formulario.productoId) {
-            this.toastService.warning('Seleccione un producto', 'Campo requerido');
+            this.toastService.warning(this.idiomaService.t('toast.seleccioneProducto'), this.idiomaService.t('toast.campoRequerido'));
             return;
         }
 
         if (!this.formulario.almacenOrigenId) {
-            this.toastService.warning('Seleccione el almacén de origen', 'Campo requerido');
+            this.toastService.warning(this.idiomaService.t('toast.seleccioneOrigen'), this.idiomaService.t('toast.campoRequerido'));
             return;
         }
 
         if (!this.formulario.almacenDestinoId) {
-            this.toastService.warning('Seleccione el almacén de destino', 'Campo requerido');
+            this.toastService.warning(this.idiomaService.t('toast.seleccioneDestino'), this.idiomaService.t('toast.campoRequerido'));
             return;
         }
 
         if (this.formulario.almacenOrigenId === this.formulario.almacenDestinoId) {
-            this.toastService.warning('El almacén de origen y destino no pueden ser el mismo', 'Almacenes iguales');
+            this.toastService.warning(this.idiomaService.t('toast.almacenesIgualesMsg'), this.idiomaService.t('toast.almacenesIguales'));
             return;
         }
 
         if (!this.formulario.motivo || this.formulario.motivo.trim().length < 3) {
-            this.toastService.warning('Ingrese un motivo válido (mínimo 3 caracteres)', 'Campo requerido');
+            this.toastService.warning(this.idiomaService.t('toast.motivoInvalido'), this.idiomaService.t('toast.campoRequerido'));
             return;
         }
 
         const productoSel = this.productoSeleccionado();
         if (productoSel && this.formulario.cantidad > productoSel.stock) {
             this.toastService.warning(
-                `Stock insuficiente. Disponible: ${productoSel.stock}, Solicitado: ${this.formulario.cantidad}`,
-                'Stock insuficiente',
+                this.idiomaService.t('toast.stockInsufMsg').replace('{disponible}', String(productoSel.stock)).replace('{solicitado}', String(this.formulario.cantidad)),
+                this.idiomaService.t('toast.stockInsuficiente'),
             );
             return;
         }
@@ -238,7 +241,7 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     if (resp.exito) {
-                        this.toastService.success(resp.mensaje, 'Transferencia creada');
+                        this.toastService.success(resp.mensaje, this.idiomaService.t('toast.transferenciaCreada'));
                         this.cerrarFormulario();
                         this.cargarTransferencias();
                     } else {
@@ -247,7 +250,7 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
                 },
                 error: (err) => {
                     this.toastService.error(
-                        err.error?.message || 'Error al crear la transferencia',
+                        err.error?.message || this.idiomaService.t('toast.errorCrearTransferencia'),
                     );
                 },
             });
@@ -290,7 +293,7 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
         .subscribe({
             next: (resp) => {
                 if (resp.exito) {
-                    this.toastService.success(resp.mensaje, 'Estado actualizado');
+                    this.toastService.success(resp.mensaje, this.idiomaService.t('toast.estadoActualizado'));
                     this.cerrarModalEstado();
                     this.cerrarDetalle();
                     this.cargarTransferencias(this.paginaActual());
@@ -300,7 +303,7 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
             },
             error: (err) => {
                 this.toastService.error(
-                    err.error?.message || 'Error al actualizar el estado',
+                    err.error?.message || this.idiomaService.t('toast.errorActualizarEstado'),
                 );
             },
         });
@@ -329,10 +332,10 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaEstado(estado: string): string {
         const etiquetas: Record<string, string> = {
-            pendiente: 'Pendiente',
-            en_transito: 'En Tránsito',
-            completada: 'Completada',
-            cancelada: 'Cancelada',
+            pendiente: this.idiomaService.t('comun.pendiente'),
+            en_transito: this.idiomaService.t('etiqueta.enTransito'),
+            completada: this.idiomaService.t('comun.completada'),
+            cancelada: this.idiomaService.t('comun.cancelada'),
         };
         return etiquetas[estado] || estado;
     }

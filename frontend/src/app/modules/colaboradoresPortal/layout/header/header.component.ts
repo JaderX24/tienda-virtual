@@ -4,11 +4,13 @@ import { RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthColaboradorService } from '../../auth/services/auth-colaborador.service';
 import { NotificacionesService, Notificacion } from '../../notificaciones/services/notificaciones.service';
+import { IdiomaService } from '../../../../core/services/idioma.service';
+import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
 
 @Component({
     selector: 'app-header-colab',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, TraducirPipe],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss'
 })
@@ -16,6 +18,7 @@ export class HeaderColabComponent implements OnInit, OnDestroy {
     private authService = inject(AuthColaboradorService);
     private elementRef = inject(ElementRef);
     private notificacionesService = inject(NotificacionesService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     @Input() sidebarColapsado = false;
@@ -124,23 +127,24 @@ export class HeaderColabComponent implements OnInit, OnDestroy {
         const horas = Math.floor(diferencia / 3600000);
         const dias = Math.floor(diferencia / 86400000);
 
-        if (minutos < 1) return 'Ahora mismo';
-        if (minutos < 60) return `Hace ${minutos} min`;
-        if (horas < 24) return `Hace ${horas} h`;
-        return `Hace ${dias} d`;
+        if (minutos < 1) return this.idiomaService.t('tiempo.ahoraMismo');
+        if (minutos < 60) return this.idiomaService.t('tiempo.haceMin').replace('{n}', String(minutos));
+        if (horas < 24) return this.idiomaService.t('tiempo.haceHoras').replace('{n}', String(horas));
+        return this.idiomaService.t('tiempo.haceDias').replace('{n}', String(dias));
     }
 
     get rolUsuario(): string {
         const codigo = this.usuario()?.rol?.codigo || '';
-        const mapeo: Record<string, string> = {
-            'jefe_bodega': 'Jefe de Bodega',
-            'supervisor': 'Supervisor',
-            'inventarista': 'Inventarista',
-            'recepcionista': 'Recepcionista',
-            'despachador': 'Despachador',
-            'auxiliar': 'Auxiliar',
-            'consulta': 'Solo Consulta',
+        const mapeoClaves: Record<string, string> = {
+            'jefe_bodega': 'rol.jefeBodega',
+            'supervisor': 'rol.supervisor',
+            'inventarista': 'rol.inventarista',
+            'recepcionista': 'rol.recepcionista',
+            'despachador': 'rol.despachador',
+            'auxiliar': 'rol.auxiliar',
+            'consulta': 'rol.consulta',
         };
-        return mapeo[codigo] || this.usuario()?.rol?.nombre || 'Colaborador';
+        const clave = mapeoClaves[codigo];
+        return clave ? this.idiomaService.t(clave) : this.usuario()?.rol?.nombre || this.idiomaService.t('rol.colaborador');
     }
 }

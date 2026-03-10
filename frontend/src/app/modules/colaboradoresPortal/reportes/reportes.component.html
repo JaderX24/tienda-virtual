@@ -3,9 +3,9 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="bi bi-bar-chart-line me-2"></i>Reportes
+                <i class="bi bi-bar-chart-line me-2"></i>{{ 'reportes.titulo' | traducir }}
             </h4>
-            <p class="text-muted mb-0">Consulta y análisis de inventario</p>
+            <p class="text-muted mb-0">{{ 'reportes.descripcion' | traducir }}</p>
         </div>
     </div>
 
@@ -14,21 +14,21 @@
         <div class="card-body py-3">
             <div class="row g-3 align-items-end">
                 <div class="col-md-3 col-sm-6">
-                    <label class="form-label small fw-semibold">Fecha desde</label>
+                    <label class="form-label small fw-semibold">{{ 'comun.fechaDesde' | traducir }}</label>
                     <input type="date" class="form-control form-control-sm"
                            [(ngModel)]="fechaDesde">
                 </div>
                 <div class="col-md-3 col-sm-6">
-                    <label class="form-label small fw-semibold">Fecha hasta</label>
+                    <label class="form-label small fw-semibold">{{ 'comun.fechaHasta' | traducir }}</label>
                     <input type="date" class="form-control form-control-sm"
                            [(ngModel)]="fechaHasta">
                 </div>
                 <div class="col-md-3 col-sm-6 d-flex gap-2">
                     <button class="btn btn-primary btn-sm" (click)="aplicarFiltros()">
-                        <i class="bi bi-funnel me-1"></i>Filtrar
+                        <i class="bi bi-funnel me-1"></i>{{ 'comun.filtrar' | traducir }}
                     </button>
                     <button class="btn btn-outline-secondary btn-sm" (click)="limpiarFiltros()">
-                        <i class="bi bi-x-circle me-1"></i>Limpiar
+                        <i class="bi bi-x-circle me-1"></i>{{ 'comun.limpiar' | traducir }}
                     </button>
                 </div>
             </div>
@@ -40,25 +40,25 @@
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'resumen'"
                     (click)="cambiarTab('resumen')">
-                <i class="bi bi-speedometer2 me-1"></i>Resumen
+                <i class="bi bi-speedometer2 me-1"></i>{{ 'reportes.resumen' | traducir }}
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'movimientos'"
                     (click)="cambiarTab('movimientos')">
-                <i class="bi bi-arrow-left-right me-1"></i>Movimientos
+                <i class="bi bi-arrow-left-right me-1"></i>{{ 'reportes.movimientos' | traducir }}
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'stock-critico'"
                     (click)="cambiarTab('stock-critico')">
-                <i class="bi bi-exclamation-triangle me-1"></i>Stock Crítico
+                <i class="bi bi-exclamation-triangle me-1"></i>{{ 'reportes.stockCritico' | traducir }}
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActiva() === 'mi-actividad'"
                     (click)="cambiarTab('mi-actividad')">
-                <i class="bi bi-person-lines-fill me-1"></i>Mi Actividad
+                <i class="bi bi-person-lines-fill me-1"></i>{{ 'reportes.miActividad' | traducir }}
             </button>
         </li>
     </ul>
@@ -67,9 +67,9 @@
     @if (cargando()) {
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
             </div>
-            <p class="text-muted mt-2">Generando reporte...</p>
+            <p class="text-muted mt-2">{{ 'comun.generandoReporte' | traducir }}</p>
         </div>
     }
 
@@ -82,9 +82,9 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Total Productos</p>
+                                <p class="text-muted small mb-1">{{ 'reportes.totalProductos' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">{{ resumen().totalProductos }}</h3>
-                                <small class="text-success">{{ resumen().productosActivos }} activos</small>
+                                <small class="text-success">{{ resumen().productosActivos }} {{ 'productos.activos' | traducir | lowercase }}</small>
                             </div>
                             <div class="bg-primary bg-opacity-10 rounded-3 p-3">
                                 <i class="bi bi-box-seam text-primary fs-4"></i>
@@ -98,9 +98,9 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Valor del Inventario</p>
+                                <p class="text-muted small mb-1">{{ 'reportes.valorInventario' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">{{ formatearMoneda(resumen().valorInventario) }}</h3>
-                                <small class="text-muted">Precio x Stock</small>
+                                <small class="text-muted">{{ 'reportes.precioXStock' | traducir }}</small>
                             </div>
                             <div class="bg-success bg-opacity-10 rounded-3 p-3">
                                 <i class="bi bi-currency-dollar text-success fs-4"></i>
@@ -114,13 +114,13 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Entradas / Salidas</p>
+                                <p class="text-muted small mb-1">{{ 'reportes.entradasSalidas' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">
                                     <span class="text-success">{{ resumen().totalEntradas }}</span>
                                     <span class="text-muted mx-1">/</span>
                                     <span class="text-danger">{{ resumen().totalSalidas }}</span>
                                 </h3>
-                                <small class="text-muted">En el período</small>
+                                <small class="text-muted">{{ 'reportes.enElPeriodo' | traducir }}</small>
                             </div>
                             <div class="bg-info bg-opacity-10 rounded-3 p-3">
                                 <i class="bi bi-arrow-left-right text-info fs-4"></i>
@@ -134,15 +134,15 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="text-muted small mb-1">Alertas de Stock</p>
+                                <p class="text-muted small mb-1">{{ 'reportes.alertasStock' | traducir }}</p>
                                 <h3 class="fw-bold mb-0">
                                     <span class="text-danger">{{ resumen().agotados }}</span>
                                     <span class="text-muted mx-1">+</span>
                                     <span class="text-warning">{{ resumen().stockBajo }}</span>
                                 </h3>
                                 <small>
-                                    <span class="text-danger">Agotados</span> +
-                                    <span class="text-warning">Bajo</span>
+                                    <span class="text-danger">{{ 'reportes.agotado' | traducir }}</span> +
+                                    <span class="text-warning">{{ 'reportes.bajo' | traducir }}</span>
                                 </small>
                             </div>
                             <div class="bg-danger bg-opacity-10 rounded-3 p-3">
@@ -160,7 +160,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom-0 pt-3">
                         <h6 class="fw-semibold mb-0">
-                            <i class="bi bi-trophy me-2 text-warning"></i>Productos Más Movidos
+                            <i class="bi bi-trophy me-2 text-warning"></i>{{ 'reportes.productosMasMovidos' | traducir }}
                         </h6>
                     </div>
                     <div class="card-body p-0">
@@ -170,10 +170,10 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th class="ps-3">#</th>
-                                            <th>Producto</th>
-                                            <th>SKU</th>
-                                            <th class="text-center">Movimientos</th>
-                                            <th class="text-center">Unidades</th>
+                                            <th>{{ 'comun.producto' | traducir }}</th>
+                                            <th>{{ 'comun.sku' | traducir }}</th>
+                                            <th class="text-center">{{ 'reportes.movimientos' | traducir }}</th>
+                                            <th class="text-center">{{ 'comun.cantidad' | traducir }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -197,7 +197,7 @@
                         } @else {
                             <div class="text-center py-4 text-muted">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                Sin movimientos en el período
+                                {{ 'reportes.sinMovPeriodo' | traducir }}
                             </div>
                         }
                     </div>
@@ -209,7 +209,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom-0 pt-3">
                         <h6 class="fw-semibold mb-0">
-                            <i class="bi bi-tags me-2 text-primary"></i>Movimientos por Categoría
+                            <i class="bi bi-tags me-2 text-primary"></i>{{ 'reportes.movPorCategoria' | traducir }}
                         </h6>
                     </div>
                     <div class="card-body">
@@ -218,7 +218,7 @@
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span class="small fw-medium">{{ cat.categoria }}</span>
-                                        <span class="small text-muted">{{ cat.totalMovimientos }} mov.</span>
+                                        <span class="small text-muted">{{ cat.totalMovimientos }} {{ 'comun.mov' | traducir }}</span>
                                     </div>
                                     <div class="d-flex gap-1">
                                         <div class="progress flex-grow-1" style="height: 8px;">
@@ -233,15 +233,15 @@
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-between">
-                                        <small class="text-success">{{ cat.unidadesEntrada }} ent.</small>
-                                        <small class="text-danger">{{ cat.unidadesSalida }} sal.</small>
+                                        <small class="text-success">{{ cat.unidadesEntrada }} {{ 'comun.ent' | traducir }}</small>
+                                        <small class="text-danger">{{ cat.unidadesSalida }} {{ 'comun.sal' | traducir }}</small>
                                     </div>
                                 </div>
                             }
                         } @else {
                             <div class="text-center py-4 text-muted">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                Sin datos de categorías
+                                {{ 'reportes.sinDatosCategorias' | traducir }}
                             </div>
                         }
                     </div>
@@ -257,34 +257,34 @@
             <div class="card-body py-3">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Buscar producto</label>
+                        <label class="form-label small fw-semibold">{{ 'reportes.buscarProducto' | traducir }}</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
                             <input type="text" class="form-control"
-                                   placeholder="Nombre o SKU del producto..."
+                                   [placeholder]="'reportes.placeholderBuscar' | traducir"
                                    [(ngModel)]="busqueda"
                                    (keyup.enter)="cargarMovimientos(1)">
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small fw-semibold">Tipo de operación</label>
+                        <label class="form-label small fw-semibold">{{ 'reportes.tipoOperacion' | traducir }}</label>
                         <select class="form-select form-select-sm" [(ngModel)]="tipoOperacionFiltro">
-                            <option value="">Todos</option>
-                            <option value="entrada">Entrada</option>
-                            <option value="salida">Salida</option>
-                            <option value="recepcion">Recepción</option>
-                            <option value="despacho">Despacho</option>
-                            <option value="ajuste_positivo">Ajuste (+)</option>
-                            <option value="ajuste_negativo">Ajuste (-)</option>
-                            <option value="transferencia">Transferencia</option>
+                            <option value="">{{ 'comun.todos' | traducir }}</option>
+                            <option value="entrada">{{ 'reportes.entrada' | traducir }}</option>
+                            <option value="salida">{{ 'reportes.salida' | traducir }}</option>
+                            <option value="recepcion">{{ 'reportes.recepcion' | traducir }}</option>
+                            <option value="despacho">{{ 'reportes.despacho' | traducir }}</option>
+                            <option value="ajuste_positivo">{{ 'reportes.ajusteMas' | traducir }}</option>
+                            <option value="ajuste_negativo">{{ 'reportes.ajusteMenos' | traducir }}</option>
+                            <option value="transferencia">{{ 'reportes.transferencia' | traducir }}</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <button class="btn btn-primary btn-sm" (click)="cargarMovimientos(1)">
-                            <i class="bi bi-search me-1"></i>Buscar
+                            <i class="bi bi-search me-1"></i>{{ 'comun.buscar' | traducir }}
                         </button>
                         <button class="btn btn-outline-success btn-sm" (click)="exportarMovimientos()">
-                            <i class="bi bi-download me-1"></i>Exportar CSV
+                            <i class="bi bi-download me-1"></i>{{ 'comun.exportarCsv' | traducir }}
                         </button>
                     </div>
                 </div>
@@ -294,8 +294,8 @@
         <!-- Tabla de movimientos -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Movimientos de Inventario</h6>
-                <span class="badge bg-secondary">{{ totalMovimientos() }} registros</span>
+                <h6 class="mb-0 fw-semibold">{{ 'reportes.movInventario' | traducir }}</h6>
+                <span class="badge bg-secondary">{{ totalMovimientos() }} {{ 'reportes.registros' | traducir }}</span>
             </div>
             <div class="card-body p-0">
                 @if (movimientos().length > 0) {
@@ -303,16 +303,16 @@
                         <table class="table table-hover table-striped mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-3">Fecha</th>
-                                    <th>Tipo</th>
-                                    <th>Producto</th>
-                                    <th>SKU</th>
-                                    <th class="text-center">Cantidad</th>
-                                    <th class="text-center">Anterior</th>
-                                    <th class="text-center">Nuevo</th>
-                                    <th>Almacén</th>
-                                    <th>Colaborador</th>
-                                    <th>Motivo</th>
+                                    <th class="ps-3">{{ 'comun.fecha' | traducir }}</th>
+                                    <th>{{ 'comun.tipo' | traducir }}</th>
+                                    <th>{{ 'comun.producto' | traducir }}</th>
+                                    <th>{{ 'comun.sku' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.cantidad' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.anterior' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.nuevo' | traducir }}</th>
+                                    <th>{{ 'comun.almacen' | traducir }}</th>
+                                    <th>{{ 'comun.colaborador' | traducir }}</th>
+                                    <th>{{ 'comun.motivo' | traducir }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -345,8 +345,8 @@
                     @if (totalPaginasMovimientos() > 1) {
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                Página {{ paginaMovimientos() }} de {{ totalPaginasMovimientos() }}
-                                ({{ totalMovimientos() }} registros)
+                                {{ 'reportes.pagina' | traducir }} {{ paginaMovimientos() }} {{ 'productos.de' | traducir }} {{ totalPaginasMovimientos() }}
+                                ({{ totalMovimientos() }} {{ 'reportes.registros' | traducir }})
                             </small>
                             <nav>
                                 <ul class="pagination pagination-sm mb-0">
@@ -367,7 +367,7 @@
                 } @else {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        <p>No se encontraron movimientos con los filtros seleccionados</p>
+                        <p>{{ 'reportes.noMovFiltros' | traducir }}</p>
                     </div>
                 }
             </div>
@@ -386,7 +386,7 @@
                                 <i class="bi bi-x-circle text-danger fs-4"></i>
                             </div>
                             <div>
-                                <p class="text-muted small mb-0">Agotados</p>
+                                <p class="text-muted small mb-0">{{ 'reportes.agotado' | traducir }}</p>
                                 <h4 class="fw-bold mb-0 text-danger">{{ resumenCritico().totalAgotados }}</h4>
                             </div>
                         </div>
@@ -401,7 +401,7 @@
                                 <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
                             </div>
                             <div>
-                                <p class="text-muted small mb-0">Stock Bajo</p>
+                                <p class="text-muted small mb-0">{{ 'productos.stockBajo' | traducir }}</p>
                                 <h4 class="fw-bold mb-0 text-warning">{{ resumenCritico().totalStockBajo }}</h4>
                             </div>
                         </div>
@@ -416,7 +416,7 @@
                                 <i class="bi bi-list-check text-secondary fs-4"></i>
                             </div>
                             <div>
-                                <p class="text-muted small mb-0">Total Críticos</p>
+                                <p class="text-muted small mb-0">{{ 'reportes.totalCriticos' | traducir }}</p>
                                 <h4 class="fw-bold mb-0">{{ totalCriticos() }}</h4>
                             </div>
                         </div>
@@ -429,12 +429,12 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <div class="input-group input-group-sm" style="max-width: 320px;">
                 <span class="input-group-text"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control" placeholder="Buscar producto..."
+                <input type="text" class="form-control" [placeholder]="'reportes.buscarProducto' | traducir"
                        [(ngModel)]="busquedaCritico"
                        (keyup.enter)="cargarStockCritico(1)">
             </div>
             <button class="btn btn-outline-success btn-sm" (click)="exportarStockCritico()">
-                <i class="bi bi-download me-1"></i>Exportar CSV
+                <i class="bi bi-download me-1"></i>{{ 'comun.exportarCsv' | traducir }}
             </button>
         </div>
 
@@ -446,14 +446,14 @@
                         <table class="table table-hover table-striped mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-3">Producto</th>
-                                    <th>SKU</th>
-                                    <th>Categoría</th>
-                                    <th class="text-center">Stock</th>
-                                    <th class="text-center">Mínimo</th>
-                                    <th class="text-center">Diferencia</th>
-                                    <th class="text-end">Precio</th>
-                                    <th class="text-center">Estado</th>
+                                    <th class="ps-3">{{ 'comun.producto' | traducir }}</th>
+                                    <th>{{ 'comun.sku' | traducir }}</th>
+                                    <th>{{ 'productos.categoria' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.stock' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.minimo' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.diferencia' | traducir }}</th>
+                                    <th class="text-end">{{ 'comun.precio' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.estado' | traducir }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -487,7 +487,7 @@
                                         <td class="text-end">{{ formatearMoneda(prod.precio) }}</td>
                                         <td class="text-center">
                                             <span [class]="obtenerClaseEstadoStock(prod.estado)">
-                                                {{ prod.estado === 'agotado' ? 'Agotado' : 'Bajo' }}
+                                                {{ prod.estado === 'agotado' ? ('reportes.agotado' | traducir) : ('reportes.bajo' | traducir) }}
                                             </span>
                                         </td>
                                     </tr>
@@ -499,7 +499,7 @@
                     @if (totalPaginasCriticos() > 1) {
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                Página {{ paginaCriticos() }} de {{ totalPaginasCriticos() }}
+                                {{ 'reportes.pagina' | traducir }} {{ paginaCriticos() }} {{ 'productos.de' | traducir }} {{ totalPaginasCriticos() }}
                             </small>
                             <nav>
                                 <ul class="pagination pagination-sm mb-0">
@@ -520,7 +520,7 @@
                 } @else {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
-                        <p>No hay productos con stock crítico</p>
+                        <p>{{ 'reportes.sinStockCritico' | traducir }}</p>
                     </div>
                 }
             </div>
@@ -536,7 +536,7 @@
                     <div class="card-body py-3">
                         <i class="bi bi-activity text-primary fs-3 d-block mb-1"></i>
                         <h4 class="fw-bold mb-0">{{ resumenActividad().totalOperaciones }}</h4>
-                        <small class="text-muted">Total Operaciones</small>
+                        <small class="text-muted">{{ 'reportes.totalOperaciones' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -545,7 +545,7 @@
                     <div class="card-body py-3">
                         <i class="bi bi-box-arrow-in-down text-success fs-3 d-block mb-1"></i>
                         <h4 class="fw-bold mb-0 text-success">{{ resumenActividad().entradas }}</h4>
-                        <small class="text-muted">Entradas</small>
+                        <small class="text-muted">{{ 'reportes.entrada' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -554,7 +554,7 @@
                     <div class="card-body py-3">
                         <i class="bi bi-box-arrow-up text-danger fs-3 d-block mb-1"></i>
                         <h4 class="fw-bold mb-0 text-danger">{{ resumenActividad().salidas }}</h4>
-                        <small class="text-muted">Salidas</small>
+                        <small class="text-muted">{{ 'reportes.salida' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -563,7 +563,7 @@
                     <div class="card-body py-3">
                         <i class="bi bi-wrench text-info fs-3 d-block mb-1"></i>
                         <h4 class="fw-bold mb-0 text-info">{{ resumenActividad().ajustes }}</h4>
-                        <small class="text-muted">Ajustes</small>
+                        <small class="text-muted">{{ 'reportes.ajusteMas' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -572,7 +572,7 @@
                     <div class="card-body py-3">
                         <i class="bi bi-clipboard-check text-warning fs-3 d-block mb-1"></i>
                         <h4 class="fw-bold mb-0 text-warning">{{ resumenActividad().conteosRealizados }}</h4>
-                        <small class="text-muted">Conteos</small>
+                        <small class="text-muted">{{ 'conteos.titulo' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -581,8 +581,8 @@
         <!-- Historial de operaciones personales -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0 fw-semibold">Historial de Operaciones</h6>
-                <span class="badge bg-secondary">{{ totalActividad() }} registros</span>
+                <h6 class="mb-0 fw-semibold">{{ 'reportes.histOperaciones' | traducir }}</h6>
+                <span class="badge bg-secondary">{{ totalActividad() }} {{ 'reportes.registros' | traducir }}</span>
             </div>
             <div class="card-body p-0">
                 @if (operacionesPersonales().length > 0) {
@@ -590,15 +590,15 @@
                         <table class="table table-hover table-striped mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-3">Fecha</th>
-                                    <th>Tipo</th>
-                                    <th>Producto</th>
-                                    <th>SKU</th>
-                                    <th class="text-center">Cantidad</th>
-                                    <th class="text-center">Anterior</th>
-                                    <th class="text-center">Nuevo</th>
-                                    <th>Almacén</th>
-                                    <th>Motivo</th>
+                                    <th class="ps-3">{{ 'comun.fecha' | traducir }}</th>
+                                    <th>{{ 'comun.tipo' | traducir }}</th>
+                                    <th>{{ 'comun.producto' | traducir }}</th>
+                                    <th>{{ 'comun.sku' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.cantidad' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.anterior' | traducir }}</th>
+                                    <th class="text-center">{{ 'comun.nuevo' | traducir }}</th>
+                                    <th>{{ 'comun.almacen' | traducir }}</th>
+                                    <th>{{ 'comun.motivo' | traducir }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -629,7 +629,7 @@
                     @if (totalPaginasActividad() > 1) {
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                Página {{ paginaActividad() }} de {{ totalPaginasActividad() }}
+                                {{ 'reportes.pagina' | traducir }} {{ paginaActividad() }} {{ 'productos.de' | traducir }} {{ totalPaginasActividad() }}
                             </small>
                             <nav>
                                 <ul class="pagination pagination-sm mb-0">
@@ -650,7 +650,7 @@
                 } @else {
                     <div class="text-center py-5 text-muted">
                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        <p>No tienes operaciones registradas en el período</p>
+                        <p>{{ 'reportes.noOpPeriodo' | traducir }}</p>
                     </div>
                 }
             </div>

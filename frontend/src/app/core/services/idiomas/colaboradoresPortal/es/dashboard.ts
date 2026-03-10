@@ -1,0 +1,16 @@
+export const dashboard: Record<string, string> = {
+    'dashboard.buenosDias': 'Buenos días',
+    'dashboard.buenasTardes': 'Buenas tardes',
+    'dashboard.buenasNoches': 'Buenas noches',
+    'dashboard.miTurno': 'Mi Turno',
+    'dashboard.inventario': 'Inventario',
+    'dashboard.vsAyer': 'vs ayer',
+    'dashboard.actividadReciente': 'Actividad Reciente',
+    'dashboard.verTodo': 'Ver todo',
+    'dashboard.sinActividad': 'Sin actividad reciente',
+    'dashboard.tareasDia': 'Tareas del Día',
+    'dashboard.progreso': 'Progreso',
+    'dashboard.sinTareas': 'Sin tareas programadas para hoy',
+    'dashboard.accesosRapidos': 'Accesos Rápidos',
+    'dashboard.buscarProducto': 'Buscar Producto',
+};

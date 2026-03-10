@@ -17,14 +17,14 @@ import {
     CambiarContrasenaDto,
     CambiarEstadoDto 
 } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida, UsuarioActual } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Usuarios')
 @Controller('admin/usuarios')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class UsuariosController {
     constructor(private readonly usuariosService: UsuariosService) {}
 

@@ -16,7 +16,7 @@ import {
 } from './dto';
 import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
 import { generarContrasenaSegura } from '../../../common/utils';
-import { CorreoService } from '../../../common/services';
+import { CorreoAdminService, ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../common/services';
 
 @Injectable()
 export class UsuariosService {
@@ -25,7 +25,8 @@ export class UsuariosService {
     constructor(
         private prisma: PrismaService,
         private configService: ConfigService,
-        private correoService: CorreoService,
+        private correoService: CorreoAdminService,
+        private parametrosSeguridad: ParametrosSeguridadService,
     ) {}
 
     async crear(crearUsuarioDto: CrearUsuarioDto) {
@@ -51,8 +52,9 @@ export class UsuariosService {
             nombreRol = rolExiste.nombre;
         }
 
-        const contrasenaGenerada = generarContrasenaSegura(16);
-        const bcryptRounds = this.configService.get<number>('seguridad.bcryptRounds') || 12;
+        const longitudContrasena = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.LONGITUD_CONTRASENA_GENERACION);
+        const contrasenaGenerada = generarContrasenaSegura(longitudContrasena);
+        const bcryptRounds = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.BCRYPT_SALT_ROUNDS);
         const contrasenaHash = await bcrypt.hash(contrasenaGenerada, bcryptRounds);
 
         const usuario = await this.prisma.usuario.create({
@@ -73,7 +75,7 @@ export class UsuariosService {
         this.logger.log(`Usuario creado: ${usuario.correo}`);
 
         const urlFrontend = this.configService.get<string>('app.urlFrontend') || 'http://localhost:4200';
-        const correoEnviado = await this.correoService.enviarCorreoBienvenidaUsuario({
+        const correoEnviado = await this.correoService.enviarBienvenidaUsuario({
             nombre: usuario.nombre,
             correo: usuario.correo,
             contrasena: contrasenaGenerada,
@@ -189,7 +191,7 @@ export class UsuariosService {
             throw new NotFoundException(MENSAJES_ERROR.USUARIO_NO_ENCONTRADO);
         }
 
-        const bcryptRounds = this.configService.get<number>('seguridad.bcryptRounds') || 12;
+        const bcryptRounds = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.BCRYPT_SALT_ROUNDS);
         const contrasenaHash = await bcrypt.hash(cambiarContrasenaDto.nuevaContrasena, bcryptRounds);
 
         await this.prisma.usuario.update({

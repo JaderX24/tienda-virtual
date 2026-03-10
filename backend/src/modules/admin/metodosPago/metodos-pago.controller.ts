@@ -18,14 +18,14 @@ import {
     CambiarVisibilidadPasarelaDto,
     ActualizarOrdenDto,
 } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Métodos de Pago')
 @Controller('admin/metodos-pago')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class MetodosPagoController {
     constructor(private readonly metodosPagoService: MetodosPagoService) {}
 

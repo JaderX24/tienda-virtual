@@ -8,7 +8,7 @@ import {
     Query,
     UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 import { ConteoService } from './conteo.service';
 import {
@@ -20,7 +20,7 @@ import {
 } from './dto';
 
 @Controller('colaborador/conteos')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 export class ConteoController {
     constructor(private readonly conteoService: ConteoService) {}
 

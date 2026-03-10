@@ -8,7 +8,7 @@ import {
     Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 import { InventarioService } from './inventario.service';
 import {
@@ -19,7 +19,7 @@ import {
 } from './dto';
 
 @Controller('colaborador/inventario')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 export class InventarioController {
     constructor(private readonly inventarioService: InventarioService) {}
 

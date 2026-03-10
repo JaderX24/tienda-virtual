@@ -8,13 +8,13 @@ import {
     Body,
     UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 import { NotificacionesColaboradorService } from './notificaciones.service';
 import { FiltrosNotificacionesDto, MarcarLeidasDto } from './dto';
 
 @Controller('colaborador/notificaciones')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 export class NotificacionesColaboradorController {
     constructor(private readonly notificacionesService: NotificacionesColaboradorService) {}
 

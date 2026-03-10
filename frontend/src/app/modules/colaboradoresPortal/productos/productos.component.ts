@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
 import {
     ProductoConsultaService,
     ProductoLista,
@@ -13,19 +14,21 @@ import {
     FiltrosProductos,
 } from './services/producto-consulta.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { IdiomaService } from '../../../core/services/idioma.service';
 
 type VistaActiva = 'lista' | 'detalle';
 
 @Component({
     selector: 'app-productos',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './productos.component.html',
     styleUrl: './productos.component.scss',
 })
 export class ProductosComponent implements OnInit, OnDestroy {
     private productoService = inject(ProductoConsultaService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     // Estado general
@@ -98,7 +101,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 this.cargarProductos();
             },
             error: () => {
-                this.toastService.error('Error al cargar datos iniciales');
+                this.toastService.error(this.idiomaService.t('toast.errorCargarDatos'));
                 this.cargarProductos();
             },
         });
@@ -134,7 +137,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar productos');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarProductos'));
                     this.cargando.set(false);
                 },
             });
@@ -192,7 +195,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                     this.cargandoDetalle.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar detalle del producto');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarDetalle'));
                     this.cargandoDetalle.set(false);
                     this.volverALista();
                 },
@@ -274,9 +277,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaEstadoStock(estado: string): string {
         const mapa: Record<string, string> = {
-            disponible: 'Disponible',
-            bajo: 'Stock Bajo',
-            agotado: 'Agotado',
+            disponible: this.idiomaService.t('etiqueta.disponible'),
+            bajo: this.idiomaService.t('productos.stockBajo'),
+            agotado: this.idiomaService.t('reportes.agotado'),
         };
         return mapa[estado] || estado;
     }

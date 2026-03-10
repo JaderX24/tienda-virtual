@@ -1,15 +1,10 @@
-// Variables - Tema verde/teal para diferenciar del admin (indigo/púrpura)
+// Variables - Sidebar del portal colaboradores (usa variables CSS de tema)
 $sidebar-width: 280px;
 $sidebar-collapsed-width: 70px;
-$sidebar-bg: #0f2b26;
-$sidebar-bg-dark: #071a17;
 $sidebar-text: #94b8b0;
 $sidebar-text-active: #ffffff;
 $sidebar-hover-bg: rgba(255, 255, 255, 0.05);
-$sidebar-active-bg: rgba(20, 184, 166, 0.2);
 $sidebar-border: rgba(255, 255, 255, 0.1);
-$sidebar-accent: #14b8a6;
-$sidebar-accent-light: #2dd4bf;
 $transition-speed: 0.3s;
 
 .sidebar {
@@ -18,7 +13,7 @@ $transition-speed: 0.3s;
     left: 0;
     height: 100vh;
     width: $sidebar-width;
-    background: linear-gradient(180deg, $sidebar-bg 0%, $sidebar-bg-dark 100%);
+    background: linear-gradient(180deg, var(--tema-sidebar-bg) 0%, var(--tema-sidebar-bg-oscuro) 100%);
     display: flex;
     flex-direction: column;
     z-index: 1040;
@@ -45,7 +40,7 @@ $transition-speed: 0.3s;
                 left: 100%;
                 top: 50%;
                 transform: translateY(-50%);
-                background: $sidebar-bg-dark;
+                background: var(--tema-sidebar-bg-oscuro);
                 color: $sidebar-text-active;
                 padding: 0.5rem 0.75rem;
                 border-radius: 6px;
@@ -122,7 +117,7 @@ $transition-speed: 0.3s;
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background: linear-gradient(135deg, $sidebar-accent 0%, #0d9488 100%);
+    background: linear-gradient(135deg, var(--tema-primario) 0%, var(--tema-primario-oscuro) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -184,11 +179,11 @@ $transition-speed: 0.3s;
 
     &.activo > .nav-link,
     &.activo > .nav-link.has-submenu {
-        background: $sidebar-active-bg;
+        background: var(--tema-sidebar-activo-bg);
         color: $sidebar-text-active;
-        border-left-color: $sidebar-accent;
+        border-left-color: var(--tema-primario);
 
-        .nav-icon { color: $sidebar-accent; }
+        .nav-icon { color: var(--tema-primario); }
     }
 }
 
@@ -206,11 +201,11 @@ $transition-speed: 0.3s;
     &:hover { background: $sidebar-hover-bg; color: $sidebar-text-active; }
 
     &.activo {
-        background: $sidebar-active-bg;
+        background: var(--tema-sidebar-activo-bg);
         color: $sidebar-text-active;
-        border-left-color: $sidebar-accent;
+        border-left-color: var(--tema-primario);
 
-        .nav-icon { color: $sidebar-accent; }
+        .nav-icon { color: var(--tema-primario); }
     }
 }
 
@@ -254,10 +249,10 @@ $transition-speed: 0.3s;
     margin: 2px 0;
 
     &.activo .nav-sublink {
-        color: $sidebar-accent-light;
-        background: rgba(20, 184, 166, 0.1);
+        color: var(--tema-primario-claro);
+        background: rgba(var(--tema-primario-rgb), 0.1);
 
-        .nav-subicon { color: $sidebar-accent-light; }
+        .nav-subicon { color: var(--tema-primario-claro); }
     }
 }
 

@@ -4,14 +4,14 @@ import {
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { InventarioAdminService } from './inventario-admin.service';
 import { FiltroMovimientosDto, RegistrarMovimientoDto, AjustarStockDto, FiltroEstadisticasDto } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida, UsuarioActual } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Inventario')
 @Controller('admin/inventario')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class InventarioAdminController {
     constructor(private readonly inventarioService: InventarioAdminService) {}
 

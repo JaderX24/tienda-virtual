@@ -11,6 +11,12 @@ import {
     UsuarioAdmin,
 } from '../../../../core/models';
 
+export interface Respuesta2FA {
+    exito: boolean;
+    mensaje: string;
+    codigo?: string;
+}
+
 const STORAGE_KEYS = {
     ACCESS_TOKEN: 'tv_colab_access_token',
     REFRESH_TOKEN: 'tv_colab_refresh_token',
@@ -70,12 +76,32 @@ export class AuthColaboradorService {
 
         return this.http.post<RespuestaLoginAdmin>(`${this.apiUrl}/login`, credenciales).pipe(
             tap((respuesta) => {
+                if (respuesta.exito && !respuesta.requiere2FA) {
+                    this.guardarSesion(respuesta);
+                }
+            }),
+            finalize(() => this.cargando.set(false)),
+        );
+    }
+
+    verificar2FA(token2FA: string, codigo: string): Observable<RespuestaLoginAdmin> {
+        this.cargando.set(true);
+
+        return this.http.post<RespuestaLoginAdmin>(`${this.apiUrl}/verificar-2fa`, {
+            token2FA,
+            codigo,
+        }).pipe(
+            tap((respuesta) => {
                 if (respuesta.exito) {
                     this.guardarSesion(respuesta);
                 }
             }),
             finalize(() => this.cargando.set(false)),
         );
+    }
+
+    reenviarCodigo2FA(token2FA: string): Observable<Respuesta2FA> {
+        return this.http.post<Respuesta2FA>(`${this.apiUrl}/reenviar-2fa`, { token2FA });
     }
 
     cerrarSesion(): Observable<{ exito: boolean; mensaje: string }> {

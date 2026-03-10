@@ -1,6 +1,8 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { IdiomaService } from '../../../core/services/idioma.service';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { AuthColaboradorService } from '../auth/services/auth-colaborador.service';
 import {
@@ -13,13 +15,14 @@ import {
 @Component({
     selector: 'app-dashboard-colaborador',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, TraducirPipe],
     templateUrl: './dashboard-colaborador.component.html',
     styleUrl: './dashboard-colaborador.component.scss'
 })
 export class DashboardColaboradorComponent implements OnInit, OnDestroy {
     private authService = inject(AuthColaboradorService);
     private dashboardService = inject(DashboardColaboradorService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     nombreUsuario = this.authService.nombreUsuario;
@@ -31,7 +34,8 @@ export class DashboardColaboradorComponent implements OnInit, OnDestroy {
     cargando = signal(true);
 
     get fechaFormateada(): string {
-        return this.fechaActual.toLocaleDateString('es-HN', {
+        const locale = this.idiomaService.idiomaActual() === 'en' ? 'en-US' : 'es-HN';
+        return this.fechaActual.toLocaleDateString(locale, {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -90,23 +94,24 @@ export class DashboardColaboradorComponent implements OnInit, OnDestroy {
 
     private establecerRol(): void {
         const codigo = this.authService.rol();
-        const mapeo: Record<string, string> = {
-            'jefe_bodega': 'Jefe de Bodega',
-            'supervisor': 'Supervisor',
-            'inventarista': 'Inventarista',
-            'recepcionista': 'Recepcionista',
-            'despachador': 'Despachador',
-            'auxiliar': 'Auxiliar',
-            'consulta': 'Solo Consulta',
+        const mapeoClaves: Record<string, string> = {
+            'jefe_bodega': 'rol.jefeBodega',
+            'supervisor': 'rol.supervisor',
+            'inventarista': 'rol.inventarista',
+            'recepcionista': 'rol.recepcionista',
+            'despachador': 'rol.despachador',
+            'auxiliar': 'rol.auxiliar',
+            'consulta': 'rol.consulta',
         };
-        this.rolUsuario.set(mapeo[codigo] || 'Colaborador');
+        const clave = mapeoClaves[codigo] || 'rol.colaborador';
+        this.rolUsuario.set(this.idiomaService.t(clave));
     }
 
     get saludo(): string {
         const hora = new Date().getHours();
-        if (hora < 12) return 'Buenos días';
-        if (hora < 18) return 'Buenas tardes';
-        return 'Buenas noches';
+        if (hora < 12) return this.idiomaService.t('dashboard.buenosDias');
+        if (hora < 18) return this.idiomaService.t('dashboard.buenasTardes');
+        return this.idiomaService.t('dashboard.buenasNoches');
     }
 
     get tareasCompletadas(): number {

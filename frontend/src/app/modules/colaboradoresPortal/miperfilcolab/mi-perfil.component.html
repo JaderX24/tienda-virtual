@@ -2,24 +2,57 @@
     @if (cargando() && !perfil()) {
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
             </div>
-            <p class="text-muted mt-2">Cargando perfil...</p>
+            <p class="text-muted mt-2">{{ 'comun.cargandoPerfil' | traducir }}</p>
         </div>
     } @else {
         @if (perfil(); as p) {
             <!-- Cabecera del perfil -->
-            <div class="perfil-cabecera mb-4">
+            <div class="perfil-cabecera mb-3 mb-md-4">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="d-flex flex-column align-items-center gap-2 gap-md-4 d-md-none">
                             <div class="perfil-avatar-grande">
                                 <span class="avatar-iniciales">{{ inicialAvatar }}</span>
                             </div>
-                            <div class="flex-grow-1 text-center text-md-start">
+                            <div class="text-center w-100">
+                                <h5 class="fw-bold mb-1">{{ p.nombreCompleto }}</h5>
+                                <p class="text-muted mb-2 small">
+                                    <i class="bi bi-briefcase me-1"></i>{{ p.cargo || ('perfil.sinCargo' | traducir) }}
+                                    @if (p.rol) {
+                                        <span class="badge text-bg-primary ms-1">{{ p.rol.nombre }}</span>
+                                    }
+                                </p>
+                                <div class="d-flex flex-column align-items-center gap-1 mb-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-person-badge me-1"></i>{{ p.codigoColaborador }}
+                                    </small>
+                                    <small class="text-muted text-truncate" style="max-width: 100%;">
+                                        <i class="bi bi-envelope me-1"></i>{{ p.correo }}
+                                        @if (p.esVerificado) {
+                                            <i class="bi bi-patch-check-fill text-success ms-1"></i>
+                                        }
+                                    </small>
+                                </div>
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <span class="badge text-bg-light border px-2 py-1">
+                                        <i class="bi bi-calendar3 me-1"></i>{{ formatearFecha(p.fechaIngreso) }}
+                                    </span>
+                                    <span class="badge text-bg-light border px-2 py-1">
+                                        <i class="bi bi-clock me-1"></i>{{ tiempoRelativo(p.ultimoAcceso) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-none d-md-flex flex-row align-items-center gap-4">
+                            <div class="perfil-avatar-grande">
+                                <span class="avatar-iniciales">{{ inicialAvatar }}</span>
+                            </div>
+                            <div class="flex-grow-1">
                                 <h3 class="fw-bold mb-1">{{ p.nombreCompleto }}</h3>
                                 <p class="text-muted mb-1">
-                                    <i class="bi bi-briefcase me-1"></i>{{ p.cargo || 'Sin cargo asignado' }}
+                                    <i class="bi bi-briefcase me-1"></i>{{ p.cargo || ('perfil.sinCargo' | traducir) }}
                                     @if (p.rol) {
                                         <span class="badge text-bg-primary ms-2">{{ p.rol.nombre }}</span>
                                     }
@@ -29,16 +62,16 @@
                                     <span class="mx-2">|</span>
                                     <i class="bi bi-envelope me-1"></i>{{ p.correo }}
                                     @if (p.esVerificado) {
-                                        <i class="bi bi-patch-check-fill text-success ms-1" title="Verificado"></i>
+                                        <i class="bi bi-patch-check-fill text-success ms-1" [title]="'perfil.verificado' | traducir"></i>
                                     }
                                 </p>
                             </div>
                             <div class="d-flex flex-column gap-2">
                                 <span class="badge text-bg-light border px-3 py-2">
-                                    <i class="bi bi-calendar3 me-1"></i>Desde {{ formatearFecha(p.fechaIngreso) }}
+                                    <i class="bi bi-calendar3 me-1"></i>{{ 'perfil.desde' | traducir }} {{ formatearFecha(p.fechaIngreso) }}
                                 </span>
                                 <span class="badge text-bg-light border px-3 py-2">
-                                    <i class="bi bi-clock me-1"></i>Último acceso: {{ tiempoRelativo(p.ultimoAcceso) }}
+                                    <i class="bi bi-clock me-1"></i>{{ 'perfil.ultimoAcceso' | traducir }} {{ tiempoRelativo(p.ultimoAcceso) }}
                                 </span>
                             </div>
                         </div>
@@ -47,138 +80,147 @@
             </div>
 
             <!-- Navegación por secciones -->
-            <ul class="nav nav-tabs mb-4">
-                <li class="nav-item">
-                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'general'"
-                        (click)="cambiarSeccion('general')">
-                        <i class="bi bi-person me-1"></i>General
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'seguridad'"
-                        (click)="cambiarSeccion('seguridad')">
-                        <i class="bi bi-shield-lock me-1"></i>Seguridad
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'preferencias'"
-                        (click)="cambiarSeccion('preferencias')">
-                        <i class="bi bi-palette me-1"></i>Preferencias
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'sesiones'"
-                        (click)="cambiarSeccion('sesiones')">
-                        <i class="bi bi-laptop me-1"></i>Sesiones
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link" [class.active]="seccionActiva() === 'dispositivos'"
-                        (click)="cambiarSeccion('dispositivos')">
-                        <i class="bi bi-phone me-1"></i>Dispositivos
-                    </button>
-                </li>
-            </ul>
+            <div class="perfil-tabs-contenedor mb-3 mb-md-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" [class.active]="seccionActiva() === 'general'"
+                            (click)="cambiarSeccion('general')">
+                            <i class="bi bi-person"></i>
+                            <span class="tab-texto">{{ 'perfil.general' | traducir }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" [class.active]="seccionActiva() === 'seguridad'"
+                            (click)="cambiarSeccion('seguridad')">
+                            <i class="bi bi-shield-lock"></i>
+                            <span class="tab-texto">{{ 'perfil.seguridad' | traducir }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" [class.active]="seccionActiva() === 'preferencias'"
+                            (click)="cambiarSeccion('preferencias')">
+                            <i class="bi bi-palette"></i>
+                            <span class="tab-texto">{{ 'perfil.preferencias' | traducir }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" [class.active]="seccionActiva() === 'sesiones'"
+                            (click)="cambiarSeccion('sesiones')">
+                            <i class="bi bi-laptop"></i>
+                            <span class="tab-texto">{{ 'perfil.sesiones' | traducir }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" [class.active]="seccionActiva() === 'dispositivos'"
+                            (click)="cambiarSeccion('dispositivos')">
+                            <i class="bi bi-phone"></i>
+                            <span class="tab-texto">{{ 'perfil.dispositivos' | traducir }}</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
 
             <!-- ==================== SECCIÓN GENERAL ==================== -->
             @if (seccionActiva() === 'general') {
-                <div class="row g-4">
+                <div class="row g-3 g-lg-4">
                     <!-- Información personal -->
                     <div class="col-12 col-lg-8">
                         <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Información Personal</h5>
-                                @if (!modoEdicion()) {
-                                    <button type="button" class="btn btn-outline-primary btn-sm" (click)="activarEdicion()">
-                                        <i class="bi bi-pencil me-1"></i>Editar
-                                    </button>
-                                }
+                            <div class="card-header bg-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>{{ 'perfil.infoPersonal' | traducir }}</h6>
+                                    @if (!modoEdicion()) {
+                                        <button type="button" class="btn btn-outline-primary btn-sm" (click)="activarEdicion()">
+                                            <i class="bi bi-pencil me-1"></i><span class="d-none d-sm-inline">{{ 'perfil.editar' | traducir }}</span>
+                                        </button>
+                                    }
+                                </div>
                             </div>
                             <div class="card-body">
                                 @if (modoEdicion()) {
                                     <!-- Formulario de edición -->
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">Nombre</label>
-                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.nombre" placeholder="Nombre">
+                                            <label class="form-label">{{ 'perfil.nombre' | traducir }}</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.nombre" [placeholder]="'perfil.nombre' | traducir">
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">Apellido</label>
-                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.apellido" placeholder="Apellido">
+                                            <label class="form-label">{{ 'perfil.apellido' | traducir }}</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.apellido" [placeholder]="'perfil.apellido' | traducir">
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">Teléfono</label>
-                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.telefono" placeholder="Ej: +504 9999-9999">
+                                            <label class="form-label">{{ 'perfil.telefono' | traducir }}</label>
+                                            <input type="text" class="form-control" [(ngModel)]="formPerfil.telefono" [placeholder]="'perfil.ejTelefono' | traducir">
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">Género</label>
+                                            <label class="form-label">{{ 'perfil.genero' | traducir }}</label>
                                             <select class="form-select" [(ngModel)]="formPerfil.genero">
-                                                <option value="no_especificado">No especificado</option>
-                                                <option value="masculino">Masculino</option>
-                                                <option value="femenino">Femenino</option>
+                                                <option value="no_especificado">{{ 'perfil.noEspecificado' | traducir }}</option>
+                                                <option value="masculino">{{ 'perfil.masculino' | traducir }}</option>
+                                                <option value="femenino">{{ 'perfil.femenino' | traducir }}</option>
                                             </select>
                                         </div>
                                         <div class="col-12">
                                             <hr class="my-2">
-                                            <h6 class="text-muted mb-3"><i class="bi bi-telephone me-1"></i>Contacto de Emergencia</h6>
+                                            <h6 class="text-muted mb-3"><i class="bi bi-telephone me-1"></i>{{ 'perfil.contactoEmergencia' | traducir }}</h6>
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">Nombre del contacto</label>
+                                            <label class="form-label">{{ 'perfil.nombreContacto' | traducir }}</label>
                                             <input type="text" class="form-control" [(ngModel)]="formPerfil.contactoEmergenciaNombre"
-                                                placeholder="Nombre completo">
+                                                [placeholder]="'perfil.nombreCompleto' | traducir">
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label">Teléfono de emergencia</label>
+                                            <label class="form-label">{{ 'perfil.telefonoEmergencia' | traducir }}</label>
                                             <input type="text" class="form-control" [(ngModel)]="formPerfil.telefonoEmergencia"
-                                                placeholder="Ej: +504 9999-9999">
+                                                [placeholder]="'perfil.ejTelefono' | traducir">
                                         </div>
                                         <div class="col-12 d-flex gap-2 justify-content-end mt-3">
                                             <button type="button" class="btn btn-outline-secondary" (click)="cancelarEdicion()"
-                                                [disabled]="guardando()">Cancelar</button>
+                                                [disabled]="guardando()">{{ 'comun.cancelar' | traducir }}</button>
                                             <button type="button" class="btn btn-primary" (click)="guardarPerfil()"
                                                 [disabled]="guardando()">
                                                 @if (guardando()) {
                                                     <span class="spinner-border spinner-border-sm me-1"></span>
                                                 }
-                                                Guardar cambios
+                                                {{ 'comun.guardarCambios' | traducir }}
                                             </button>
                                         </div>
                                     </div>
                                 } @else {
                                     <!-- Vista de lectura -->
-                                    <div class="row g-3">
+                                    <div class="row g-2 g-md-3">
                                         <div class="col-6 col-md-4">
-                                            <div class="dato-label">Nombre</div>
-                                            <div class="dato-valor">{{ p.nombre }}</div>
+                                            <div class="dato-label">{{ 'perfil.nombre' | traducir }}</div>
+                                            <div class="dato-valor text-truncate">{{ p.nombre }}</div>
                                         </div>
                                         <div class="col-6 col-md-4">
-                                            <div class="dato-label">Apellido</div>
-                                            <div class="dato-valor">{{ p.apellido }}</div>
+                                            <div class="dato-label">{{ 'perfil.apellido' | traducir }}</div>
+                                            <div class="dato-valor text-truncate">{{ p.apellido }}</div>
+                                        </div>
+                                        <div class="col-12 col-sm-6 col-md-4">
+                                            <div class="dato-label">{{ 'perfil.identidad' | traducir }}</div>
+                                            <div class="dato-valor">{{ p.numeroIdentidad || ('perfil.noRegistrada' | traducir) }}</div>
                                         </div>
                                         <div class="col-6 col-md-4">
-                                            <div class="dato-label">Identidad</div>
-                                            <div class="dato-valor">{{ p.numeroIdentidad || 'No registrada' }}</div>
-                                        </div>
-                                        <div class="col-6 col-md-4">
-                                            <div class="dato-label">Fecha de nacimiento</div>
+                                            <div class="dato-label">{{ 'perfil.fechaNacimiento' | traducir }}</div>
                                             <div class="dato-valor">{{ formatearFecha(p.fechaNacimiento) }}</div>
                                         </div>
                                         <div class="col-6 col-md-4">
-                                            <div class="dato-label">Género</div>
+                                            <div class="dato-label">{{ 'perfil.genero' | traducir }}</div>
                                             <div class="dato-valor">{{ traducirGenero(p.genero) }}</div>
                                         </div>
                                         <div class="col-6 col-md-4">
-                                            <div class="dato-label">Teléfono</div>
-                                            <div class="dato-valor">{{ p.telefono || 'No registrado' }}</div>
+                                            <div class="dato-label">{{ 'perfil.telefono' | traducir }}</div>
+                                            <div class="dato-valor">{{ p.telefono || ('perfil.noRegistrado' | traducir) }}</div>
                                         </div>
                                         <div class="col-12"><hr class="my-2"></div>
-                                        <div class="col-6 col-md-6">
-                                            <div class="dato-label">Contacto de emergencia</div>
-                                            <div class="dato-valor">{{ p.contactoEmergenciaNombre || 'No registrado' }}</div>
+                                        <div class="col-12 col-sm-6">
+                                            <div class="dato-label">{{ 'perfil.contactoEmergencia' | traducir }}</div>
+                                            <div class="dato-valor text-truncate">{{ p.contactoEmergenciaNombre || ('perfil.noRegistrado' | traducir) }}</div>
                                         </div>
-                                        <div class="col-6 col-md-6">
-                                            <div class="dato-label">Teléfono de emergencia</div>
-                                            <div class="dato-valor">{{ p.telefonoEmergencia || 'No registrado' }}</div>
+                                        <div class="col-12 col-sm-6">
+                                            <div class="dato-label">{{ 'perfil.telefonoEmergencia' | traducir }}</div>
+                                            <div class="dato-valor">{{ p.telefonoEmergencia || ('perfil.noRegistrado' | traducir) }}</div>
                                         </div>
                                     </div>
                                 }
@@ -190,28 +232,28 @@
                     <div class="col-12 col-lg-4">
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-white">
-                                <h6 class="mb-0"><i class="bi bi-building me-2"></i>Información Laboral</h6>
+                                <h6 class="mb-0"><i class="bi bi-building me-2"></i>{{ 'perfil.infoLaboral' | traducir }}</h6>
                             </div>
                             <div class="card-body">
                                 <div class="info-item mb-3">
-                                    <div class="dato-label">Código</div>
+                                    <div class="dato-label">{{ 'perfil.codigo' | traducir }}</div>
                                     <div class="dato-valor fw-semibold">{{ p.codigoColaborador }}</div>
                                 </div>
                                 <div class="info-item mb-3">
-                                    <div class="dato-label">Cargo</div>
-                                    <div class="dato-valor">{{ p.cargo || 'Sin cargo' }}</div>
+                                    <div class="dato-label">{{ 'perfil.cargo' | traducir }}</div>
+                                    <div class="dato-valor">{{ p.cargo || ('perfil.sinCargoPuesto' | traducir) }}</div>
                                 </div>
                                 <div class="info-item mb-3">
-                                    <div class="dato-label">Tipo de contrato</div>
+                                    <div class="dato-label">{{ 'perfil.tipoContrato' | traducir }}</div>
                                     <div class="dato-valor">{{ traducirContrato(p.tipoContrato) }}</div>
                                 </div>
                                 <div class="info-item mb-3">
-                                    <div class="dato-label">Fecha de ingreso</div>
+                                    <div class="dato-label">{{ 'perfil.fechaIngreso' | traducir }}</div>
                                     <div class="dato-valor">{{ formatearFecha(p.fechaIngreso) }}</div>
                                 </div>
                                 @if (p.almacen) {
                                     <div class="info-item">
-                                        <div class="dato-label">Almacén principal</div>
+                                        <div class="dato-label">{{ 'perfil.almacenPrincipal' | traducir }}</div>
                                         <div class="dato-valor">{{ p.almacen.nombre }}</div>
                                     </div>
                                 }
@@ -221,11 +263,11 @@
                         <!-- Roles y almacenes -->
                         <div class="card border-0 shadow-sm">
                             <div class="card-header bg-white">
-                                <h6 class="mb-0"><i class="bi bi-person-gear me-2"></i>Roles y Almacenes</h6>
+                                <h6 class="mb-0"><i class="bi bi-person-gear me-2"></i>{{ 'perfil.rolesAlmacenes' | traducir }}</h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <div class="dato-label mb-2">Roles asignados</div>
+                                    <div class="dato-label mb-2">{{ 'perfil.rolesAsignados' | traducir }}</div>
                                     @for (rol of p.roles; track rol.codigo) {
                                         <span class="badge me-1 mb-1" [class]="rol.esPrincipal ? 'text-bg-primary' : 'text-bg-secondary'">
                                             {{ rol.nombre }}
@@ -234,11 +276,11 @@
                                             }
                                         </span>
                                     } @empty {
-                                        <span class="text-muted">Sin roles asignados</span>
+                                        <span class="text-muted">{{ 'perfil.sinRoles' | traducir }}</span>
                                     }
                                 </div>
                                 <div>
-                                    <div class="dato-label mb-2">Almacenes asignados</div>
+                                    <div class="dato-label mb-2">{{ 'perfil.almacenesAsignados' | traducir }}</div>
                                     @for (almacen of p.almacenes; track almacen.id) {
                                         <div class="d-flex align-items-center gap-2 mb-1">
                                             <i class="bi bi-box-seam text-muted"></i>
@@ -246,7 +288,7 @@
                                             <span class="badge text-bg-light">{{ almacen.nivelAcceso }}</span>
                                         </div>
                                     } @empty {
-                                        <span class="text-muted">Sin almacenes asignados</span>
+                                        <span class="text-muted">{{ 'perfil.sinAlmacenes' | traducir }}</span>
                                     }
                                 </div>
                             </div>
@@ -262,29 +304,29 @@
                         <div class="spinner-border spinner-border-sm text-primary"></div>
                     </div>
                 } @else {
-                    <div class="row g-4">
+                    <div class="row g-3 g-lg-4">
                         <!-- Cambio de contraseña -->
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header bg-white">
-                                    <h5 class="mb-0"><i class="bi bi-key me-2"></i>Contraseña</h5>
+                                    <h6 class="mb-0"><i class="bi bi-key me-2"></i>{{ 'seguridad.contrasena' | traducir }}</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="d-flex align-items-center gap-3 mb-3">
-                                        <div class="icono-estado bg-light rounded-circle p-3">
-                                            <i class="bi bi-shield-check fs-4 text-success"></i>
+                                    <div class="d-flex align-items-center gap-2 gap-md-3 mb-3">
+                                        <div class="icono-estado bg-light rounded-circle p-2 p-md-3">
+                                            <i class="bi bi-shield-check fs-5 fs-md-4 text-success"></i>
                                         </div>
-                                        <div>
-                                            <p class="mb-0 fw-semibold">Estado de la contraseña</p>
+                                        <div class="flex-grow-1 min-width-0">
+                                            <p class="mb-0 fw-semibold small">{{ 'seguridad.estadoContrasena' | traducir }}</p>
                                             @if (p.contrasenaTemporal) {
                                                 <small class="text-danger">
-                                                    <i class="bi bi-exclamation-triangle me-1"></i>Contraseña temporal - debe cambiarla
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>{{ 'seguridad.contrasenaTemporal' | traducir }}
                                                 </small>
                                             } @else {
                                                 <small class="text-muted">
-                                                    Último cambio: {{ tiempoRelativo(p.ultimoCambioContrasena) }}
+                                                    {{ 'seguridad.ultimoCambio' | traducir }} {{ tiempoRelativo(p.ultimoCambioContrasena) }}
                                                     @if (obtenerDiasDesdeUltimoCambio(); as dias) {
-                                                        ({{ dias }} días)
+                                                        ({{ dias }} {{ 'seguridad.dias' | traducir }})
                                                     }
                                                 </small>
                                             }
@@ -293,15 +335,15 @@
 
                                     @if (!mostrarCambioContrasena()) {
                                         <button type="button" class="btn btn-outline-primary w-100" (click)="abrirCambioContrasena()">
-                                            <i class="bi bi-key me-1"></i>Cambiar contraseña
+                                            <i class="bi bi-key me-1"></i>{{ 'seguridad.cambiarContrasena' | traducir }}
                                         </button>
                                     } @else {
-                                        <div class="border rounded p-3 bg-light">
+                                        <div class="border rounded p-2 p-md-3 bg-light">
                                             <div class="mb-3">
-                                                <label class="form-label">Contraseña actual</label>
+                                                <label class="form-label">{{ 'seguridad.contrasenaActual' | traducir }}</label>
                                                 <div class="input-group">
                                                     <input [type]="mostrarContrasenaActual() ? 'text' : 'password'" class="form-control"
-                                                        [(ngModel)]="formContrasena.contrasenaActual" placeholder="Ingrese su contraseña actual">
+                                                        [(ngModel)]="formContrasena.contrasenaActual" [placeholder]="'seguridad.ingreseActual' | traducir">
                                                     <button type="button" class="btn btn-outline-secondary"
                                                         (click)="mostrarContrasenaActual.set(!mostrarContrasenaActual())">
                                                         <i class="bi" [ngClass]="mostrarContrasenaActual() ? 'bi-eye-slash' : 'bi-eye'"></i>
@@ -309,10 +351,10 @@
                                                 </div>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Nueva contraseña</label>
+                                                <label class="form-label">{{ 'seguridad.nuevaContrasena' | traducir }}</label>
                                                 <div class="input-group">
                                                     <input [type]="mostrarContrasenaNueva() ? 'text' : 'password'" class="form-control"
-                                                        [(ngModel)]="formContrasena.nuevaContrasena" placeholder="Mínimo 12 caracteres">
+                                                        [(ngModel)]="formContrasena.nuevaContrasena" [placeholder]="'seguridad.minCaracteres' | traducir">
                                                     <button type="button" class="btn btn-outline-secondary"
                                                         (click)="mostrarContrasenaNueva.set(!mostrarContrasenaNueva())">
                                                         <i class="bi" [ngClass]="mostrarContrasenaNueva() ? 'bi-eye-slash' : 'bi-eye'"></i>
@@ -327,36 +369,36 @@
                                                             </div>
                                                             <small class="text-muted">{{ obtenerFortalezaContrasena().texto }}</small>
                                                         </div>
-                                                        <div class="mt-1">
+                                                        <div class="mt-1 d-flex flex-wrap gap-1 gap-sm-0">
                                                             <small [class]="formContrasena.nuevaContrasena.length >= 12 ? 'text-success' : 'text-muted'">
                                                                 <i class="bi" [ngClass]="formContrasena.nuevaContrasena.length >= 12 ? 'bi-check-circle-fill' : 'bi-circle'"></i>
                                                                 12+ caracteres
                                                             </small>
-                                                            <small class="ms-2" [class]="tieneMayuscula() ? 'text-success' : 'text-muted'">
+                                                            <small class="ms-sm-2" [class]="tieneMayuscula() ? 'text-success' : 'text-muted'">
                                                                 <i class="bi" [ngClass]="tieneMayuscula() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                                                                Mayúscula
+                                                                {{ 'seguridad.mayuscula' | traducir }}
                                                             </small>
-                                                            <small class="ms-2" [class]="tieneMinuscula() ? 'text-success' : 'text-muted'">
+                                                            <small class="ms-sm-2" [class]="tieneMinuscula() ? 'text-success' : 'text-muted'">
                                                                 <i class="bi" [ngClass]="tieneMinuscula() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                                                                Minúscula
+                                                                {{ 'seguridad.minuscula' | traducir }}
                                                             </small>
-                                                            <small class="ms-2" [class]="tieneNumero() ? 'text-success' : 'text-muted'">
+                                                            <small class="ms-sm-2" [class]="tieneNumero() ? 'text-success' : 'text-muted'">
                                                                 <i class="bi" [ngClass]="tieneNumero() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                                                                Número
+                                                                {{ 'seguridad.numero' | traducir }}
                                                             </small>
-                                                            <small class="ms-2" [class]="tieneEspecial() ? 'text-success' : 'text-muted'">
+                                                            <small class="ms-sm-2" [class]="tieneEspecial() ? 'text-success' : 'text-muted'">
                                                                 <i class="bi" [ngClass]="tieneEspecial() ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                                                                Especial
+                                                                {{ 'seguridad.especial' | traducir }}
                                                             </small>
                                                         </div>
                                                     </div>
                                                 }
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Confirmar nueva contraseña</label>
+                                                <label class="form-label">{{ 'seguridad.confirmarContrasena' | traducir }}</label>
                                                 <div class="input-group">
                                                     <input [type]="mostrarContrasenaConfirmar() ? 'text' : 'password'" class="form-control"
-                                                        [(ngModel)]="formContrasena.confirmarContrasena" placeholder="Repita la nueva contraseña">
+                                                        [(ngModel)]="formContrasena.confirmarContrasena" [placeholder]="'seguridad.repitaContrasena' | traducir">
                                                     <button type="button" class="btn btn-outline-secondary"
                                                         (click)="mostrarContrasenaConfirmar.set(!mostrarContrasenaConfirmar())">
                                                         <i class="bi" [ngClass]="mostrarContrasenaConfirmar() ? 'bi-eye-slash' : 'bi-eye'"></i>
@@ -364,19 +406,19 @@
                                                 </div>
                                                 @if (formContrasena.confirmarContrasena && formContrasena.nuevaContrasena !== formContrasena.confirmarContrasena) {
                                                     <small class="text-danger">
-                                                        <i class="bi bi-exclamation-circle me-1"></i>Las contraseñas no coinciden
+                                                        <i class="bi bi-exclamation-circle me-1"></i>{{ 'seguridad.noCoinciden' | traducir }}
                                                     </small>
                                                 }
                                             </div>
                                             <div class="d-flex gap-2 justify-content-end">
                                                 <button type="button" class="btn btn-outline-secondary btn-sm"
-                                                    (click)="cancelarCambioContrasena()" [disabled]="guardando()">Cancelar</button>
+                                                    (click)="cancelarCambioContrasena()" [disabled]="guardando()">{{ 'comun.cancelar' | traducir }}</button>
                                                 <button type="button" class="btn btn-primary btn-sm"
                                                     (click)="guardarContrasena()" [disabled]="guardando()">
                                                     @if (guardando()) {
                                                         <span class="spinner-border spinner-border-sm me-1"></span>
                                                     }
-                                                    Cambiar contraseña
+                                                    {{ 'seguridad.cambiarContrasena' | traducir }}
                                                 </button>
                                             </div>
                                         </div>
@@ -389,45 +431,161 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header bg-white">
-                                    <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Configuración de Seguridad</h5>
+                                    <h6 class="mb-0"><i class="bi bi-shield-lock me-2"></i>{{ 'seguridad.configuracion' | traducir }}</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="mb-4">
-                                        <div class="form-check form-switch mb-2">
-                                            <input type="checkbox" class="form-check-input" id="check2fa"
-                                                [(ngModel)]="formSeguridad.requiere2fa">
-                                            <label class="form-check-label fw-semibold" for="check2fa">
-                                                Autenticación de dos factores (2FA)
-                                            </label>
+                                    <!-- 2FA: Estado inactivo -->
+                                    @if (estado2FA() === 'inactivo') {
+                                        <div class="d-flex align-items-start gap-3 mb-3">
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px;">
+                                                <i class="bi bi-shield-x text-muted fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">{{ 'seguridad.2fa' | traducir }}</h6>
+                                                <small class="text-muted">{{ 'seguridad.2faDesc' | traducir }}</small>
+                                                <div class="mt-1">
+                                                    <span class="badge bg-warning-subtle text-warning">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>{{ 'seguridad.2faInactivo' | traducir }}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <small class="text-muted d-block ms-4 mb-2">Añade una capa adicional de seguridad a tu cuenta</small>
-                                        @if (formSeguridad.requiere2fa) {
-                                            <div class="ms-4">
-                                                <label class="form-label">Método de verificación</label>
-                                                <select class="form-select form-select-sm" [(ngModel)]="formSeguridad.metodo2fa">
-                                                    <option value="correo">Correo electrónico</option>
-                                                    <option value="app">Aplicación autenticadora</option>
-                                                </select>
+                                        <div class="d-grid gap-2">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" (click)="estado2FA.set('seleccion')">
+                                                <i class="bi bi-shield-plus me-1"></i>{{ 'seguridad.activar2fa' | traducir }}
+                                            </button>
+                                        </div>
+                                    }
+
+                                    <!-- 2FA: Selección de método -->
+                                    @if (estado2FA() === 'seleccion') {
+                                        <h6 class="mb-3">{{ 'seguridad.seleccionarMetodo' | traducir }}</h6>
+                                        <div class="d-grid gap-2 mb-3">
+                                            <button type="button" class="btn btn-outline-primary text-start p-3"
+                                                [disabled]="guardando2FA()"
+                                                (click)="iniciarActivacion2FA('correo')">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <i class="bi bi-envelope-fill fs-4"></i>
+                                                    <div>
+                                                        <span class="fw-semibold d-block">{{ 'seguridad.correoElectronico' | traducir }}</span>
+                                                        <small class="text-muted">{{ 'seguridad.correoDesc' | traducir }}</small>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary text-start p-3"
+                                                [disabled]="guardando2FA()"
+                                                (click)="iniciarActivacion2FA('app')">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <i class="bi bi-phone-fill fs-4"></i>
+                                                    <div>
+                                                        <span class="fw-semibold d-block">{{ 'seguridad.appAutenticadora' | traducir }}</span>
+                                                        <small class="text-muted">{{ 'seguridad.appDesc' | traducir }}</small>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </div>
+                                        @if (guardando2FA()) {
+                                            <div class="text-center py-2">
+                                                <span class="spinner-border spinner-border-sm text-primary me-1"></span>
+                                                <small class="text-muted">{{ 'seguridad.configurando' | traducir }}</small>
                                             </div>
                                         }
-                                    </div>
-                                    <div class="mb-4">
-                                        <label class="form-label fw-semibold">Sesiones simultáneas máximas</label>
-                                        <select class="form-select" [(ngModel)]="formSeguridad.maxSesionesSimultaneas">
-                                            <option [ngValue]="1">1 sesión</option>
-                                            <option [ngValue]="2">2 sesiones</option>
-                                            <option [ngValue]="3">3 sesiones</option>
-                                            <option [ngValue]="5">5 sesiones</option>
-                                        </select>
-                                        <small class="text-muted">Controla cuántos dispositivos pueden estar conectados al mismo tiempo</small>
-                                    </div>
-                                    <button type="button" class="btn btn-primary w-100" (click)="guardarSeguridad()"
-                                        [disabled]="guardando()">
-                                        @if (guardando()) {
-                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                        <button type="button" class="btn btn-link text-muted p-0" (click)="cancelar2FA()">
+                                            <i class="bi bi-arrow-left me-1"></i>{{ 'seguridad.cancelar' | traducir }}
+                                        </button>
+                                    }
+
+                                    <!-- 2FA: Verificación de código -->
+                                    @if (estado2FA() === 'verificando') {
+                                        <h6 class="mb-3">{{ 'seguridad.verificarCodigo' | traducir }}</h6>
+
+                                        @if (metodo2FASeleccionado === 'app' && qrCodeUrl) {
+                                            <div class="text-center mb-3">
+                                                <p class="text-muted small mb-2">{{ 'seguridad.escanearQR' | traducir }}</p>
+                                                <img [src]="qrCodeUrl" alt="Código QR" class="img-fluid rounded border" style="max-width: 200px;">
+                                            </div>
                                         }
-                                        Guardar configuración
-                                    </button>
+
+                                        @if (metodo2FASeleccionado === 'correo') {
+                                            <div class="alert alert-info py-2 small mb-3">
+                                                <i class="bi bi-info-circle me-1"></i>{{ 'seguridad.codigoEnviado' | traducir }}
+                                            </div>
+                                        }
+
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ 'seguridad.ingresarCodigo' | traducir }}</label>
+                                            <input type="text" class="form-control text-center fw-bold fs-5 letter-spacing-2"
+                                                [value]="codigo2FA"
+                                                (input)="alIngresarCodigo2FA($event)"
+                                                placeholder="000000"
+                                                maxlength="6"
+                                                inputmode="numeric"
+                                                autocomplete="one-time-code">
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button type="button" class="btn btn-primary"
+                                                [disabled]="guardando2FA() || codigo2FA.length !== 6"
+                                                (click)="confirmarActivacion2FA()">
+                                                @if (guardando2FA()) {
+                                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                                }
+                                                {{ 'seguridad.confirmarActivacion' | traducir }}
+                                            </button>
+                                            <button type="button" class="btn btn-link text-muted p-0" (click)="cancelar2FA()">
+                                                <i class="bi bi-arrow-left me-1"></i>{{ 'seguridad.cancelar' | traducir }}
+                                            </button>
+                                        </div>
+                                    }
+
+                                    <!-- 2FA: Activo -->
+                                    @if (estado2FA() === 'activo') {
+                                        <div class="d-flex align-items-start gap-3 mb-3">
+                                            <div class="rounded-circle bg-success-subtle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px;">
+                                                <i class="bi bi-shield-check text-success fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">{{ 'seguridad.2fa' | traducir }}</h6>
+                                                <span class="badge bg-success-subtle text-success">
+                                                    <i class="bi bi-check-circle me-1"></i>{{ 'seguridad.2faActivo' | traducir }}
+                                                </span>
+                                                <small class="text-muted d-block mt-1">
+                                                    {{ 'seguridad.metodoVerificacion' | traducir }}:
+                                                    {{ (perfil()?.metodo2fa === 'app' ? 'seguridad.appAutenticadora' : 'seguridad.correoElectronico') | traducir }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <p class="text-muted small mb-2">{{ 'seguridad.desactivarDesc' | traducir }}</p>
+                                        <div class="input-group input-group-sm mb-2">
+                                            <input [type]="mostrarContrasenaDesactivar() ? 'text' : 'password'"
+                                                class="form-control" [(ngModel)]="contrasenaDesactivar"
+                                                [placeholder]="'seguridad.contrasenaActual' | traducir">
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                (click)="mostrarContrasenaDesactivar.set(!mostrarContrasenaDesactivar())">
+                                                <i class="bi" [class.bi-eye]="!mostrarContrasenaDesactivar()"
+                                                    [class.bi-eye-slash]="mostrarContrasenaDesactivar()"></i>
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                            [disabled]="guardando2FA() || !contrasenaDesactivar"
+                                            (click)="desactivar2FA()">
+                                            @if (guardando2FA()) {
+                                                <span class="spinner-border spinner-border-sm me-1"></span>
+                                            }
+                                            <i class="bi bi-shield-minus me-1"></i>{{ 'seguridad.desactivar2fa' | traducir }}
+                                        </button>
+                                    }
+
+                                    <!-- Sesiones simultáneas (siempre visible) -->
+                                    <hr class="my-3">
+                                    <div>
+                                        <label class="form-label fw-semibold">{{ 'seguridad.sesionesMaximas' | traducir }}</label>
+                                        <div class="form-control bg-light">
+                                            {{ perfil()?.maxSesionesSimultaneas || 1 }}
+                                            {{ (perfil()?.maxSesionesSimultaneas === 1 ? 'seguridad.sesion' : 'seguridad.sesiones') | traducir }}
+                                        </div>
+                                        <small class="text-muted">{{ 'seguridad.controlSesionesAdmin' | traducir }}</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -437,26 +595,26 @@
                             <div class="col-12">
                                 <div class="card border-0 shadow-sm">
                                     <div class="card-header bg-white">
-                                        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Actividad Reciente de Seguridad</h5>
+                                        <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>{{ 'seguridad.actividadReciente' | traducir }}</h6>
                                     </div>
                                     <div class="card-body">
-                                        <div class="row g-3 mb-3">
+                                        <div class="row g-2 g-md-3 mb-3">
                                             <div class="col-6 col-md-3">
-                                                <div class="text-center p-3 bg-light rounded">
-                                                    <div class="fs-3 fw-bold text-primary">{{ seg.sesionesActivas }}</div>
-                                                    <small class="text-muted">Sesiones activas</small>
+                                                <div class="text-center p-2 p-md-3 bg-light rounded">
+                                                    <div class="fs-4 fs-md-3 fw-bold text-primary">{{ seg.sesionesActivas }}</div>
+                                                    <small class="text-muted">{{ 'seguridad.sesionesActivas' | traducir }}</small>
                                                 </div>
                                             </div>
                                             <div class="col-6 col-md-3">
-                                                <div class="text-center p-3 bg-light rounded">
-                                                    <div class="fs-3 fw-bold text-info">{{ seg.dispositivosRegistrados }}</div>
-                                                    <small class="text-muted">Dispositivos</small>
+                                                <div class="text-center p-2 p-md-3 bg-light rounded">
+                                                    <div class="fs-4 fs-md-3 fw-bold text-info">{{ seg.dispositivosRegistrados }}</div>
+                                                    <small class="text-muted">{{ 'perfil.dispositivos' | traducir }}</small>
                                                 </div>
                                             </div>
                                             <div class="col-12 col-md-6">
-                                                <div class="p-3 bg-light rounded h-100 d-flex align-items-center">
+                                                <div class="p-2 p-md-3 bg-light rounded h-100 d-flex align-items-center">
                                                     <div>
-                                                        <small class="text-muted d-block">Último cambio de contraseña</small>
+                                                        <small class="text-muted d-block">{{ 'seguridad.ultimoCambioContrasena' | traducir }}</small>
                                                         <span class="fw-semibold">{{ tiempoRelativo(seg.ultimoCambioContrasena) }}</span>
                                                     </div>
                                                 </div>
@@ -464,7 +622,8 @@
                                         </div>
 
                                         @if (seg.ultimosEventos.length > 0) {
-                                            <div class="table-responsive">
+                                            <!-- Vista tabla para desktop -->
+                                            <div class="d-none d-md-block table-responsive">
                                                 <table class="table table-sm table-hover mb-0">
                                                     <thead class="table-light">
                                                         <tr>
@@ -489,8 +648,28 @@
                                                     </tbody>
                                                 </table>
                                             </div>
+                                            <!-- Vista lista para móvil -->
+                                            <div class="d-md-none">
+                                                @for (evento of seg.ultimosEventos; track evento.fecha) {
+                                                    <div class="evento-movil border-bottom py-2">
+                                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                                            <span class="fw-semibold small">
+                                                                <i class="bi me-1" [ngClass]="obtenerIconoSeveridad(evento.severidad)"></i>
+                                                                {{ evento.tipoEvento }}
+                                                            </span>
+                                                            <small class="text-muted text-nowrap ms-2">{{ formatearFechaHora(evento.fecha) }}</small>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <small class="text-muted">{{ evento.descripcion || '-' }}</small>
+                                                            @if (evento.ip) {
+                                                                <code class="ms-2">{{ evento.ip }}</code>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
                                         } @else {
-                                            <p class="text-muted text-center mb-0">No hay actividad reciente</p>
+                                            <p class="text-muted text-center mb-0">{{ 'seguridad.sinActividad' | traducir }}</p>
                                         }
                                     </div>
                                 </div>
@@ -512,10 +691,10 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header bg-white">
-                                    <h5 class="mb-0"><i class="bi bi-palette me-2"></i>Tema de Color</h5>
+                                    <h6 class="mb-0"><i class="bi bi-palette me-2"></i>{{ 'preferencias.temaColor' | traducir }}</h6>
                                 </div>
                                 <div class="card-body">
-                                    <p class="text-muted mb-3">Selecciona el color principal de la interfaz</p>
+                                    <p class="text-muted mb-3">{{ 'preferencias.seleccionaColor' | traducir }}</p>
                                     <div class="d-flex flex-wrap gap-3">
                                         @for (tema of temasDisponibles; track tema.valor) {
                                             <button type="button" class="tema-opcion"
@@ -538,31 +717,35 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header bg-white">
-                                    <h5 class="mb-0"><i class="bi bi-layout-sidebar me-2"></i>Interfaz</h5>
+                                    <h6 class="mb-0"><i class="bi bi-layout-sidebar me-2"></i>{{ 'preferencias.interfaz' | traducir }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-check form-switch mb-3">
                                         <input type="checkbox" class="form-check-input" id="sidebarCompacto"
-                                            [(ngModel)]="formPreferencias.sidebarCompacto">
+                                            [(ngModel)]="formPreferencias.sidebarCompacto"
+                                            (ngModelChange)="toggleSidebarCompacto($event)">
                                         <label class="form-check-label" for="sidebarCompacto">
-                                            <span class="fw-semibold">Sidebar compacto</span>
-                                            <small class="d-block text-muted">Reduce el ancho del menú lateral</small>
+                                            <span class="fw-semibold">{{ 'preferencias.sidebarCompacto' | traducir }}</span>
+                                            <small class="d-block text-muted">{{ 'preferencias.sidebarDesc' | traducir }}</small>
                                         </label>
                                     </div>
                                     <hr>
                                     <div class="mb-3">
-                                        <label class="form-label fw-semibold">Idioma</label>
-                                        <select class="form-select" [(ngModel)]="formPreferencias.idioma">
-                                            <option value="es">Español</option>
+                                        <label class="form-label fw-semibold">{{ 'preferencias.idioma' | traducir }}</label>
+                                        <select class="form-select" [(ngModel)]="formPreferencias.idioma"
+                                            (ngModelChange)="cambiarIdioma($event)">
+                                            @for (idioma of idiomasDisponibles; track idioma.valor) {
+                                                <option [value]="idioma.valor">{{ idioma.etiqueta }}</option>
+                                            }
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="form-label fw-semibold">Zona horaria</label>
-                                        <select class="form-select" [(ngModel)]="formPreferencias.zonaHoraria">
-                                            <option value="America/Tegucigalpa">America/Tegucigalpa (UTC-6)</option>
-                                            <option value="America/Guatemala">America/Guatemala (UTC-6)</option>
-                                            <option value="America/Mexico_City">America/México (UTC-6)</option>
-                                            <option value="America/Panama">America/Panamá (UTC-5)</option>
+                                        <label class="form-label fw-semibold">{{ 'preferencias.zonaHoraria' | traducir }}</label>
+                                        <select class="form-select" [(ngModel)]="formPreferencias.zonaHoraria"
+                                            (ngModelChange)="cambiarZonaHoraria($event)">
+                                            @for (zona of zonasHorarias; track zona.valor) {
+                                                <option [value]="zona.valor">{{ zona.etiqueta }} ({{ zona.utc }})</option>
+                                            }
                                         </select>
                                     </div>
                                 </div>
@@ -573,23 +756,23 @@
                         <div class="col-12 col-lg-6">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header bg-white">
-                                    <h5 class="mb-0"><i class="bi bi-bell me-2"></i>Notificaciones</h5>
+                                    <h6 class="mb-0"><i class="bi bi-bell me-2"></i>{{ 'preferencias.notificaciones' | traducir }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-check form-switch mb-3">
                                         <input type="checkbox" class="form-check-input" id="notifSonido"
                                             [(ngModel)]="formPreferencias.notificacionesSonido">
                                         <label class="form-check-label" for="notifSonido">
-                                            <span class="fw-semibold">Sonido de notificaciones</span>
-                                            <small class="d-block text-muted">Reproduce un sonido al recibir notificaciones</small>
+                                            <span class="fw-semibold">{{ 'preferencias.sonido' | traducir }}</span>
+                                            <small class="d-block text-muted">{{ 'preferencias.sonidoDesc' | traducir }}</small>
                                         </label>
                                     </div>
                                     <div class="form-check form-switch">
                                         <input type="checkbox" class="form-check-input" id="notifEscritorio"
                                             [(ngModel)]="formPreferencias.notificacionesEscritorio">
                                         <label class="form-check-label" for="notifEscritorio">
-                                            <span class="fw-semibold">Notificaciones de escritorio</span>
-                                            <small class="d-block text-muted">Muestra notificaciones del sistema operativo</small>
+                                            <span class="fw-semibold">{{ 'preferencias.escritorio' | traducir }}</span>
+                                            <small class="d-block text-muted">{{ 'preferencias.escritorioDesc' | traducir }}</small>
                                         </label>
                                     </div>
                                 </div>
@@ -604,7 +787,7 @@
                                     @if (guardando()) {
                                         <span class="spinner-border spinner-border-sm me-1"></span>
                                     }
-                                    <i class="bi bi-check-lg me-1"></i>Guardar preferencias
+                                    <i class="bi bi-check-lg me-1"></i>{{ 'preferencias.guardar' | traducir }}
                                 </button>
                             </div>
                         </div>
@@ -620,11 +803,11 @@
                     </div>
                 } @else {
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="bi bi-laptop me-2"></i>Sesiones Activas ({{ sesiones().length }})</h5>
+                        <div class="card-header bg-white d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                            <h6 class="mb-0"><i class="bi bi-laptop me-2"></i>{{ 'sesiones.titulo' | traducir }} ({{ sesiones().length }})</h6>
                             @if (sesiones().length > 1) {
                                 <button type="button" class="btn btn-outline-danger btn-sm" (click)="cerrarTodasLasSesiones()">
-                                    <i class="bi bi-x-circle me-1"></i>Cerrar todas las demás
+                                    <i class="bi bi-x-circle me-1"></i>{{ 'sesiones.cerrarTodas' | traducir }}
                                 </button>
                             }
                         </div>
@@ -633,17 +816,17 @@
                                 <div class="list-group list-group-flush">
                                     @for (sesion of sesiones(); track sesion.id; let i = $index) {
                                         <div class="list-group-item">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div class="sesion-icono">
+                                            <div class="d-flex align-items-start gap-2 gap-sm-3">
+                                                <div class="sesion-icono d-none d-sm-block">
                                                     <i class="bi bi-display fs-4 text-muted"></i>
                                                 </div>
-                                                <div class="flex-grow-1">
+                                                <div class="flex-grow-1 overflow-hidden">
                                                     <div class="d-flex justify-content-between align-items-start">
                                                         <div>
                                                             <h6 class="mb-1">
                                                                 {{ sesion.navegador }} en {{ sesion.sistemaOperativo }}
                                                                 @if (i === 0) {
-                                                                    <span class="badge text-bg-success ms-1">Actual</span>
+                                                                    <span class="badge text-bg-success ms-1">{{ 'sesiones.actual' | traducir }}</span>
                                                                 }
                                                             </h6>
                                                             <small class="text-muted">
@@ -661,9 +844,9 @@
                                                     </div>
                                                     <div class="mt-1">
                                                         <small class="text-muted">
-                                                            Iniciada: {{ formatearFechaHora(sesion.iniciadaEn) }}
+                                                            {{ 'sesiones.iniciada' | traducir }} {{ formatearFechaHora(sesion.iniciadaEn) }}
                                                             <span class="mx-1">·</span>
-                                                            Última actividad: {{ tiempoRelativo(sesion.ultimaActividad) }}
+                                                            {{ 'sesiones.ultimaActividad' | traducir }} {{ tiempoRelativo(sesion.ultimaActividad) }}
                                                         </small>
                                                     </div>
                                                 </div>
@@ -674,7 +857,7 @@
                             } @else {
                                 <div class="text-center py-4">
                                     <i class="bi bi-laptop display-6 text-muted"></i>
-                                    <p class="text-muted mt-2">No hay sesiones activas</p>
+                                    <p class="text-muted mt-2">{{ 'sesiones.sinSesiones' | traducir }}</p>
                                 </div>
                             }
                         </div>
@@ -689,62 +872,151 @@
                         <div class="spinner-border spinner-border-sm text-primary"></div>
                     </div>
                 } @else {
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white">
-                            <h5 class="mb-0"><i class="bi bi-phone me-2"></i>Dispositivos Registrados ({{ dispositivos().length }})</h5>
-                        </div>
-                        <div class="card-body p-0">
-                            @if (dispositivos().length > 0) {
+                    <!-- Encabezado informativo -->
+                    <div class="alert alert-light border d-flex align-items-start gap-2 mb-3">
+                        <i class="bi bi-info-circle text-primary mt-1"></i>
+                        <small class="text-muted">{{ 'dispositivos.descripcion' | traducir }}</small>
+                    </div>
+
+                    <!-- Dispositivos de confianza -->
+                    @if (dispositivos().length > 0) {
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-shield-check me-2 text-success"></i>{{ 'dispositivos.tituloConfianza' | traducir }}
+                                </h6>
+                                <span class="badge text-bg-primary rounded-pill">{{ dispositivos().length }}</span>
+                            </div>
+                            <div class="card-body p-0">
                                 <div class="list-group list-group-flush">
                                     @for (dispositivo of dispositivos(); track dispositivo.id) {
-                                        <div class="list-group-item">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div class="dispositivo-icono">
-                                                    <i class="bi fs-3 text-muted" [ngClass]="obtenerIconoDispositivo(dispositivo.tipo)"></i>
+                                        <div class="list-group-item py-3">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <!-- Icono del dispositivo -->
+                                                <div class="dispositivo-icono-grande d-none d-sm-flex">
+                                                    <i class="bi" [ngClass]="obtenerIconoDispositivo(dispositivo.tipo)"></i>
+                                                    @if (dispositivo.sesionesActivas > 0) {
+                                                        <span class="indicador-activo"></span>
+                                                    }
                                                 </div>
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div>
-                                                            <h6 class="mb-1">
+
+                                                <!-- Info del dispositivo -->
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <!-- Nombre editable / Badges -->
+                                                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                                        @if (dispositivoEditandoNombre() === dispositivo.id) {
+                                                            <div class="input-group input-group-sm" style="max-width: 280px;">
+                                                                <input
+                                                                    type="text"
+                                                                    class="form-control"
+                                                                    [(ngModel)]="nombreDispositivoEdicion"
+                                                                    (keyup.enter)="guardarNombreDispositivo(dispositivo)"
+                                                                    (keyup.escape)="cancelarEdicionNombre()"
+                                                                    maxlength="200">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-success"
+                                                                    (click)="guardarNombreDispositivo(dispositivo)">
+                                                                    <i class="bi bi-check-lg"></i>
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="btn btn-outline-secondary"
+                                                                    (click)="cancelarEdicionNombre()">
+                                                                    <i class="bi bi-x-lg"></i>
+                                                                </button>
+                                                            </div>
+                                                        } @else {
+                                                            <h6 class="mb-0 text-truncate">
                                                                 {{ dispositivo.nombre }}
-                                                                @if (dispositivo.esConfiable) {
-                                                                    <span class="badge text-bg-success ms-1">
-                                                                        <i class="bi bi-shield-check me-1"></i>Confiable
-                                                                    </span>
-                                                                }
+                                                                <button type="button"
+                                                                    class="btn btn-link btn-sm p-0 ms-1 text-muted"
+                                                                    (click)="iniciarEdicionNombre(dispositivo)"
+                                                                    [title]="'dispositivos.renombrar' | traducir">
+                                                                    <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
+                                                                </button>
                                                             </h6>
-                                                            <small class="text-muted">
-                                                                {{ dispositivo.navegador || 'Navegador desconocido' }}
-                                                                · {{ dispositivo.sistemaOperativo || 'SO desconocido' }}
-                                                            </small>
-                                                        </div>
-                                                        <button type="button" class="btn btn-outline-danger btn-sm"
-                                                            (click)="eliminarDispositivo(dispositivo)">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
+                                                        }
+                                                        @if (dispositivo.esConfiable) {
+                                                            <span class="badge text-bg-success">
+                                                                <i class="bi bi-shield-check me-1"></i>{{ 'dispositivos.confiable' | traducir }}
+                                                            </span>
+                                                        }
+                                                        @if (dispositivo.sesionesActivas > 0) {
+                                                            <span class="badge text-bg-info">
+                                                                <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>{{ 'dispositivos.enLinea' | traducir }}
+                                                            </span>
+                                                        }
                                                     </div>
-                                                    <div class="mt-1">
+
+                                                    <!-- Detalles técnicos -->
+                                                    <div class="d-flex flex-wrap gap-2 mb-2">
                                                         <small class="text-muted">
-                                                            Registrado: {{ formatearFechaHora(dispositivo.registradoEn) }}
-                                                            @if (dispositivo.ultimoUso) {
-                                                                <span class="mx-1">·</span>
-                                                                Último uso: {{ tiempoRelativo(dispositivo.ultimoUso) }}
-                                                            }
+                                                            <i class="bi bi-globe2 me-1"></i>
+                                                            {{ dispositivo.navegador || ('dispositivos.navegadorDesconocido' | traducir) }}
+                                                        </small>
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-cpu me-1"></i>
+                                                            {{ dispositivo.sistemaOperativo || ('dispositivos.soDesconocido' | traducir) }}
                                                         </small>
                                                     </div>
+
+                                                    <!-- Fechas -->
+                                                    <div class="d-flex flex-wrap gap-3">
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-calendar-plus me-1"></i>
+                                                            {{ 'dispositivos.registrado' | traducir }} {{ formatearFechaHora(dispositivo.registradoEn) }}
+                                                        </small>
+                                                        @if (dispositivo.ultimoUso) {
+                                                            <small class="text-muted">
+                                                                <i class="bi bi-clock-history me-1"></i>
+                                                                {{ 'dispositivos.ultimoUso' | traducir }} {{ tiempoRelativo(dispositivo.ultimoUso) }}
+                                                            </small>
+                                                        }
+                                                        @if (dispositivo.esConfiable && dispositivo.confirmadoEn) {
+                                                            <small class="text-success">
+                                                                <i class="bi bi-shield-check me-1"></i>
+                                                                {{ 'dispositivos.confirmadoEn' | traducir }} {{ formatearFechaHora(dispositivo.confirmadoEn) }}
+                                                            </small>
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Acciones -->
+                                                <div class="d-flex flex-column gap-1 flex-shrink-0">
+                                                    <button type="button"
+                                                        class="btn btn-sm"
+                                                        [class.btn-outline-success]="!dispositivo.esConfiable"
+                                                        [class.btn-outline-warning]="dispositivo.esConfiable"
+                                                        (click)="alternarConfianza(dispositivo)"
+                                                        [title]="dispositivo.esConfiable
+                                                            ? ('dispositivos.revocarConfianza' | traducir)
+                                                            : ('dispositivos.marcarConfiable' | traducir)">
+                                                        <i class="bi" [ngClass]="dispositivo.esConfiable ? 'bi-shield-x' : 'bi-shield-check'"></i>
+                                                    </button>
+                                                    <button type="button"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        (click)="eliminarDispositivo(dispositivo)"
+                                                        [title]="'dispositivos.eliminar' | traducir">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     }
                                 </div>
-                            } @else {
-                                <div class="text-center py-4">
-                                    <i class="bi bi-phone display-6 text-muted"></i>
-                                    <p class="text-muted mt-2">No hay dispositivos registrados</p>
-                                </div>
-                            }
+                            </div>
                         </div>
-                    </div>
+                    } @else {
+                        <!-- Estado vacío -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center py-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-shield-lock display-4 text-muted"></i>
+                                </div>
+                                <h6 class="text-muted mb-2">{{ 'dispositivos.sinDispositivos' | traducir }}</h6>
+                                <p class="text-muted small mb-0">{{ 'dispositivos.sinDispositivosDesc' | traducir }}</p>
+                            </div>
+                        </div>
+                    }
                 }
             }
         }

@@ -10,7 +10,7 @@ import {
     Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 import { TransferenciaService } from './transferencia.service';
 import {
@@ -20,7 +20,7 @@ import {
 } from './dto';
 
 @Controller('colaborador/transferencias')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 export class TransferenciaController {
     constructor(private readonly transferenciaService: TransferenciaService) {}
 

@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
 import {
     MiActividadService,
     ResumenMiActividad,
@@ -14,19 +15,21 @@ import {
     FiltrosOperaciones,
 } from './services/mi-actividad.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { IdiomaService } from '../../../core/services/idioma.service';
 
 type TabActiva = 'resumen' | 'bitacora' | 'operaciones' | 'sesiones' | 'timeline';
 
 @Component({
     selector: 'app-mi-actividad',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './mi-actividad.component.html',
     styleUrl: './mi-actividad.component.scss',
 })
 export class MiActividadComponent implements OnInit, OnDestroy {
     private miActividadService = inject(MiActividadService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     cargando = signal(false);
@@ -114,7 +117,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar resumen de actividad');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarResumen'));
                     this.cargando.set(false);
                 },
             });
@@ -144,7 +147,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar bitácora');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarBitacora'));
                     this.cargando.set(false);
                 },
             });
@@ -173,7 +176,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar operaciones');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarOperaciones'));
                     this.cargando.set(false);
                 },
             });
@@ -200,7 +203,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar sesiones');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarSesionesMi'));
                     this.cargando.set(false);
                 },
             });
@@ -227,7 +230,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar timeline');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarTimeline'));
                     this.cargando.set(false);
                 },
             });
@@ -263,7 +266,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
             severidad: this.severidadFiltro || undefined,
         };
         this.miActividadService.exportarBitacoraCsv(filtros);
-        this.toastService.success('Exportación de bitácora iniciada');
+        this.toastService.success(this.idiomaService.t('toast.exportBitacora'));
     }
 
     exportarOperaciones(): void {
@@ -272,7 +275,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
             tipoOperacion: this.tipoOperacionFiltro || undefined,
         };
         this.miActividadService.exportarOperacionesCsv(filtros);
-        this.toastService.success('Exportación de operaciones iniciada');
+        this.toastService.success(this.idiomaService.t('toast.exportOperaciones'));
     }
 
     // --- Paginación ---
@@ -382,10 +385,10 @@ export class MiActividadComponent implements OnInit, OnDestroy {
         const horas = Math.floor(diff / 3600000);
         const dias = Math.floor(diff / 86400000);
 
-        if (minutos < 1) return 'Justo ahora';
-        if (minutos < 60) return `Hace ${minutos} min`;
-        if (horas < 24) return `Hace ${horas}h`;
-        if (dias < 7) return `Hace ${dias}d`;
+        if (minutos < 1) return this.idiomaService.t('tiempo.ahoraMismo');
+        if (minutos < 60) return this.idiomaService.t('tiempo.haceMin').replace('{n}', String(minutos));
+        if (horas < 24) return this.idiomaService.t('tiempo.haceHoras').replace('{n}', String(horas));
+        if (dias < 7) return this.idiomaService.t('tiempo.haceDias').replace('{n}', String(dias));
         return this.formatearFechaSolo(fecha);
     }
 

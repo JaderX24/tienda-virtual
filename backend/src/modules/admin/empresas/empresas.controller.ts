@@ -16,14 +16,14 @@ import {
     FiltroEmpresasDto,
     CambiarEstadoEmpresaDto,
 } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Empresas')
 @Controller('admin/empresas')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class EmpresasController {
     constructor(private readonly empresasService: EmpresasService) {}
 

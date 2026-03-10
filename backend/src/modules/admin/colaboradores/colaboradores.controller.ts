@@ -17,14 +17,14 @@ import {
     FiltroColaboradoresDto,
     CambiarEstadoColaboradorDto,
 } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Colaboradores')
 @Controller('admin/colaboradores')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class ColaboradoresController {
     constructor(private readonly colaboradoresService: ColaboradoresService) {}
 

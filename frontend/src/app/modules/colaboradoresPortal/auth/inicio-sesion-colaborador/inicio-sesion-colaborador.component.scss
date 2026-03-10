@@ -505,3 +505,47 @@ $transicion: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     }
 }
+
+// --- 2FA ---
+
+.alerta-info {
+    background: #eff6ff;
+    border: 1px solid rgba(#3b82f6, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.3s ease;
+
+    i {
+        color: #3b82f6;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    span {
+        color: #1e40af;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+}
+
+.input-2fa {
+    input {
+        text-align: center;
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: 0.75rem;
+        padding-left: 3.5rem !important;
+        font-family: 'Courier New', monospace;
+
+        &::placeholder {
+            letter-spacing: 0.5rem;
+            font-weight: 400;
+            opacity: 0.4;
+        }
+    }
+}

@@ -2,6 +2,8 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { IdiomaService } from '../../../../core/services/idioma.service';
 import {
     InventarioService,
     OperacionInventario,
@@ -14,13 +16,14 @@ import { ToastService } from '../../../../core/services/toast.service';
 @Component({
     selector: 'app-entradas',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './entradas.component.html',
     styleUrl: './entradas.component.scss',
 })
 export class EntradasComponent implements OnInit, OnDestroy {
     private inventarioService = inject(InventarioService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     operaciones = signal<OperacionInventario[]>([]);
@@ -173,7 +176,7 @@ export class EntradasComponent implements OnInit, OnDestroy {
 
     registrarEntrada(): void {
         if (!this.formulario.productoId || !this.formulario.motivo) {
-            this.toastService.warning('Complete todos los campos obligatorios', 'Campos requeridos');
+            this.toastService.warning(this.idiomaService.t('toast.completeCampos'), this.idiomaService.t('toast.camposRequeridos'));
             return;
         }
 
@@ -190,7 +193,7 @@ export class EntradasComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     if (resp.exito) {
-                        this.toastService.success(resp.mensaje, 'Entrada registrada');
+                        this.toastService.success(resp.mensaje, this.idiomaService.t('toast.entradaRegistrada'));
                         this.cerrarFormulario();
                         this.cargarEntradas();
                     } else {
@@ -199,7 +202,7 @@ export class EntradasComponent implements OnInit, OnDestroy {
                 },
                 error: (err) => {
                     this.toastService.error(
-                        err.error?.message || 'Error al registrar la entrada',
+                        err.error?.message || this.idiomaService.t('toast.errorRegistrarEntrada'),
                     );
                 },
             });
@@ -217,9 +220,9 @@ export class EntradasComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaOperacion(tipo: string): string {
         const mapa: Record<string, string> = {
-            entrada: 'Entrada',
-            recepcion: 'Recepcion',
-            ajuste_positivo: 'Ajuste (+)',
+            entrada: this.idiomaService.t('reportes.entrada'),
+            recepcion: this.idiomaService.t('reportes.recepcion'),
+            ajuste_positivo: this.idiomaService.t('reportes.ajusteMas'),
         };
         return mapa[tipo] || tipo;
     }

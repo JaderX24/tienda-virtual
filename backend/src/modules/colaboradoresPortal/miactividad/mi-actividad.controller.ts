@@ -6,7 +6,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 import { MiActividadColaboradorService } from './mi-actividad.service';
 import {
@@ -16,7 +16,7 @@ import {
 } from './dto';
 
 @Controller('colaborador/mi-actividad')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 export class MiActividadColaboradorController {
     constructor(private readonly miActividadService: MiActividadColaboradorService) {}
 

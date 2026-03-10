@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { PermisosService } from './permisos.service';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Permisos')
 @Controller('admin/permisos')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class PermisosController {
     constructor(private readonly permisosService: PermisosService) {}
 

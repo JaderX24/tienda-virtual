@@ -8,15 +8,15 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CorreoService } from '../../../common/services';
+import { CorreoColaboradorService } from '../../../common/services';
+import { ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../common/services';
+import { generarContrasenaSegura } from '../../../common/utils';
 import {
     CrearColaboradorDto,
     ActualizarColaboradorDto,
     FiltroColaboradoresDto,
 } from './dto';
 import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
-
-const SALT_ROUNDS = 12;
 
 // Campos que se excluyen al devolver un colaborador
 const CAMPOS_SELECCION = {
@@ -90,8 +90,9 @@ export class ColaboradoresService {
 
     constructor(
         private prisma: PrismaService,
-        private correoService: CorreoService,
+        private correoService: CorreoColaboradorService,
         private configService: ConfigService,
+        private parametrosSeguridad: ParametrosSeguridadService,
     ) {}
 
     async crear(crearColaboradorDto: CrearColaboradorDto) {
@@ -133,9 +134,11 @@ export class ColaboradoresService {
             }
         }
 
-        // Generar contraseña temporal segura
-        const contrasenaTemporal = this.generarContrasenaTemporal();
-        const contrasenaHash = await bcrypt.hash(contrasenaTemporal, SALT_ROUNDS);
+        // Generar contraseña temporal segura (crypto.randomInt)
+        const longitudContrasena = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.LONGITUD_CONTRASENA_GENERACION);
+        const contrasenaTemporal = generarContrasenaSegura(longitudContrasena);
+        const bcryptRounds = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.BCRYPT_SALT_ROUNDS);
+        const contrasenaHash = await bcrypt.hash(contrasenaTemporal, bcryptRounds);
 
         const colaborador = await this.prisma.colabUsuario.create({
             data: {
@@ -179,7 +182,7 @@ export class ColaboradoresService {
 
         const urlFrontend = this.configService.get<string>('app.urlFrontend') || 'http://localhost:4200';
 
-        const correoEnviado = await this.correoService.enviarCorreoBienvenidaUsuario({
+        const correoEnviado = await this.correoService.enviarBienvenidaColaborador({
             nombre: `${colaborador.nombre} ${colaborador.apellido}`,
             correo: colaborador.correo,
             contrasena: contrasenaTemporal,
@@ -517,29 +520,6 @@ export class ColaboradoresService {
                 cantidad: item._count.id,
             })),
         };
-    }
-
-    private generarContrasenaTemporal(): string {
-        const mayusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const minusculas = 'abcdefghijklmnopqrstuvwxyz';
-        const numeros = '0123456789';
-        const especiales = '!@#$%&*_+-=';
-        const todos = mayusculas + minusculas + numeros + especiales;
-
-        let contrasena = '';
-        contrasena += mayusculas[Math.floor(Math.random() * mayusculas.length)];
-        contrasena += minusculas[Math.floor(Math.random() * minusculas.length)];
-        contrasena += numeros[Math.floor(Math.random() * numeros.length)];
-        contrasena += especiales[Math.floor(Math.random() * especiales.length)];
-
-        for (let i = 4; i < 16; i++) {
-            contrasena += todos[Math.floor(Math.random() * todos.length)];
-        }
-
-        return contrasena
-            .split('')
-            .sort(() => Math.random() - 0.5)
-            .join('');
     }
 
     private obtenerCampoOrden(campo?: string): string {

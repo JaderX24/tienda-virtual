@@ -9,6 +9,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CrearCategoriaDto, ActualizarCategoriaDto, FiltroCategoriaDto } from './dto';
 import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
+import { generarSlug } from '../../../common/utils';
 
 @Injectable()
 export class CategoriasAdminService {
@@ -39,7 +40,7 @@ export class CategoriasAdminService {
         const categoria = await this.prisma.categoria.create({
             data: {
                 nombre: crearCategoriaDto.nombre,
-                slug: this.generarSlug(crearCategoriaDto.nombre),
+                slug: generarSlug(crearCategoriaDto.nombre),
                 descripcion: crearCategoriaDto.descripcion,
                 imagen: crearCategoriaDto.imagen,
                 categoriaPadreId: crearCategoriaDto.categoriaPadreId,
@@ -209,7 +210,7 @@ export class CategoriasAdminService {
 
         if (actualizarCategoriaDto.nombre !== undefined) {
             datosActualizacion.nombre = actualizarCategoriaDto.nombre;
-            datosActualizacion.slug = this.generarSlug(actualizarCategoriaDto.nombre);
+            datosActualizacion.slug = generarSlug(actualizarCategoriaDto.nombre);
         }
         if (actualizarCategoriaDto.descripcion !== undefined) {
             datosActualizacion.descripcion = actualizarCategoriaDto.descripcion;
@@ -367,14 +368,5 @@ export class CategoriasAdminService {
         }
 
         return false;
-    }
-
-    private generarSlug(nombre: string): string {
-        return nombre
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
     }
 }

@@ -60,7 +60,7 @@ const ROLES = [
 ];
 
 // Permisos asignados a cada rol (por código de permiso)
-const PERMISOS_POR_ROL: Record<string, string[]> = {
+const PERMISOS_POR_ROL: Record<string, string[] | 'TODOS'> = {
     jefe_bodega: 'TODOS',
     supervisor: [
         'colab_dashboard.ver',
@@ -131,13 +131,13 @@ const PERMISOS_POR_ROL: Record<string, string[]> = {
         'colab_notificaciones.ver',
         'colab_perfil.ver',
     ],
-} as any;
+};
 
 // Configuración del portal de colaboradores
 const CONFIGURACION = [
     { clave: 'sesion_duracion_minutos',          valor: '480',                   tipoDato: 'numero',   descripcion: 'Duración máxima de sesión en minutos (8 horas)',                categoria: 'sesiones' },
     { clave: 'sesion_inactividad_minutos',       valor: '30',                    tipoDato: 'numero',   descripcion: 'Tiempo de inactividad antes de cerrar sesión',                  categoria: 'sesiones' },
-    { clave: 'max_sesiones_simultaneas',         valor: '1',                     tipoDato: 'numero',   descripcion: 'Máximo de sesiones simultáneas por colaborador',                categoria: 'sesiones' },
+    { clave: 'max_sesiones_simultaneas',         valor: '3',                     tipoDato: 'numero',   descripcion: 'Máximo de sesiones simultáneas por colaborador',                categoria: 'sesiones' },
     { clave: 'max_intentos_login',               valor: '5',                     tipoDato: 'numero',   descripcion: 'Intentos de login antes de bloqueo',                            categoria: 'sesiones' },
     { clave: 'minutos_bloqueo_login',            valor: '15',                    tipoDato: 'numero',   descripcion: 'Minutos de bloqueo tras exceder intentos',                      categoria: 'sesiones' },
     { clave: 'contrasena_longitud_minima',       valor: '12',                    tipoDato: 'numero',   descripcion: 'Longitud mínima de contraseña',                                 categoria: 'seguridad' },

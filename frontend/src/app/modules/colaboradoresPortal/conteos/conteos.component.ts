@@ -2,6 +2,8 @@ import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { IdiomaService } from '../../../core/services/idioma.service';
 import {
     ConteoService,
     Conteo,
@@ -19,13 +21,14 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
     selector: 'app-conteos',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './conteos.component.html',
     styleUrl: './conteos.component.scss',
 })
 export class ConteosComponent implements OnInit, OnDestroy {
     private conteoService = inject(ConteoService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     conteos = signal<Conteo[]>([]);
@@ -177,11 +180,11 @@ export class ConteosComponent implements OnInit, OnDestroy {
 
     registrarConteo(): void {
         if (!this.formulario.almacenId) {
-            this.toastService.warning('Seleccione un almacén', 'Campo requerido');
+            this.toastService.warning(this.idiomaService.t('toast.seleccioneAlmacen'), this.idiomaService.t('toast.campoRequerido'));
             return;
         }
         if (!this.formulario.fechaProgramada) {
-            this.toastService.warning('Seleccione la fecha programada', 'Campo requerido');
+            this.toastService.warning(this.idiomaService.t('toast.seleccioneFecha'), this.idiomaService.t('toast.campoRequerido'));
             return;
         }
 
@@ -199,16 +202,16 @@ export class ConteosComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     if (resp.exito) {
-                        this.toastService.success(resp.mensaje || 'Conteo programado exitosamente', 'Conteo programado');
+                        this.toastService.success(resp.mensaje || this.idiomaService.t('toast.conteoProgramadoMsg'), this.idiomaService.t('toast.conteoProgramado'));
                         this.cerrarFormulario();
                         this.cargarConteos();
                         this.actualizarResumen();
                     } else {
-                        this.toastService.error(resp.mensaje || 'Error al crear el conteo');
+                        this.toastService.error(resp.mensaje || this.idiomaService.t('toast.errorCrearConteo'));
                     }
                 },
                 error: (err) => {
-                    this.toastService.error(err.error?.message || 'Error al crear el conteo');
+                    this.toastService.error(err.error?.message || this.idiomaService.t('toast.errorCrearConteo'));
                 },
             });
     }
@@ -227,7 +230,7 @@ export class ConteosComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('Error al cargar el detalle');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarDetConteo'));
                     this.cargando.set(false);
                 },
             });
@@ -246,13 +249,13 @@ export class ConteosComponent implements OnInit, OnDestroy {
                 .subscribe({
                     next: (resp) => {
                         if (resp.exito) {
-                            this.toastService.success('Conteo iniciado', 'En progreso');
+                            this.toastService.success(this.idiomaService.t('toast.conteoIniciado'), this.idiomaService.t('toast.enProgreso'));
                             this.abrirModoConteo(conteo.id);
                             this.actualizarResumen();
                         }
                     },
                     error: (err) => {
-                        this.toastService.error(err.error?.message || 'Error al iniciar el conteo');
+                        this.toastService.error(err.error?.message || this.idiomaService.t('toast.errorIniciarConteo'));
                     },
                 });
         } else if (conteo.estado === 'en_progreso') {
@@ -277,7 +280,7 @@ export class ConteosComponent implements OnInit, OnDestroy {
                         this.vistaActual.set('contando');
                     }
                 },
-                error: () => this.toastService.error('Error al cargar productos'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorCargarProductos')),
             });
     }
 
@@ -289,7 +292,7 @@ export class ConteosComponent implements OnInit, OnDestroy {
     guardarConteoProducto(producto: ProductoParaConteo): void {
         const cantidad = this.cantidadesRegistrar[producto.id];
         if (cantidad === null || cantidad === undefined || cantidad < 0) {
-            this.toastService.warning('Ingrese una cantidad válida (0 o mayor)', 'Cantidad inválida');
+            this.toastService.warning(this.idiomaService.t('toast.cantidadInvalidaMsg'), this.idiomaService.t('toast.cantidadInvalida'));
             return;
         }
 
@@ -303,7 +306,7 @@ export class ConteosComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     if (resp.exito) {
-                        this.toastService.success(resp.mensaje || 'Producto registrado', 'Registrado');
+                        this.toastService.success(resp.mensaje || this.idiomaService.t('toast.productoRegistrado'), this.idiomaService.t('toast.registrado'));
                         const productos = this.productosParaContar();
                         const actualizado = productos.map(p =>
                             p.id === producto.id
@@ -314,7 +317,7 @@ export class ConteosComponent implements OnInit, OnDestroy {
                     }
                 },
                 error: (err) => {
-                    this.toastService.error(err.error?.message || 'Error al registrar');
+                    this.toastService.error(err.error?.message || this.idiomaService.t('toast.errorRegistrar'));
                 },
             });
     }
@@ -330,7 +333,7 @@ export class ConteosComponent implements OnInit, OnDestroy {
         }
 
         if (detalles.length === 0) {
-            this.toastService.warning('No hay productos con cantidades para registrar', 'Sin cambios');
+            this.toastService.warning(this.idiomaService.t('toast.sinProductosCantidad'), this.idiomaService.t('toast.sinCambios'));
             return;
         }
 
@@ -339,12 +342,12 @@ export class ConteosComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     if (resp.exito) {
-                        this.toastService.success(resp.mensaje || 'Lote registrado', 'Lote guardado');
+                        this.toastService.success(resp.mensaje || this.idiomaService.t('toast.loteRegistrado'), this.idiomaService.t('toast.loteGuardado'));
                         this.abrirModoConteo(this.conteoActualId);
                     }
                 },
                 error: (err) => {
-                    this.toastService.error(err.error?.message || 'Error al guardar lote');
+                    this.toastService.error(err.error?.message || this.idiomaService.t('toast.errorGuardarLote'));
                 },
             });
     }
@@ -393,7 +396,7 @@ export class ConteosComponent implements OnInit, OnDestroy {
         .subscribe({
             next: (resp) => {
                 if (resp.exito) {
-                    this.toastService.success(resp.mensaje || 'Estado actualizado', 'Estado actualizado');
+                    this.toastService.success(resp.mensaje || this.idiomaService.t('toast.estadoActualizado'), this.idiomaService.t('toast.estadoActualizado'));
                     this.cerrarModalEstado();
 
                     if (this.vistaActual() === 'detalle') {
@@ -403,11 +406,11 @@ export class ConteosComponent implements OnInit, OnDestroy {
                     this.cargarConteos(this.paginaActual());
                     this.actualizarResumen();
                 } else {
-                    this.toastService.error(resp.mensaje || 'Error al actualizar estado');
+                    this.toastService.error(resp.mensaje || this.idiomaService.t('toast.errorActualizarEstado'));
                 }
             },
             error: (err) => {
-                this.toastService.error(err.error?.message || 'Error al actualizar estado');
+                this.toastService.error(err.error?.message || this.idiomaService.t('toast.errorActualizarEstado'));
             },
         });
     }
@@ -445,12 +448,12 @@ export class ConteosComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaEstado(estado: string): string {
         const etiquetas: Record<string, string> = {
-            programado: 'Programado',
-            en_progreso: 'En Progreso',
-            completado: 'Completado',
-            aprobado: 'Aprobado',
-            rechazado: 'Rechazado',
-            cancelado: 'Cancelado',
+            programado: this.idiomaService.t('etiqueta.programado'),
+            en_progreso: this.idiomaService.t('etiqueta.enProgresoLabel'),
+            completado: this.idiomaService.t('etiqueta.completado'),
+            aprobado: this.idiomaService.t('etiqueta.aprobado'),
+            rechazado: this.idiomaService.t('etiqueta.rechazado'),
+            cancelado: this.idiomaService.t('etiqueta.cancelado'),
         };
         return etiquetas[estado] || estado;
     }

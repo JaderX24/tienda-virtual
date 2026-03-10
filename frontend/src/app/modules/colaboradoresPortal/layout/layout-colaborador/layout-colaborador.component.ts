@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarColabComponent } from '../sidebar/sidebar.component';
@@ -6,6 +6,7 @@ import { HeaderColabComponent } from '../header/header.component';
 import { FooterColabComponent } from '../footer/footer.component';
 import { AuthColaboradorService } from '../../auth/services/auth-colaborador.service';
 import { ToastContainerComponent } from '../../../../core/components/toast';
+import { TemaService } from '../../../../core/services/tema.service';
 
 @Component({
     selector: 'app-layout-colaborador',
@@ -23,6 +24,7 @@ import { ToastContainerComponent } from '../../../../core/components/toast';
 })
 export class LayoutColaboradorComponent {
     private authService = inject(AuthColaboradorService);
+    private temaService = inject(TemaService);
 
     sidebarColapsado = signal(false);
     sidebarMobileMostrar = signal(false);
@@ -33,6 +35,12 @@ export class LayoutColaboradorComponent {
 
     constructor() {
         this.verificarTamanioPantalla();
+
+        // Sincronizar sidebar compacto con preferencias
+        effect(() => {
+            const compacto = this.temaService.sidebarCompacto();
+            this.sidebarColapsado.set(compacto);
+        });
     }
 
     @HostListener('window:resize')
@@ -47,7 +55,9 @@ export class LayoutColaboradorComponent {
     }
 
     toggleSidebar(): void {
-        this.sidebarColapsado.update(valor => !valor);
+        const nuevoValor = !this.sidebarColapsado();
+        this.sidebarColapsado.set(nuevoValor);
+        this.temaService.aplicarSidebarCompacto(nuevoValor);
     }
 
     toggleSidebarMobile(): void {

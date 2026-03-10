@@ -5,12 +5,16 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../common/services';
 
 @Injectable()
 export class MiTurnoService {
     private readonly logger = new Logger(MiTurnoService.name);
 
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private parametrosSeguridad: ParametrosSeguridadService,
+    ) {}
 
     async obtenerTurnoHoy(usuarioId: number) {
         const { hoy, manana } = this.obtenerRangoHoy();
@@ -119,12 +123,13 @@ export class MiTurnoService {
             }
         }
 
+        const toleranciaMinutos = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.TURNO_TOLERANCIA_MINUTOS);
+
         const turnosPuntuales = turnosFinalizados.filter((t) => {
             if (!t.horaEntrada) return false;
             const entrada = new Date(t.horaEntrada);
             const programada = this.combinarFechaHora(t.fecha, t.horaInicioProgramada);
-            // Tolerancia de 5 minutos
-            return entrada.getTime() <= programada.getTime() + 5 * 60 * 1000;
+            return entrada.getTime() <= programada.getTime() + toleranciaMinutos * 60 * 1000;
         });
 
         return {

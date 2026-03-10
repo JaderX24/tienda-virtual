@@ -2,6 +2,8 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { IdiomaService } from '../../../../core/services/idioma.service';
 import {
     InventarioService,
     OperacionInventario,
@@ -14,13 +16,14 @@ import { ToastService } from '../../../../core/services/toast.service';
 @Component({
     selector: 'app-salidas',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './salidas.component.html',
     styleUrl: './salidas.component.scss',
 })
 export class SalidasComponent implements OnInit, OnDestroy {
     private inventarioService = inject(InventarioService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     operaciones = signal<OperacionInventario[]>([]);
@@ -173,15 +176,15 @@ export class SalidasComponent implements OnInit, OnDestroy {
 
     registrarSalida(): void {
         if (!this.formulario.productoId || !this.formulario.motivo) {
-            this.toastService.warning('Complete todos los campos obligatorios', 'Campos requeridos');
+            this.toastService.warning(this.idiomaService.t('toast.completeCampos'), this.idiomaService.t('toast.camposRequeridos'));
             return;
         }
 
         const productoSel = this.productoSeleccionado();
         if (productoSel && this.formulario.cantidad > productoSel.stock) {
             this.toastService.warning(
-                `Stock insuficiente. Disponible: ${productoSel.stock}, Solicitado: ${this.formulario.cantidad}`,
-                'Stock insuficiente',
+                this.idiomaService.t('toast.stockInsufMsg').replace('{disponible}', String(productoSel.stock)).replace('{solicitado}', String(this.formulario.cantidad)),
+                this.idiomaService.t('toast.stockInsuf'),
             );
             return;
         }
@@ -199,7 +202,7 @@ export class SalidasComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     if (resp.exito) {
-                        this.toastService.success(resp.mensaje, 'Salida registrada');
+                        this.toastService.success(resp.mensaje, this.idiomaService.t('toast.salidaRegistrada'));
                         this.cerrarFormulario();
                         this.cargarSalidas();
                     } else {
@@ -208,7 +211,7 @@ export class SalidasComponent implements OnInit, OnDestroy {
                 },
                 error: (err) => {
                     this.toastService.error(
-                        err.error?.message || 'Error al registrar la salida',
+                        err.error?.message || this.idiomaService.t('toast.errorRegistrarSalida'),
                     );
                 },
             });
@@ -226,9 +229,9 @@ export class SalidasComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaOperacion(tipo: string): string {
         const mapa: Record<string, string> = {
-            salida: 'Salida',
-            despacho: 'Despacho',
-            ajuste_negativo: 'Ajuste (-)',
+            salida: this.idiomaService.t('reportes.salida'),
+            despacho: this.idiomaService.t('reportes.despacho'),
+            ajuste_negativo: this.idiomaService.t('reportes.ajusteMenos'),
         };
         return mapa[tipo] || tipo;
     }

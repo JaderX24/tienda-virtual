@@ -12,14 +12,14 @@ import {
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { RolesService } from './roles.service';
 import { CrearRolDto, ActualizarRolDto, FiltroRolesDto, AsignarPermisosDto, CambiarEstadoRolDto } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Roles')
 @Controller('admin/roles')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class RolesController {
     constructor(private readonly rolesService: RolesService) {}
 

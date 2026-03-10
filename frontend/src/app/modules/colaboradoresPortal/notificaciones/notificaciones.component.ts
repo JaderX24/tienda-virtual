@@ -2,25 +2,28 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
 import {
     NotificacionesService,
     Notificacion,
     FiltrosNotificaciones,
 } from './services/notificaciones.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { IdiomaService } from '../../../core/services/idioma.service';
 
 type TabActiva = 'todas' | 'sin-leer' | 'archivadas';
 
 @Component({
     selector: 'app-notificaciones',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './notificaciones.component.html',
     styleUrl: './notificaciones.component.scss',
 })
 export class NotificacionesComponent implements OnInit, OnDestroy {
     private notificacionesService = inject(NotificacionesService);
     private toastService = inject(ToastService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     cargando = signal(false);
@@ -93,7 +96,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudieron cargar las notificaciones');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarNotif'));
                     this.cargando.set(false);
                 },
             });
@@ -121,9 +124,9 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: () => {
                     notificacion.leida = true;
-                    this.toastService.success('Notificación marcada como leída');
+                    this.toastService.success(this.idiomaService.t('toast.notifLeida'));
                 },
-                error: () => this.toastService.error('Error al marcar la notificación'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorMarcarNotif')),
             });
     }
 
@@ -132,11 +135,11 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destruir$))
             .subscribe({
                 next: () => {
-                    this.toastService.success('Notificación archivada');
+                    this.toastService.success(this.idiomaService.t('toast.notifArchivada'));
                     this.cargarNotificaciones();
                     this.notificacionesService.actualizarContador();
                 },
-                error: () => this.toastService.error('Error al archivar la notificación'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorArchivarNotif')),
             });
     }
 
@@ -145,11 +148,11 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destruir$))
             .subscribe({
                 next: () => {
-                    this.toastService.success('Notificación eliminada');
+                    this.toastService.success(this.idiomaService.t('toast.notifEliminada'));
                     this.cargarNotificaciones();
                     this.notificacionesService.actualizarContador();
                 },
-                error: () => this.toastService.error('Error al eliminar la notificación'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorEliminarNotif')),
             });
     }
 
@@ -160,10 +163,10 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destruir$))
             .subscribe({
                 next: () => {
-                    this.toastService.success('Todas las notificaciones marcadas como leídas');
+                    this.toastService.success(this.idiomaService.t('toast.todasLeidas'));
                     this.cargarNotificaciones();
                 },
-                error: () => this.toastService.error('Error al marcar notificaciones'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorMarcarTodas')),
             });
     }
 
@@ -175,12 +178,12 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destruir$))
             .subscribe({
                 next: () => {
-                    this.toastService.success(`${ids.length} notificaciones marcadas como leídas`);
+                    this.toastService.success(this.idiomaService.t('toast.notifsSelLeidas').replace('{n}', String(ids.length)));
                     this.limpiarSeleccion();
                     this.cargarNotificaciones();
                     this.notificacionesService.actualizarContador();
                 },
-                error: () => this.toastService.error('Error al marcar notificaciones'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorMarcarTodas')),
             });
     }
 
@@ -189,10 +192,10 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destruir$))
             .subscribe({
                 next: () => {
-                    this.toastService.success('Notificaciones leídas archivadas');
+                    this.toastService.success(this.idiomaService.t('toast.leidasArchivadas'));
                     this.cargarNotificaciones();
                 },
-                error: () => this.toastService.error('Error al archivar notificaciones'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorArchivarTodas')),
             });
     }
 
@@ -266,10 +269,10 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         const horas = Math.floor(diferencia / 3600000);
         const dias = Math.floor(diferencia / 86400000);
 
-        if (minutos < 1) return 'Ahora mismo';
-        if (minutos < 60) return `Hace ${minutos} min`;
-        if (horas < 24) return `Hace ${horas} h`;
-        if (dias < 7) return `Hace ${dias} d`;
+        if (minutos < 1) return this.idiomaService.t('tiempo.ahoraMismo');
+        if (minutos < 60) return this.idiomaService.t('tiempo.haceMin').replace('{n}', String(minutos));
+        if (horas < 24) return this.idiomaService.t('tiempo.haceHoras').replace('{n}', String(horas));
+        if (dias < 7) return this.idiomaService.t('tiempo.haceDias').replace('{n}', String(dias));
         return fecha.toLocaleDateString('es-HN', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
@@ -297,11 +300,11 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaTipo(tipo: string): string {
         const etiquetas: Record<string, string> = {
-            info: 'Información',
-            success: 'Éxito',
-            warning: 'Advertencia',
-            danger: 'Importante',
-            sistema: 'Sistema',
+            info: this.idiomaService.t('notif.informacion'),
+            success: this.idiomaService.t('notif.exito'),
+            warning: this.idiomaService.t('notif.advertencia'),
+            danger: this.idiomaService.t('notif.importante'),
+            sistema: this.idiomaService.t('notif.sistema'),
         };
         return etiquetas[tipo] || tipo;
     }

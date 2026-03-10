@@ -11,6 +11,7 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 import { LoginAdminDto } from './dto';
 import { MENSAJES_ERROR, ROLES, PERMISOS_POR_ROL, TipoRol } from '../../../../common/constants';
 import { JwtPayload } from '../../../../common/strategies';
+import { ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../../common/services';
 
 const ROLES_ADMINISTRATIVOS = [
     ROLES.SUPER_ADMIN,
@@ -19,9 +20,6 @@ const ROLES_ADMINISTRATIVOS = [
     ROLES.VENDEDOR,
     ROLES.BODEGUERO,
 ];
-
-const INTENTOS_MAXIMOS = 5;
-const TIEMPO_BLOQUEO_MINUTOS = 15;
 
 interface RegistroIntento {
     intentos: number;
@@ -38,6 +36,7 @@ export class InicioSesionAdministrativoService {
         private prisma: PrismaService,
         private jwtService: JwtService,
         private configService: ConfigService,
+        private parametrosSeguridad: ParametrosSeguridadService,
     ) {}
 
     async login(loginDto: LoginAdminDto, ip?: string, userAgent?: string) {
@@ -61,7 +60,7 @@ export class InicioSesionAdministrativoService {
         });
 
         if (!usuario) {
-            this.registrarIntentoFallido(correo);
+            await this.registrarIntentoFallido(correo);
             this.logger.warn(`Intento de login fallido - correo no existe: ${correo}`);
             throw new UnauthorizedException(MENSAJES_ERROR.CREDENCIALES_INVALIDAS);
         }
@@ -79,7 +78,7 @@ export class InicioSesionAdministrativoService {
         const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasenaHash);
 
         if (!contrasenaValida) {
-            this.registrarIntentoFallido(correo);
+            await this.registrarIntentoFallido(correo);
             this.logger.warn(`Contraseña incorrecta para: ${correo}`);
             throw new UnauthorizedException(MENSAJES_ERROR.CREDENCIALES_INVALIDAS);
         }
@@ -249,10 +248,10 @@ export class InicioSesionAdministrativoService {
             permisos,
         };
 
-        const accessSecret = this.configService.get<string>('jwt.accessSecret');
-        const refreshSecret = this.configService.get<string>('jwt.refreshSecret');
-        const accessExpiracion = this.configService.get<string>('jwt.accessExpiracion') || '15m';
-        const refreshExpiracion = this.configService.get<string>('jwt.refreshExpiracion') || '7d';
+        const accessSecret = this.configService.get<string>('jwt.adminAccessSecret');
+        const refreshSecret = this.configService.get<string>('jwt.adminRefreshSecret');
+        const accessExpiracion = this.configService.get<string>('jwt.adminAccessExpiracion');
+        const refreshExpiracion = this.configService.get<string>('jwt.adminRefreshExpiracion');
 
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
@@ -281,8 +280,8 @@ export class InicioSesionAdministrativoService {
             permisos,
         };
 
-        const accessSecret = this.configService.get<string>('jwt.accessSecret');
-        const accessExpiracion = this.configService.get<string>('jwt.accessExpiracion') || '15m';
+        const accessSecret = this.configService.get<string>('jwt.adminAccessSecret');
+        const accessExpiracion = this.configService.get<string>('jwt.adminAccessExpiracion');
 
         return this.jwtService.signAsync(payload, {
             secret: accessSecret,
@@ -296,7 +295,7 @@ export class InicioSesionAdministrativoService {
         ip?: string,
         userAgent?: string,
     ) {
-        const refreshExpiracion = this.configService.get<string>('jwt.refreshExpiracion') || '7d';
+        const refreshExpiracion = this.configService.get<string>('jwt.adminRefreshExpiracion')!;
         const diasExpiracion = parseInt(refreshExpiracion) || 7;
         const expiraEn = new Date();
         expiraEn.setDate(expiraEn.getDate() + diasExpiracion);
@@ -334,7 +333,10 @@ export class InicioSesionAdministrativoService {
         }
     }
 
-    private registrarIntentoFallido(correo: string) {
+    private async registrarIntentoFallido(correo: string) {
+        const intentosMaximos = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.INTENTOS_MAXIMOS_LOGIN);
+        const tiempoBloqueoMinutos = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.TIEMPO_BLOQUEO_MINUTOS);
+
         const registro = this.intentosFallidos.get(correo) || {
             intentos: 0,
             ultimoIntento: new Date(),
@@ -343,9 +345,9 @@ export class InicioSesionAdministrativoService {
         registro.intentos += 1;
         registro.ultimoIntento = new Date();
 
-        if (registro.intentos >= INTENTOS_MAXIMOS) {
+        if (registro.intentos >= intentosMaximos) {
             registro.bloqueadoHasta = new Date(
-                Date.now() + TIEMPO_BLOQUEO_MINUTOS * 60 * 1000,
+                Date.now() + tiempoBloqueoMinutos * 60 * 1000,
             );
             this.logger.warn(`Cuenta bloqueada por intentos fallidos: ${correo}`);
         }
@@ -358,7 +360,7 @@ export class InicioSesionAdministrativoService {
     }
 
     private obtenerTiempoExpiracion(): number {
-        const expiracion = this.configService.get<string>('jwt.accessExpiracion') || '15m';
+        const expiracion = this.configService.get<string>('jwt.adminAccessExpiracion')!;
         const match = expiracion.match(/(\d+)([mhd])/);
 
         if (!match) return 900;

@@ -1,5 +1,4 @@
 <div class="dashboard-colaborador">
-    <!-- Encabezado de bienvenida -->
     <div class="bienvenida-card mb-4">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -12,25 +11,23 @@
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <a routerLink="/colaborador/mi-turno" class="btn btn-teal me-2">
-                    <i class="bi bi-clock me-1"></i>Mi Turno
+                    <i class="bi bi-clock me-1"></i>{{ 'dashboard.miTurno' | traducir }}
                 </a>
                 <a routerLink="/colaborador/inventario" class="btn btn-outline-secondary">
-                    <i class="bi bi-box-seam me-1"></i>Inventario
+                    <i class="bi bi-box-seam me-1"></i>{{ 'dashboard.inventario' | traducir }}
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Indicador de carga -->
     @if (cargando()) {
         <div class="text-center py-5">
             <div class="spinner-border text-teal" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
             </div>
-            <p class="text-muted mt-2">Cargando datos del dashboard...</p>
+            <p class="text-muted mt-2">{{ 'comun.cargandoDashboard' | traducir }}</p>
         </div>
     } @else {
-        <!-- Tarjetas resumen -->
         <div class="row g-3 mb-4">
             @for (tarjeta of tarjetas(); track tarjeta.titulo) {
                 <div class="col-6 col-lg-3">
@@ -43,7 +40,7 @@
                                     @if (tarjeta.tendencia) {
                                         <small [class]="tarjeta.tendenciaPositiva ? 'text-success' : 'text-danger'">
                                             <i class="bi" [class.bi-arrow-up]="tarjeta.tendenciaPositiva" [class.bi-arrow-down]="!tarjeta.tendenciaPositiva"></i>
-                                            {{ tarjeta.tendencia }} vs ayer
+                                            {{ tarjeta.tendencia }} {{ 'dashboard.vsAyer' | traducir }}
                                         </small>
                                     }
                                 </div>
@@ -58,18 +55,17 @@
         </div>
 
         <div class="row g-4">
-            <!-- Actividad reciente -->
             <div class="col-lg-7">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
-                        <h6 class="fw-bold mb-0"><i class="bi bi-activity me-2 text-teal"></i>Actividad Reciente</h6>
-                        <a routerLink="/colaborador/mi-actividad" class="btn btn-sm btn-outline-secondary">Ver todo</a>
+                        <h6 class="fw-bold mb-0"><i class="bi bi-activity me-2 text-teal"></i>{{ 'dashboard.actividadReciente' | traducir }}</h6>
+                        <a routerLink="/colaborador/mi-actividad" class="btn btn-sm btn-outline-secondary">{{ 'dashboard.verTodo' | traducir }}</a>
                     </div>
                     <div class="card-body p-0">
                         @if (actividadesRecientes().length === 0) {
                             <div class="text-center py-4">
                                 <i class="bi bi-inbox text-muted fs-1"></i>
-                                <p class="text-muted mt-2 mb-0">Sin actividad reciente</p>
+                                <p class="text-muted mt-2 mb-0">{{ 'dashboard.sinActividad' | traducir }}</p>
                             </div>
                         } @else {
                             <div class="list-group list-group-flush">
@@ -92,17 +88,16 @@
                 </div>
             </div>
 
-            <!-- Tareas del día -->
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom py-3">
-                        <h6 class="fw-bold mb-0"><i class="bi bi-list-check me-2 text-teal"></i>Tareas del Día</h6>
+                        <h6 class="fw-bold mb-0"><i class="bi bi-list-check me-2 text-teal"></i>{{ 'dashboard.tareasDia' | traducir }}</h6>
                     </div>
                     <div class="card-body">
                         @if (tareasDelDia().length > 0) {
                             <div class="progreso-tareas mb-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">Progreso</small>
+                                    <small class="text-muted">{{ 'dashboard.progreso' | traducir }}</small>
                                     <small class="fw-bold">{{ tareasCompletadas }}/{{ totalTareas }}</small>
                                 </div>
                                 <div class="progress" style="height: 8px;">
@@ -127,41 +122,40 @@
                         } @else {
                             <div class="text-center py-3">
                                 <i class="bi bi-calendar-check text-muted fs-2"></i>
-                                <p class="text-muted mt-2 mb-0">Sin tareas programadas para hoy</p>
+                                <p class="text-muted mt-2 mb-0">{{ 'dashboard.sinTareas' | traducir }}</p>
                             </div>
                         }
                     </div>
                 </div>
 
-                <!-- Accesos rápidos -->
                 <div class="card border-0 shadow-sm mt-4">
                     <div class="card-header bg-white border-bottom py-3">
-                        <h6 class="fw-bold mb-0"><i class="bi bi-lightning me-2 text-teal"></i>Accesos Rápidos</h6>
+                        <h6 class="fw-bold mb-0"><i class="bi bi-lightning me-2 text-teal"></i>{{ 'dashboard.accesosRapidos' | traducir }}</h6>
                     </div>
                     <div class="card-body">
                         <div class="row g-2">
                             <div class="col-6">
                                 <a routerLink="/colaborador/inventario/conteos" class="btn btn-light acceso-rapido w-100">
                                     <i class="bi bi-clipboard-data text-teal"></i>
-                                    <span>Conteos</span>
+                                    <span>{{ 'menu.conteos' | traducir }}</span>
                                 </a>
                             </div>
                             <div class="col-6">
                                 <a routerLink="/colaborador/transferencias" class="btn btn-light acceso-rapido w-100">
                                     <i class="bi bi-arrow-left-right text-teal"></i>
-                                    <span>Transferencias</span>
+                                    <span>{{ 'menu.transferencias' | traducir }}</span>
                                 </a>
                             </div>
                             <div class="col-6">
                                 <a routerLink="/colaborador/productos" class="btn btn-light acceso-rapido w-100">
                                     <i class="bi bi-search text-teal"></i>
-                                    <span>Buscar Producto</span>
+                                    <span>{{ 'dashboard.buscarProducto' | traducir }}</span>
                                 </a>
                             </div>
                             <div class="col-6">
                                 <a routerLink="/colaborador/reportes" class="btn btn-light acceso-rapido w-100">
                                     <i class="bi bi-file-earmark-bar-graph text-teal"></i>
-                                    <span>Reportes</span>
+                                    <span>{{ 'menu.reportes' | traducir }}</span>
                                 </a>
                             </div>
                         </div>

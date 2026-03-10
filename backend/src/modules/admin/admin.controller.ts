@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
-import { JwtAuthGuard, RolesGuard } from '../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../common/decorators';
 import { ROLES } from '../../common/constants';
 
 @ApiTags('Administración')
 @Controller('admin')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 @Roles(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.GERENTE)
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}

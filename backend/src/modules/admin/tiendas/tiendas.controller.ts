@@ -12,14 +12,14 @@ import {
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { TiendasService } from './tiendas.service';
 import { FiltroTiendasDto, CambiarEstadoTiendaDto } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Tiendas')
 @Controller('admin/tiendas')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class TiendasController {
     constructor(private readonly tiendasService: TiendasService) {}
 

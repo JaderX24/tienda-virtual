@@ -2,22 +2,25 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
 import {
     MiTurnoService,
     Turno,
     ResumenSemanal,
     ActividadTurno,
 } from './services/mi-turno.service';
+import { IdiomaService } from '../../../core/services/idioma.service';
 
 @Component({
     selector: 'app-mi-turno',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './mi-turno.component.html',
     styleUrl: './mi-turno.component.scss',
 })
 export class MiTurnoComponent implements OnInit, OnDestroy {
     private miTurnoService = inject(MiTurnoService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     turnoHoy = signal<Turno | null>(null);
@@ -104,7 +107,7 @@ export class MiTurnoComponent implements OnInit, OnDestroy {
                         this.mensajeError.set(resp.mensaje);
                     }
                 },
-                error: () => this.mensajeError.set('Error al registrar entrada'),
+                error: () => this.mensajeError.set(this.idiomaService.t('toast.errorRegistrarEntradaTurno')),
             });
     }
 
@@ -125,7 +128,7 @@ export class MiTurnoComponent implements OnInit, OnDestroy {
                         this.mensajeError.set(resp.mensaje);
                     }
                 },
-                error: () => this.mensajeError.set('Error al registrar salida'),
+                error: () => this.mensajeError.set(this.idiomaService.t('toast.errorRegistrarSalidaTurno')),
             });
     }
 
@@ -197,9 +200,9 @@ export class MiTurnoComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaEstado(estado: string): string {
         const mapa: Record<string, string> = {
-            programado: 'Programado',
-            en_curso: 'En Curso',
-            finalizado: 'Finalizado',
+            programado: this.idiomaService.t('comun.programado'),
+            en_curso: this.idiomaService.t('etiqueta.enCurso'),
+            finalizado: this.idiomaService.t('etiqueta.finalizado'),
         };
         return mapa[estado] || estado;
     }
@@ -215,11 +218,11 @@ export class MiTurnoComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaPuntualidad(puntualidad: string): string {
         const mapa: Record<string, string> = {
-            anticipado: 'Anticipado',
-            puntual: 'Puntual',
-            leve_retraso: 'Leve retraso',
-            retraso: 'Retraso',
-            pendiente: 'Pendiente',
+            anticipado: this.idiomaService.t('etiqueta.anticipado'),
+            puntual: this.idiomaService.t('etiqueta.puntual'),
+            leve_retraso: this.idiomaService.t('etiqueta.leveRetraso'),
+            retraso: this.idiomaService.t('etiqueta.retraso'),
+            pendiente: this.idiomaService.t('comun.pendiente'),
         };
         return mapa[puntualidad] || puntualidad;
     }
@@ -252,15 +255,15 @@ export class MiTurnoComponent implements OnInit, OnDestroy {
 
     obtenerEtiquetaOperacion(tipo: string): string {
         const map: Record<string, string> = {
-            entrada: 'Entrada',
-            salida: 'Salida',
-            ajuste_positivo: 'Ajuste (+)',
-            ajuste_negativo: 'Ajuste (-)',
-            transferencia_salida: 'Transferencia (S)',
-            transferencia_entrada: 'Transferencia (E)',
-            conteo: 'Conteo',
-            recepcion: 'Recepción',
-            despacho: 'Despacho',
+            entrada: this.idiomaService.t('reportes.entrada'),
+            salida: this.idiomaService.t('reportes.salida'),
+            ajuste_positivo: this.idiomaService.t('reportes.ajusteMas'),
+            ajuste_negativo: this.idiomaService.t('reportes.ajusteMenos'),
+            transferencia_salida: this.idiomaService.t('etiqueta.transfSalida'),
+            transferencia_entrada: this.idiomaService.t('etiqueta.transfEntrada'),
+            conteo: this.idiomaService.t('actividad.conteo'),
+            recepcion: this.idiomaService.t('reportes.recepcion'),
+            despacho: this.idiomaService.t('reportes.despacho'),
         };
         return map[tipo] || tipo;
     }

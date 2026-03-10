@@ -19,12 +19,12 @@ import {
 import { Request } from 'express';
 import { MiTurnoService } from './mi-turno.service';
 import { RegistrarEntradaDto, RegistrarSalidaDto } from './dto';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 
 @ApiTags('Colaboradores - Mi Turno')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 @Controller('colaborador/mi-turno')
 export class MiTurnoController {
     constructor(private readonly miTurnoService: MiTurnoService) {}

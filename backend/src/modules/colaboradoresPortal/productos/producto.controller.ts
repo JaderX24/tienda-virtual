@@ -6,12 +6,12 @@ import {
     UseGuards,
     ParseIntPipe,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { ProductoColaboradorService } from './producto.service';
 import { ConsultarProductosDto, ConsultarMovimientosProductoDto } from './dto';
 
 @Controller('colaborador/productos')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 export class ProductoColaboradorController {
     constructor(private readonly productoService: ProductoColaboradorService) {}
 

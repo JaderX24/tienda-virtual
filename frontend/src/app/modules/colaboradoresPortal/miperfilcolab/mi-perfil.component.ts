@@ -12,22 +12,26 @@ import {
     DatosActualizarPerfil,
     DatosCambiarContrasena,
     DatosActualizarPreferencias,
-    DatosActualizarSeguridad,
 } from './services/mi-perfil.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TemaService, ZONAS_HORARIAS, IDIOMAS_DISPONIBLES } from '../../../core/services/tema.service';
+import { IdiomaService } from '../../../core/services/idioma.service';
+import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
 
 type SeccionActiva = 'general' | 'seguridad' | 'preferencias' | 'sesiones' | 'dispositivos';
 
 @Component({
     selector: 'app-mi-perfil',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TraducirPipe],
     templateUrl: './mi-perfil.component.html',
     styleUrl: './mi-perfil.component.scss',
 })
 export class MiPerfilComponent implements OnInit, OnDestroy {
     private miPerfilService = inject(MiPerfilService);
     private toastService = inject(ToastService);
+    private temaService = inject(TemaService);
+    private idiomaService = inject(IdiomaService);
     private destruir$ = new Subject<void>();
 
     cargando = signal(false);
@@ -54,7 +58,15 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
 
     // Seguridad
     resumenSeguridad = signal<ResumenSeguridad | null>(null);
-    formSeguridad: DatosActualizarSeguridad = {};
+
+    // 2FA
+    estado2FA = signal<'inactivo' | 'seleccion' | 'verificando' | 'activo'>('inactivo');
+    metodo2FASeleccionado = '';
+    qrCodeUrl = '';
+    codigo2FA = '';
+    contrasenaDesactivar = '';
+    mostrarContrasenaDesactivar = signal(false);
+    guardando2FA = signal(false);
 
     // Preferencias
     preferencias = signal<Preferencias | null>(null);
@@ -65,6 +77,8 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
 
     // Dispositivos
     dispositivos = signal<Dispositivo[]>([]);
+    dispositivoEditandoNombre = signal<number | null>(null);
+    nombreDispositivoEdicion = '';
 
     // Temas de color disponibles
     temasDisponibles = [
@@ -77,6 +91,9 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
         { valor: 'rojo', nombre: 'Rojo', color: '#dc3545' },
         { valor: 'rosa', nombre: 'Rosa', color: '#d63384' },
     ];
+
+    zonasHorarias = ZONAS_HORARIAS;
+    idiomasDisponibles = IDIOMAS_DISPONIBLES;
 
     ngOnInit(): void {
         this.cargarPerfil();
@@ -112,7 +129,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudo cargar el perfil');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarPerfil'));
                     this.cargando.set(false);
                 },
             });
@@ -126,12 +143,12 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                 next: (resp) => {
                     if (resp.exito) {
                         this.resumenSeguridad.set(resp.datos);
-                        this.inicializarFormSeguridad();
+                        this.inicializarEstado2FA();
                     }
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudo cargar la información de seguridad');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarSeguridad'));
                     this.cargando.set(false);
                 },
             });
@@ -150,7 +167,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudieron cargar las preferencias');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarPreferencias'));
                     this.cargando.set(false);
                 },
             });
@@ -166,7 +183,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudieron cargar las sesiones');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarSesiones'));
                     this.cargando.set(false);
                 },
             });
@@ -182,7 +199,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                     this.cargando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudieron cargar los dispositivos');
+                    this.toastService.error(this.idiomaService.t('toast.errorCargarDispositivos'));
                     this.cargando.set(false);
                 },
             });
@@ -211,7 +228,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
 
     guardarPerfil(): void {
         if (!this.formPerfil.nombre?.trim() || !this.formPerfil.apellido?.trim()) {
-            this.toastService.warning('Nombre y apellido son requeridos');
+            this.toastService.warning(this.idiomaService.t('toast.nombreApellidoReq'));
             return;
         }
 
@@ -228,7 +245,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                     this.guardando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudo actualizar el perfil');
+                    this.toastService.error(this.idiomaService.t('toast.errorActualizarPerfil'));
                     this.guardando.set(false);
                 },
             });
@@ -254,14 +271,14 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
 
     guardarContrasena(): void {
         if (!this.formContrasena.contrasenaActual) {
-            this.toastService.warning('Ingrese su contraseña actual');
+            this.toastService.warning(this.idiomaService.t('toast.ingreseContrasenaActual'));
             return;
         }
         if (!this.validarFortalezaContrasena(this.formContrasena.nuevaContrasena)) {
             return;
         }
         if (this.formContrasena.nuevaContrasena !== this.formContrasena.confirmarContrasena) {
-            this.toastService.warning('Las contraseñas no coinciden');
+            this.toastService.warning(this.idiomaService.t('toast.contrasenasNoCoinciden'));
             return;
         }
 
@@ -277,7 +294,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                     this.guardando.set(false);
                 },
                 error: (err) => {
-                    const mensaje = err?.error?.message || 'No se pudo cambiar la contraseña';
+                    const mensaje = err?.error?.message || this.idiomaService.t('toast.errorCambiarContrasena');
                     this.toastService.error(mensaje);
                     this.guardando.set(false);
                 },
@@ -286,23 +303,23 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
 
     validarFortalezaContrasena(contrasena: string): boolean {
         if (!contrasena || contrasena.length < 12) {
-            this.toastService.warning('La contraseña debe tener al menos 12 caracteres');
+            this.toastService.warning(this.idiomaService.t('contrasena.min12'));
             return false;
         }
         if (!/[A-Z]/.test(contrasena)) {
-            this.toastService.warning('Debe contener al menos una mayúscula');
+            this.toastService.warning(this.idiomaService.t('contrasena.mayuscula'));
             return false;
         }
         if (!/[a-z]/.test(contrasena)) {
-            this.toastService.warning('Debe contener al menos una minúscula');
+            this.toastService.warning(this.idiomaService.t('contrasena.minuscula'));
             return false;
         }
         if (!/[0-9]/.test(contrasena)) {
-            this.toastService.warning('Debe contener al menos un número');
+            this.toastService.warning(this.idiomaService.t('contrasena.numero'));
             return false;
         }
         if (!/[!@#$%^&*()_+\-=]/.test(contrasena)) {
-            this.toastService.warning('Debe contener al menos un carácter especial');
+            this.toastService.warning(this.idiomaService.t('contrasena.especial'));
             return false;
         }
         return true;
@@ -320,10 +337,10 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
         if (/[0-9]/.test(c)) puntos++;
         if (/[!@#$%^&*()_+\-=]/.test(c)) puntos++;
 
-        if (puntos <= 2) return { nivel: 1, texto: 'Débil', clase: 'bg-danger' };
-        if (puntos <= 4) return { nivel: 2, texto: 'Media', clase: 'bg-warning' };
-        if (puntos <= 5) return { nivel: 3, texto: 'Fuerte', clase: 'bg-info' };
-        return { nivel: 4, texto: 'Muy fuerte', clase: 'bg-success' };
+        if (puntos <= 2) return { nivel: 1, texto: this.idiomaService.t('contrasena.debil'), clase: 'bg-danger' };
+        if (puntos <= 4) return { nivel: 2, texto: this.idiomaService.t('contrasena.media'), clase: 'bg-warning' };
+        if (puntos <= 5) return { nivel: 3, texto: this.idiomaService.t('contrasena.fuerte'), clase: 'bg-info' };
+        return { nivel: 4, texto: this.idiomaService.t('contrasena.muyFuerte'), clase: 'bg-success' };
     }
 
     tieneMayuscula(): boolean {
@@ -342,35 +359,102 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
         return /[!@#$%^&*()_+\-=]/.test(this.formContrasena.nuevaContrasena);
     }
 
-    // --- Seguridad ---
+    // --- Seguridad / 2FA ---
 
-    private inicializarFormSeguridad(): void {
+    private inicializarEstado2FA(): void {
         const p = this.perfil();
         if (!p) return;
-        this.formSeguridad = {
-            requiere2fa: p.requiere2fa,
-            metodo2fa: p.metodo2fa,
-            maxSesionesSimultaneas: p.maxSesionesSimultaneas,
-        };
+        this.estado2FA.set(p.requiere2fa ? 'activo' : 'inactivo');
+        this.metodo2FASeleccionado = p.metodo2fa || '';
+        this.qrCodeUrl = '';
+        this.codigo2FA = '';
+        this.contrasenaDesactivar = '';
     }
 
-    guardarSeguridad(): void {
-        this.guardando.set(true);
-        this.miPerfilService.actualizarSeguridad(this.formSeguridad)
+    iniciarActivacion2FA(metodo: string): void {
+        this.guardando2FA.set(true);
+        this.miPerfilService.iniciar2FA(metodo)
+            .pipe(takeUntil(this.destruir$))
+            .subscribe({
+                next: (resp) => {
+                    if (resp.exito) {
+                        this.metodo2FASeleccionado = resp.metodo;
+                        this.qrCodeUrl = resp.qrCodeUrl || '';
+                        this.codigo2FA = '';
+                        this.estado2FA.set('verificando');
+                        this.toastService.info(resp.mensaje);
+                    }
+                    this.guardando2FA.set(false);
+                },
+                error: (err) => {
+                    const mensaje = err?.error?.message || this.idiomaService.t('toast.errorActualizarSeguridad');
+                    this.toastService.error(mensaje);
+                    this.guardando2FA.set(false);
+                },
+            });
+    }
+
+    confirmarActivacion2FA(): void {
+        if (!this.codigo2FA || this.codigo2FA.length !== 6) {
+            this.toastService.warning(this.idiomaService.t('seguridad.codigo6Digitos'));
+            return;
+        }
+
+        this.guardando2FA.set(true);
+        this.miPerfilService.confirmar2FA(this.codigo2FA)
             .pipe(takeUntil(this.destruir$))
             .subscribe({
                 next: (resp) => {
                     if (resp.exito) {
                         this.toastService.success(resp.mensaje);
+                        this.estado2FA.set('activo');
                         this.cargarPerfil();
                     }
-                    this.guardando.set(false);
+                    this.guardando2FA.set(false);
                 },
-                error: () => {
-                    this.toastService.error('No se pudo actualizar la seguridad');
-                    this.guardando.set(false);
+                error: (err) => {
+                    const mensaje = err?.error?.message || this.idiomaService.t('seguridad.codigoIncorrecto');
+                    this.toastService.error(mensaje);
+                    this.guardando2FA.set(false);
                 },
             });
+    }
+
+    desactivar2FA(): void {
+        if (!this.contrasenaDesactivar) {
+            this.toastService.warning(this.idiomaService.t('seguridad.contrasenaRequerida'));
+            return;
+        }
+
+        this.guardando2FA.set(true);
+        this.miPerfilService.desactivar2FA(this.contrasenaDesactivar)
+            .pipe(takeUntil(this.destruir$))
+            .subscribe({
+                next: (resp) => {
+                    if (resp.exito) {
+                        this.toastService.success(resp.mensaje);
+                        this.estado2FA.set('inactivo');
+                        this.contrasenaDesactivar = '';
+                        this.cargarPerfil();
+                    }
+                    this.guardando2FA.set(false);
+                },
+                error: (err) => {
+                    const mensaje = err?.error?.message || this.idiomaService.t('toast.errorActualizarSeguridad');
+                    this.toastService.error(mensaje);
+                    this.guardando2FA.set(false);
+                },
+            });
+    }
+
+    cancelar2FA(): void {
+        this.inicializarEstado2FA();
+    }
+
+    alIngresarCodigo2FA(evento: Event): void {
+        const input = evento.target as HTMLInputElement;
+        input.value = input.value.replace(/\D/g, '').slice(0, 6);
+        this.codigo2FA = input.value;
     }
 
     // --- Preferencias ---
@@ -379,10 +463,29 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
         const pref = this.preferencias();
         if (!pref) return;
         this.formPreferencias = { ...pref };
+
+        // Sincronizar con el estado actual local (tiene prioridad sobre el backend)
+        this.formPreferencias.sidebarCompacto = this.temaService.sidebarCompacto();
+        this.formPreferencias.temaColor = this.temaService.obtenerTemaActual();
+        this.formPreferencias.idioma = this.temaService.idiomaActual();
+        this.formPreferencias.zonaHoraria = this.temaService.zonaHorariaActual();
     }
 
     seleccionarTema(tema: string): void {
         this.formPreferencias.temaColor = tema;
+        this.temaService.aplicarTema(tema);
+    }
+
+    toggleSidebarCompacto(compacto: boolean): void {
+        this.temaService.aplicarSidebarCompacto(compacto);
+    }
+
+    cambiarIdioma(idioma: string): void {
+        this.temaService.aplicarIdioma(idioma);
+    }
+
+    cambiarZonaHoraria(zona: string): void {
+        this.temaService.aplicarZonaHoraria(zona);
     }
 
     guardarPreferencias(): void {
@@ -393,11 +496,23 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                 next: (resp) => {
                     if (resp.exito) {
                         this.toastService.success(resp.mensaje);
+                        if (this.formPreferencias.temaColor) {
+                            this.temaService.aplicarTema(this.formPreferencias.temaColor);
+                        }
+                        if (this.formPreferencias.sidebarCompacto !== undefined) {
+                            this.temaService.aplicarSidebarCompacto(this.formPreferencias.sidebarCompacto);
+                        }
+                        if (this.formPreferencias.idioma) {
+                            this.temaService.aplicarIdioma(this.formPreferencias.idioma);
+                        }
+                        if (this.formPreferencias.zonaHoraria) {
+                            this.temaService.aplicarZonaHoraria(this.formPreferencias.zonaHoraria);
+                        }
                     }
                     this.guardando.set(false);
                 },
                 error: () => {
-                    this.toastService.error('No se pudieron guardar las preferencias');
+                    this.toastService.error(this.idiomaService.t('toast.errorGuardarPreferencias'));
                     this.guardando.set(false);
                 },
             });
@@ -415,7 +530,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                         this.cargarSesiones();
                     }
                 },
-                error: () => this.toastService.error('No se pudo cerrar la sesión'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorCerrarSesion')),
             });
     }
 
@@ -429,11 +544,56 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                         this.cargarSesiones();
                     }
                 },
-                error: () => this.toastService.error('No se pudieron cerrar las sesiones'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorCerrarSesiones')),
             });
     }
 
     // --- Dispositivos ---
+
+    alternarConfianza(dispositivo: Dispositivo): void {
+        this.miPerfilService.alternarConfianza(dispositivo.id)
+            .pipe(takeUntil(this.destruir$))
+            .subscribe({
+                next: (resp) => {
+                    if (resp.exito) {
+                        this.toastService.success(resp.mensaje);
+                        this.cargarDispositivos();
+                    }
+                },
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorActualizarDisp')),
+            });
+    }
+
+    iniciarEdicionNombre(dispositivo: Dispositivo): void {
+        this.dispositivoEditandoNombre.set(dispositivo.id);
+        this.nombreDispositivoEdicion = dispositivo.nombre;
+    }
+
+    cancelarEdicionNombre(): void {
+        this.dispositivoEditandoNombre.set(null);
+        this.nombreDispositivoEdicion = '';
+    }
+
+    guardarNombreDispositivo(dispositivo: Dispositivo): void {
+        const nombre = this.nombreDispositivoEdicion.trim();
+        if (!nombre || nombre.length < 2) {
+            this.toastService.warning(this.idiomaService.t('dispositivos.nombreMinimo'));
+            return;
+        }
+
+        this.miPerfilService.renombrarDispositivo(dispositivo.id, nombre)
+            .pipe(takeUntil(this.destruir$))
+            .subscribe({
+                next: (resp) => {
+                    if (resp.exito) {
+                        this.toastService.success(resp.mensaje);
+                        this.dispositivoEditandoNombre.set(null);
+                        this.cargarDispositivos();
+                    }
+                },
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorRenombrarDisp')),
+            });
+    }
 
     eliminarDispositivo(dispositivo: Dispositivo): void {
         this.miPerfilService.eliminarDispositivo(dispositivo.id)
@@ -445,14 +605,14 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
                         this.cargarDispositivos();
                     }
                 },
-                error: () => this.toastService.error('No se pudo eliminar el dispositivo'),
+                error: () => this.toastService.error(this.idiomaService.t('toast.errorEliminarDisp')),
             });
     }
 
     // --- Utilidades ---
 
     formatearFecha(fechaStr: string | null): string {
-        if (!fechaStr) return 'No disponible';
+        if (!fechaStr) return this.idiomaService.t('misc.noDisponible');
         const fecha = new Date(fechaStr);
         return fecha.toLocaleDateString('es-HN', {
             day: '2-digit',
@@ -462,7 +622,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     }
 
     formatearFechaHora(fechaStr: string | null): string {
-        if (!fechaStr) return 'No disponible';
+        if (!fechaStr) return this.idiomaService.t('misc.noDisponible');
         const fecha = new Date(fechaStr);
         return fecha.toLocaleDateString('es-HN', {
             day: '2-digit',
@@ -474,7 +634,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     }
 
     tiempoRelativo(fechaStr: string | null): string {
-        if (!fechaStr) return 'Nunca';
+        if (!fechaStr) return this.idiomaService.t('misc.nunca');
         const fecha = new Date(fechaStr);
         const ahora = new Date();
         const diff = ahora.getTime() - fecha.getTime();
@@ -482,31 +642,33 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
         const hrs = Math.floor(diff / 3600000);
         const dias = Math.floor(diff / 86400000);
 
-        if (min < 1) return 'Ahora mismo';
-        if (min < 60) return `Hace ${min} min`;
-        if (hrs < 24) return `Hace ${hrs} h`;
-        if (dias < 30) return `Hace ${dias} d`;
+        if (min < 1) return this.idiomaService.t('tiempo.ahoraMismo');
+        if (min < 60) return this.idiomaService.t('tiempo.haceMin').replace('{n}', String(min));
+        if (hrs < 24) return this.idiomaService.t('tiempo.haceHoras').replace('{n}', String(hrs));
+        if (dias < 30) return this.idiomaService.t('tiempo.haceDias').replace('{n}', String(dias));
         return this.formatearFecha(fechaStr);
     }
 
     traducirGenero(genero: string): string {
-        const mapa: Record<string, string> = {
-            masculino: 'Masculino',
-            femenino: 'Femenino',
-            no_especificado: 'No especificado',
+        const mapaClave: Record<string, string> = {
+            masculino: 'perfil.masculino',
+            femenino: 'perfil.femenino',
+            no_especificado: 'perfil.noEspecificado',
         };
-        return mapa[genero] || genero;
+        const clave = mapaClave[genero];
+        return clave ? this.idiomaService.t(clave) : genero;
     }
 
     traducirContrato(tipo: string): string {
-        const mapa: Record<string, string> = {
-            permanente: 'Permanente',
-            temporal: 'Temporal',
-            medio_tiempo: 'Medio tiempo',
-            pasantia: 'Pasantía',
-            contrato: 'Por contrato',
+        const mapaClave: Record<string, string> = {
+            permanente: 'contrato.permanente',
+            temporal: 'contrato.temporal',
+            medio_tiempo: 'contrato.medioTiempo',
+            pasantia: 'contrato.pasantia',
+            contrato: 'contrato.porContrato',
         };
-        return mapa[tipo] || tipo;
+        const clave = mapaClave[tipo];
+        return clave ? this.idiomaService.t(clave) : tipo;
     }
 
     obtenerIconoDispositivo(tipo: string): string {

@@ -1,10 +1,10 @@
 <div class="transferencias-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h5 class="fw-bold mb-0">
-            <i class="bi bi-arrow-left-right me-2 text-teal"></i>Transferencias entre Almacenes
+            <i class="bi bi-arrow-left-right me-2 text-teal"></i>{{ 'transferencias.titulo' | traducir }}
         </h5>
         <button class="btn btn-teal" (click)="abrirFormulario()">
-            <i class="bi bi-plus-lg me-1"></i>Nueva Transferencia
+            <i class="bi bi-plus-lg me-1"></i>{{ 'transferencias.nueva' | traducir }}
         </button>
     </div>
 
@@ -13,35 +13,35 @@
         <div class="card-body">
             <div class="row g-3 align-items-end">
                 <div class="col-md-2">
-                    <label class="form-label fw-medium">Buscar</label>
-                    <input type="text" class="form-control" placeholder="Producto o SKU..."
+                    <label class="form-label fw-medium">{{ 'comun.buscar' | traducir }}</label>
+                    <input type="text" class="form-control" [placeholder]="'comun.productoSku' | traducir"
                         [(ngModel)]="busqueda" (keyup.enter)="buscar()">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label fw-medium">Origen</label>
+                    <label class="form-label fw-medium">{{ 'comun.origen' | traducir }}</label>
                     <select class="form-select" [(ngModel)]="almacenOrigenFiltro">
-                        <option [value]="0">Todos</option>
+                        <option [value]="0">{{ 'comun.todos' | traducir }}</option>
                         @for (alm of almacenesAsignados(); track alm.id) {
                             <option [value]="alm.id">{{ alm.nombre }}</option>
                         }
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label fw-medium">Estado</label>
+                    <label class="form-label fw-medium">{{ 'comun.estado' | traducir }}</label>
                     <select class="form-select" [(ngModel)]="estadoFiltro">
-                        <option value="">Todos</option>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_transito">En Tránsito</option>
-                        <option value="completada">Completada</option>
-                        <option value="cancelada">Cancelada</option>
+                        <option value="">{{ 'comun.todos' | traducir }}</option>
+                        <option value="pendiente">{{ 'comun.pendiente' | traducir }}</option>
+                        <option value="en_transito">{{ 'transferencias.enTransito' | traducir }}</option>
+                        <option value="completada">{{ 'comun.completada' | traducir }}</option>
+                        <option value="cancelada">{{ 'comun.cancelada' | traducir }}</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label fw-medium">Desde</label>
+                    <label class="form-label fw-medium">{{ 'comun.desde' | traducir }}</label>
                     <input type="date" class="form-control" [(ngModel)]="fechaDesde">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label fw-medium">Hasta</label>
+                    <label class="form-label fw-medium">{{ 'comun.hasta' | traducir }}</label>
                     <input type="date" class="form-control" [(ngModel)]="fechaHasta">
                 </div>
                 <div class="col-md-2 d-flex gap-2">
@@ -60,18 +60,18 @@
     @if (cargando()) {
         <div class="text-center py-5">
             <div class="spinner-border text-teal" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
             </div>
-            <p class="text-muted mt-2">Cargando transferencias...</p>
+            <p class="text-muted mt-2">{{ 'comun.cargandoTransferencias' | traducir }}</p>
         </div>
     } @else if (transferencias().length === 0) {
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-5">
                 <i class="bi bi-arrow-left-right text-muted" style="font-size: 3rem;"></i>
-                <h6 class="mt-3 text-muted">Sin transferencias registradas</h6>
-                <p class="text-muted small mb-3">No se encontraron transferencias con los filtros aplicados</p>
+                <h6 class="mt-3 text-muted">{{ 'transferencias.sinRegistros' | traducir }}</h6>
+                <p class="text-muted small mb-3">{{ 'transferencias.noEncontrados' | traducir }}</p>
                 <button class="btn btn-teal btn-sm" (click)="abrirFormulario()">
-                    <i class="bi bi-plus-lg me-1"></i>Crear primera transferencia
+                    <i class="bi bi-plus-lg me-1"></i>{{ 'transferencias.crearPrimera' | traducir }}
                 </button>
             </div>
         </div>
@@ -82,14 +82,14 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Fecha</th>
-                                <th>Producto</th>
-                                <th class="text-center">Cantidad</th>
-                                <th>Origen</th>
-                                <th>Destino</th>
-                                <th>Estado</th>
-                                <th>Motivo</th>
-                                <th class="text-center">Acciones</th>
+                                <th>{{ 'comun.fecha' | traducir }}</th>
+                                <th>{{ 'comun.producto' | traducir }}</th>
+                                <th class="text-center">{{ 'comun.cantidad' | traducir }}</th>
+                                <th>{{ 'comun.origen' | traducir }}</th>
+                                <th>{{ 'comun.destino' | traducir }}</th>
+                                <th>{{ 'comun.estado' | traducir }}</th>
+                                <th>{{ 'comun.motivo' | traducir }}</th>
+                                <th class="text-center">{{ 'comun.acciones' | traducir }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,24 +122,24 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-secondary btn-sm" title="Ver detalle"
+                                            <button class="btn btn-outline-secondary btn-sm" [title]="'comun.verDetalle' | traducir"
                                                 (click)="verDetalle(t)">
                                                 <i class="bi bi-eye"></i>
                                             </button>
                                             @if (puedeTransitar(t)) {
-                                                <button class="btn btn-outline-info btn-sm" title="Marcar En Tránsito"
+                                                <button class="btn btn-outline-info btn-sm" [title]="'transferencias.marcarEnTransito' | traducir"
                                                     (click)="abrirCambioEstado(t, 'en_transito')">
                                                     <i class="bi bi-truck"></i>
                                                 </button>
                                             }
                                             @if (puedeCompletar(t)) {
-                                                <button class="btn btn-outline-success btn-sm" title="Completar"
+                                                <button class="btn btn-outline-success btn-sm" [title]="'comun.completar' | traducir"
                                                     (click)="abrirCambioEstado(t, 'completada')">
                                                     <i class="bi bi-check-lg"></i>
                                                 </button>
                                             }
                                             @if (puedeCancelar(t)) {
-                                                <button class="btn btn-outline-danger btn-sm" title="Cancelar"
+                                                <button class="btn btn-outline-danger btn-sm" [title]="'comun.cancelar' | traducir"
                                                     (click)="abrirCambioEstado(t, 'cancelada')">
                                                     <i class="bi bi-x-lg"></i>
                                                 </button>
@@ -157,7 +157,7 @@
         <!-- Paginación -->
         @if (totalPaginas() > 1) {
             <div class="d-flex justify-content-between align-items-center mt-3">
-                <small class="text-muted">{{ totalRegistros() }} transferencias encontradas</small>
+                <small class="text-muted">{{ totalRegistros() }} {{ 'transferencias.encontradas' | traducir }}</small>
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item" [class.disabled]="paginaActual() === 1">
@@ -191,7 +191,7 @@
                 <div class="modal-content">
                     <div class="modal-header border-bottom">
                         <h5 class="modal-title fw-bold">
-                            <i class="bi bi-arrow-left-right me-2 text-teal"></i>Nueva Transferencia
+                            <i class="bi bi-arrow-left-right me-2 text-teal"></i>{{ 'transferencias.nueva' | traducir }}
                         </h5>
                         <button type="button" class="btn-close" (click)="cerrarFormulario()"></button>
                     </div>
@@ -199,10 +199,10 @@
                         <div class="row g-3">
                             <!-- Producto -->
                             <div class="col-12">
-                                <label class="form-label fw-medium">Producto <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium">{{ 'comun.producto' | traducir }} <span class="text-danger">*</span></label>
                                 <div class="position-relative">
                                     <input type="text" class="form-control"
-                                        placeholder="Escriba para buscar producto por nombre o SKU..."
+                                        [placeholder]="'comun.escribaBuscar' | traducir"
                                         [(ngModel)]="busquedaProducto"
                                         (input)="buscarProducto()"
                                         (focus)="mostrarListaProductos.set(true)"
@@ -212,11 +212,11 @@
                                             @if (buscandoProductos()) {
                                                 <div class="text-center py-3">
                                                     <span class="spinner-border spinner-border-sm text-teal me-2"></span>
-                                                    <span class="text-muted small">Buscando productos...</span>
+                                                    <span class="text-muted small">{{ 'comun.buscandoProductos' | traducir }}</span>
                                                 </div>
                                             } @else if (productosFiltrados().length === 0) {
                                                 <div class="text-center py-3 text-muted small">
-                                                    <i class="bi bi-search me-1"></i>No se encontraron productos
+                                                    <i class="bi bi-search me-1"></i>{{ 'comun.noProductosFiltro' | traducir }}
                                                 </div>
                                             } @else {
                                                 @for (prod of productosFiltrados(); track prod.id) {
@@ -227,7 +227,7 @@
                                                             <small [class.text-danger]="prod.stock <= 0"
                                                                 [class.text-warning]="prod.stock > 0 && prod.stock <= prod.stockMinimo"
                                                                 [class.text-success]="prod.stock > prod.stockMinimo">
-                                                                Stock: {{ prod.stock }}
+                                                                {{ 'comun.stock' | traducir }}: {{ prod.stock }}
                                                             </small>
                                                         </div>
                                                     </div>
@@ -242,88 +242,87 @@
                                         <span class="badge" [class.text-bg-success]="prod.stock > prod.stockMinimo"
                                             [class.text-bg-warning]="prod.stock > 0 && prod.stock <= prod.stockMinimo"
                                             [class.text-bg-danger]="prod.stock <= 0">
-                                            Stock disponible: {{ prod.stock }}
+                                            {{ 'comun.stockDisponible' | traducir }}: {{ prod.stock }}
                                         </span>
                                     </div>
                                 }
                             </div>
                             <!-- Almacén Origen -->
                             <div class="col-md-6">
-                                <label class="form-label fw-medium">Almacén Origen <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium">{{ 'transferencias.almacenOrigen' | traducir }} <span class="text-danger">*</span></label>
                                 <select class="form-select" [(ngModel)]="formulario.almacenOrigenId">
-                                    <option [value]="0">Seleccione origen</option>
+                                    <option [value]="0">{{ 'transferencias.seleccioneOrigen' | traducir }}</option>
                                     @for (alm of almacenesAsignados(); track alm.id) {
                                         <option [value]="alm.id">{{ alm.nombre }}</option>
                                     }
                                 </select>
-                                <small class="text-muted">Solo almacenes asignados</small>
+                                <small class="text-muted">{{ 'transferencias.soloAsignados' | traducir }}</small>
                             </div>
                             <!-- Almacén Destino -->
                             <div class="col-md-6">
-                                <label class="form-label fw-medium">Almacén Destino <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium">{{ 'transferencias.almacenDestino' | traducir }} <span class="text-danger">*</span></label>
                                 <select class="form-select" [(ngModel)]="formulario.almacenDestinoId">
-                                    <option [value]="0">Seleccione destino</option>
+                                    <option [value]="0">{{ 'transferencias.seleccioneDestino' | traducir }}</option>
                                     @for (alm of almacenesDestinoDisponibles(); track alm.id) {
                                         <option [value]="alm.id">{{ alm.nombre }}</option>
                                     }
                                 </select>
-                                <small class="text-muted">Todos los almacenes activos</small>
+                                <small class="text-muted">{{ 'transferencias.todosActivos' | traducir }}</small>
                             </div>
                             <!-- Cantidad -->
                             <div class="col-md-4">
-                                <label class="form-label fw-medium">Cantidad <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium">{{ 'comun.cantidad' | traducir }} <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" min="1"
                                     [max]="productoSeleccionado()?.stock || 99999"
                                     [(ngModel)]="formulario.cantidad" placeholder="0">
                             </div>
                             <!-- Motivo -->
                             <div class="col-md-8">
-                                <label class="form-label fw-medium">Motivo <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium">{{ 'comun.motivo' | traducir }} <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control"
                                     [(ngModel)]="formulario.motivo"
-                                    placeholder="Ej: Reabastecimiento, redistribución de stock...">
+                                    [placeholder]="'comun.motivoEjTransferencia' | traducir">
                             </div>
                             <!-- Documento -->
                             <div class="col-md-6">
-                                <label class="form-label fw-medium">Tipo de documento</label>
+                                <label class="form-label fw-medium">{{ 'comun.tipoDocumento' | traducir }}</label>
                                 <select class="form-select" [(ngModel)]="documentoTipo">
-                                    <option value="">Sin documento</option>
-                                    <option value="orden_transferencia">Orden de transferencia</option>
-                                    <option value="guia_despacho">Guía de despacho</option>
-                                    <option value="nota_traslado">Nota de traslado</option>
-                                    <option value="otro">Otro</option>
+                                    <option value="">{{ 'comun.sinDocumento' | traducir }}</option>
+                                    <option value="orden_transferencia">{{ 'comun.ordenTransferencia' | traducir }}</option>
+                                    <option value="guia_despacho">{{ 'comun.guiaDespacho' | traducir }}</option>
+                                    <option value="nota_traslado">{{ 'comun.notaTraslado' | traducir }}</option>
+                                    <option value="otro">{{ 'comun.otro' | traducir }}</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-medium">Número de documento</label>
+                                <label class="form-label fw-medium">{{ 'comun.numDocumento' | traducir }}</label>
                                 <input type="text" class="form-control"
-                                    [(ngModel)]="documentoNumero" placeholder="Ej: OT-001234">
+                                    [(ngModel)]="documentoNumero" [placeholder]="'comun.numDocEjTransferencia' | traducir">
                             </div>
                             <!-- Notas -->
                             <div class="col-12">
-                                <label class="form-label fw-medium">Notas adicionales</label>
+                                <label class="form-label fw-medium">{{ 'comun.notasAdicionales' | traducir }}</label>
                                 <textarea class="form-control" rows="2"
                                     [(ngModel)]="notasTransferencia" maxlength="500"
-                                    placeholder="Observaciones opcionales..."></textarea>
+                                    [placeholder]="'comun.observaciones' | traducir"></textarea>
                             </div>
                         </div>
 
                         <!-- Info -->
                         <div class="alert alert-info mt-3 mb-0 small">
                             <i class="bi bi-info-circle me-1"></i>
-                            La transferencia quedará en estado <strong>Pendiente</strong> hasta que sea aprobada.
-                            El stock no se modificará hasta que se marque como <strong>Completada</strong>.
+                            <span [innerHTML]="'transferencias.pendienteInfo' | traducir"></span>
                         </div>
                     </div>
                     <div class="modal-footer border-top">
                         <button type="button" class="btn btn-outline-secondary" (click)="cerrarFormulario()">
-                            Cancelar
+                            {{ 'comun.cancelar' | traducir }}
                         </button>
                         <button type="button" class="btn btn-teal" (click)="registrarTransferencia()" [disabled]="procesando()">
                             @if (procesando()) {
                                 <span class="spinner-border spinner-border-sm me-2"></span>
                             }
-                            <i class="bi bi-arrow-left-right me-1"></i>Crear Transferencia
+                            <i class="bi bi-arrow-left-right me-1"></i>{{ 'transferencias.crear' | traducir }}
                         </button>
                     </div>
                 </div>
@@ -339,7 +338,7 @@
                 <div class="modal-content">
                     <div class="modal-header border-bottom">
                         <h5 class="modal-title fw-bold">
-                            <i class="bi bi-arrow-left-right me-2 text-teal"></i>Detalle de Transferencia
+                            <i class="bi bi-arrow-left-right me-2 text-teal"></i>{{ 'transferencias.detalle' | traducir }}
                         </h5>
                         <button type="button" class="btn-close" (click)="cerrarDetalle()"></button>
                     </div>
@@ -352,20 +351,20 @@
                         </div>
 
                         <div class="detalle-item">
-                            <label>Producto</label>
+                            <label>{{ 'comun.producto' | traducir }}</label>
                             <div class="fw-medium">{{ t.producto }}</div>
                             <small class="text-muted">{{ t.sku }}</small>
                         </div>
 
                         <div class="detalle-item">
-                            <label>Cantidad</label>
-                            <div class="fw-bold fs-5">{{ t.cantidad }} unidades</div>
+                            <label>{{ 'comun.cantidad' | traducir }}</label>
+                            <div class="fw-bold fs-5">{{ t.cantidad }} {{ 'transferencias.unidades' | traducir }}</div>
                         </div>
 
                         <div class="row">
                             <div class="col-6">
                                 <div class="detalle-item">
-                                    <label>Almacén Origen</label>
+                                    <label>{{ 'transferencias.almacenOrigen' | traducir }}</label>
                                     <div>
                                         <i class="bi bi-building me-1 text-danger"></i>
                                         {{ t.almacenOrigen }}
@@ -374,7 +373,7 @@
                             </div>
                             <div class="col-6">
                                 <div class="detalle-item">
-                                    <label>Almacén Destino</label>
+                                    <label>{{ 'transferencias.almacenDestino' | traducir }}</label>
                                     <div>
                                         <i class="bi bi-building me-1 text-success"></i>
                                         {{ t.almacenDestino }}
@@ -384,20 +383,20 @@
                         </div>
 
                         <div class="detalle-item">
-                            <label>Motivo</label>
+                            <label>{{ 'comun.motivo' | traducir }}</label>
                             <div>{{ t.motivo }}</div>
                         </div>
 
                         @if (t.notas) {
                             <div class="detalle-item">
-                                <label>Notas</label>
+                                <label>{{ 'comun.notas' | traducir }}</label>
                                 <div class="text-muted small">{{ t.notas }}</div>
                             </div>
                         }
 
                         @if (t.documentoTipo) {
                             <div class="detalle-item">
-                                <label>Documento</label>
+                                <label>{{ 'comun.documento' | traducir }}</label>
                                 <div>{{ t.documentoTipo }} {{ t.documentoNumero ? '- ' + t.documentoNumero : '' }}</div>
                             </div>
                         }
@@ -405,13 +404,13 @@
                         <div class="row">
                             <div class="col-6">
                                 <div class="detalle-item">
-                                    <label>Solicitado por</label>
+                                    <label>{{ 'transferencias.solicitadoPor' | traducir }}</label>
                                     <div class="small">{{ t.solicitadoPor }}</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="detalle-item">
-                                    <label>Fecha</label>
+                                    <label>{{ 'comun.fecha' | traducir }}</label>
                                     <div class="small">{{ formatearFecha(t.fecha) }}</div>
                                 </div>
                             </div>
@@ -419,7 +418,7 @@
 
                         @if (t.estado === 'completada' && t.cantidadAnterior !== t.cantidadNueva) {
                             <div class="detalle-item">
-                                <label>Movimiento de stock</label>
+                                <label>{{ 'transferencias.movimientoStock' | traducir }}</label>
                                 <div class="small">
                                     <span class="text-muted">{{ t.cantidadAnterior }}</span>
                                     <i class="bi bi-arrow-right mx-1 text-muted"></i>
@@ -431,21 +430,21 @@
                     <div class="modal-footer border-top">
                         @if (puedeTransitar(t)) {
                             <button class="btn btn-info btn-sm" (click)="cerrarDetalle(); abrirCambioEstado(t, 'en_transito')">
-                                <i class="bi bi-truck me-1"></i>En Tránsito
+                                <i class="bi bi-truck me-1"></i>{{ 'transferencias.enTransito' | traducir }}
                             </button>
                         }
                         @if (puedeCompletar(t)) {
                             <button class="btn btn-success btn-sm" (click)="cerrarDetalle(); abrirCambioEstado(t, 'completada')">
-                                <i class="bi bi-check-lg me-1"></i>Completar
+                                <i class="bi bi-check-lg me-1"></i>{{ 'comun.completar' | traducir }}
                             </button>
                         }
                         @if (puedeCancelar(t)) {
                             <button class="btn btn-outline-danger btn-sm" (click)="cerrarDetalle(); abrirCambioEstado(t, 'cancelada')">
-                                <i class="bi bi-x-lg me-1"></i>Cancelar
+                                <i class="bi bi-x-lg me-1"></i>{{ 'comun.cancelar' | traducir }}
                             </button>
                         }
                         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cerrarDetalle()">
-                            Cerrar
+                            {{ 'comun.cerrar' | traducir }}
                         </button>
                     </div>
                 </div>
@@ -462,11 +461,11 @@
                     <div class="modal-header border-bottom">
                         <h6 class="modal-title fw-bold">
                             @if (nuevoEstado === 'en_transito') {
-                                <i class="bi bi-truck me-2 text-info"></i>Marcar En Tránsito
+                                <i class="bi bi-truck me-2 text-info"></i>{{ 'transferencias.marcarEnTransito' | traducir }}
                             } @else if (nuevoEstado === 'completada') {
-                                <i class="bi bi-check-circle me-2 text-success"></i>Completar Transferencia
+                                <i class="bi bi-check-circle me-2 text-success"></i>{{ 'transferencias.completar' | traducir }}
                             } @else if (nuevoEstado === 'cancelada') {
-                                <i class="bi bi-x-circle me-2 text-danger"></i>Cancelar Transferencia
+                                <i class="bi bi-x-circle me-2 text-danger"></i>{{ 'transferencias.cancelar' | traducir }}
                             }
                         </h6>
                         <button type="button" class="btn-close" (click)="cerrarModalEstado()"></button>
@@ -475,23 +474,23 @@
                         @if (nuevoEstado === 'completada') {
                             <div class="alert alert-warning small mb-3">
                                 <i class="bi bi-exclamation-triangle me-1"></i>
-                                Al completar, el stock del producto se descontará del almacén de origen.
+                                {{ 'transferencias.alCompletar' | traducir }}
                             </div>
                         }
                         @if (nuevoEstado === 'cancelada') {
                             <div class="alert alert-danger small mb-3">
                                 <i class="bi bi-exclamation-circle me-1"></i>
-                                Esta acción no se puede deshacer.
+                                {{ 'transferencias.accionIrreversible' | traducir }}
                             </div>
                         }
-                        <label class="form-label fw-medium">Notas (opcional)</label>
+                        <label class="form-label fw-medium">{{ 'comun.notasOpcional' | traducir }}</label>
                         <textarea class="form-control" rows="3"
                             [(ngModel)]="notasEstado" maxlength="500"
-                            placeholder="Observaciones sobre el cambio de estado..."></textarea>
+                            [placeholder]="'comun.observacionesCambio' | traducir"></textarea>
                     </div>
                     <div class="modal-footer border-top">
                         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cerrarModalEstado()">
-                            Cancelar
+                            {{ 'comun.cancelar' | traducir }}
                         </button>
                         <button type="button" class="btn btn-sm"
                             [class.btn-info]="nuevoEstado === 'en_transito'"
@@ -502,7 +501,7 @@
                             @if (procesando()) {
                                 <span class="spinner-border spinner-border-sm me-1"></span>
                             }
-                            Confirmar
+                            {{ 'comun.confirmar' | traducir }}
                         </button>
                     </div>
                 </div>

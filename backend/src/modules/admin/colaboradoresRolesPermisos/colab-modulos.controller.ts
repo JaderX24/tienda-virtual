@@ -12,14 +12,14 @@ import {
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { ColabModulosService } from './colab-modulos.service';
 import { CrearColabModuloDto, ActualizarColabModuloDto } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../../../common/guards';
+import { JwtAdminGuard, RolesGuard } from '../../../common/guards';
 import { Roles, ApiOperacionProtegida } from '../../../common/decorators';
 import { ParsearIdPipe } from '../../../common/pipes';
 import { ROLES } from '../../../common/constants';
 
 @ApiTags('Admin - Colaboradores RBAC - Módulos')
 @Controller('admin/colab-rbac/modulos')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAdminGuard, RolesGuard)
 export class ColabModulosController {
     constructor(private readonly colabModulosService: ColabModulosService) {}
 

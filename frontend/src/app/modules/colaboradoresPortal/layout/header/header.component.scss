@@ -6,7 +6,7 @@ $header-text: #334155;
 $header-text-muted: #64748b;
 $sidebar-width: 280px;
 $sidebar-collapsed-width: 70px;
-$accent-color: #14b8a6;
+$accent-color: var(--tema-primario);
 $transition-speed: 0.3s;
 
 .header-colab {
@@ -117,7 +117,7 @@ $transition-speed: 0.3s;
 .perfil-avatar {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, $accent-color 0%, #0d9488 100%);
+    background: linear-gradient(135deg, var(--tema-primario) 0%, var(--tema-primario-oscuro) 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -250,14 +250,14 @@ $transition-speed: 0.3s;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: $accent-color;
+    color: var(--tema-primario);
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
     padding: 0.25rem;
     transition: all 0.15s ease;
 
-    &:hover { color: darken($accent-color, 10%); i { transform: translateX(3px); } }
+    &:hover { color: var(--tema-primario-oscuro); i { transform: translateX(3px); } }
     i { transition: transform 0.15s ease; }
 }
 
@@ -275,7 +275,7 @@ $transition-speed: 0.3s;
 .perfil-avatar-grande {
     width: 52px;
     height: 52px;
-    background: linear-gradient(135deg, $accent-color 0%, #0d9488 100%);
+    background: linear-gradient(135deg, var(--tema-primario) 0%, var(--tema-primario-oscuro) 100%);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -311,7 +311,7 @@ $transition-speed: 0.3s;
     i { font-size: 1.15rem; width: 22px; text-align: center; color: $header-text-muted; transition: color 0.15s ease; }
     span { flex: 1; }
 
-    &:hover { background: #f1f5f9; color: $accent-color; i { color: $accent-color; } }
+    &:hover { background: #f1f5f9; color: var(--tema-primario); i { color: var(--tema-primario); } }
     &:active { background: #e2e8f0; }
 }
 

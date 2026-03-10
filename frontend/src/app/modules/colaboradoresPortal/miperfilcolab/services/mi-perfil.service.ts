@@ -83,6 +83,8 @@ export interface Dispositivo {
     navegador: string | null;
     sistemaOperativo: string | null;
     esConfiable: boolean;
+    confirmadoEn: string | null;
+    sesionesActivas: number;
     ultimoUso: string | null;
     registradoEn: string;
 }
@@ -123,7 +125,13 @@ export interface DatosActualizarPreferencias {
 export interface DatosActualizarSeguridad {
     requiere2fa?: boolean;
     metodo2fa?: string;
-    maxSesionesSimultaneas?: number;
+}
+
+export interface RespuestaIniciar2FA {
+    exito: boolean;
+    metodo: string;
+    qrCodeUrl?: string;
+    mensaje: string;
 }
 
 export interface RespuestaDatos<T> {
@@ -189,5 +197,25 @@ export class MiPerfilService {
 
     eliminarDispositivo(dispositivoId: number): Observable<RespuestaAccion> {
         return this.http.delete<RespuestaAccion>(`${this.urlBase}/dispositivos/${dispositivoId}`);
+    }
+
+    alternarConfianza(dispositivoId: number): Observable<RespuestaAccion> {
+        return this.http.patch<RespuestaAccion>(`${this.urlBase}/dispositivos/${dispositivoId}/confianza`, {});
+    }
+
+    renombrarDispositivo(dispositivoId: number, nombre: string): Observable<RespuestaAccion> {
+        return this.http.patch<RespuestaAccion>(`${this.urlBase}/dispositivos/${dispositivoId}/nombre`, { nombre });
+    }
+
+    iniciar2FA(metodo: string): Observable<RespuestaIniciar2FA> {
+        return this.http.post<RespuestaIniciar2FA>(`${this.urlBase}/2fa/iniciar`, { metodo });
+    }
+
+    confirmar2FA(codigo: string): Observable<RespuestaAccion> {
+        return this.http.post<RespuestaAccion>(`${this.urlBase}/2fa/confirmar`, { codigo });
+    }
+
+    desactivar2FA(contrasena: string): Observable<RespuestaAccion> {
+        return this.http.post<RespuestaAccion>(`${this.urlBase}/2fa/desactivar`, { contrasena });
     }
 }

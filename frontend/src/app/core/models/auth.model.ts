@@ -21,6 +21,9 @@ export interface RespuestaLoginAdmin {
     accessToken?: string;
     refreshToken?: string;
     expiresIn?: number;
+    requiere2FA?: boolean;
+    metodo2fa?: string;
+    token2FA?: string;
 }
 
 export interface RespuestaRefreshToken {

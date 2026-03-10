@@ -12,6 +12,7 @@ import {
     FiltroProductosAdminDto,
 } from './dto';
 import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
+import { generarSlug } from '../../../common/utils';
 
 @Injectable()
 export class ProductosAdminService {
@@ -164,7 +165,7 @@ export class ProductosAdminService {
         const producto = await this.prisma.producto.create({
             data: {
                 ...datosProducto,
-                slug: this.generarSlug(datosProducto.nombre),
+                slug: generarSlug(datosProducto.nombre),
                 activo: datosProducto.activo ?? true,
                 destacado: datosProducto.destacado ?? false,
             },
@@ -211,7 +212,7 @@ export class ProductosAdminService {
         const datosFinales: Record<string, unknown> = { ...datosActualizacion };
 
         if (datosActualizacion.nombre) {
-            datosFinales.slug = this.generarSlug(datosActualizacion.nombre);
+            datosFinales.slug = generarSlug(datosActualizacion.nombre);
         }
 
         const productoActualizado = await this.prisma.producto.update({
@@ -343,15 +344,6 @@ export class ProductosAdminService {
                 throw new ConflictException('La marca seleccionada está inactiva');
             }
         }
-    }
-
-    private generarSlug(nombre: string): string {
-        return nombre
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
     }
 
     private mapearCampoOrden(campo?: string): string {

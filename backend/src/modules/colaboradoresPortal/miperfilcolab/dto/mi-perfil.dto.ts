@@ -7,9 +7,6 @@ import {
     Matches,
     IsEnum,
     IsBoolean,
-    IsInt,
-    Min,
-    Max,
 } from 'class-validator';
 
 // Actualizar información personal básica
@@ -104,10 +101,12 @@ export class ActualizarSeguridadDto {
     @IsOptional()
     @IsEnum(['ninguno', 'correo', 'app'])
     metodo2fa?: string;
+}
 
-    @IsOptional()
-    @IsInt()
-    @Min(1)
-    @Max(5)
-    maxSesionesSimultaneas?: number;
+// Renombrar un dispositivo registrado
+export class RenombrarDispositivoDto {
+    @IsString()
+    @MinLength(2, { message: 'El nombre debe tener al menos 2 caracteres' })
+    @MaxLength(200, { message: 'El nombre no puede exceder 200 caracteres' })
+    nombre!: string;
 }

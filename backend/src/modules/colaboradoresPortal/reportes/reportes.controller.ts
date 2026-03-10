@@ -6,13 +6,13 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 import { ReportesColaboradorService } from './reportes.service';
 import { FiltrosReporteDto, FiltrosExportarDto } from './dto';
 
 @Controller('colaborador/reportes')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtColaboradorGuard)
 export class ReportesColaboradorController {
     constructor(private readonly reportesService: ReportesColaboradorService) {}
 

@@ -5,15 +5,16 @@ import { SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { configuracionSwagger } from './config';
+import { SanitizarHtmlPipe } from './common/pipes';
 
 async function bootstrap() {
     const logger = new Logger('Bootstrap');
     const app = await NestFactory.create(AppModule);
 
     const configService = app.get(ConfigService);
-    const puerto = configService.get<number>('app.puerto') || 3000;
-    const entorno = configService.get<string>('app.entorno') || 'desarrollo';
-    const corsOrigenRaw = configService.get<string>('seguridad.corsOrigen') || 'http://localhost:4200';
+    const puerto = configService.get<number>('app.puerto')!;
+    const entorno = configService.get<string>('app.entorno')!;
+    const corsOrigenRaw = configService.get<string>('seguridad.corsOrigen')!;
     const corsOrigen = corsOrigenRaw.includes(',') ? corsOrigenRaw.split(',').map(o => o.trim()) : corsOrigenRaw;
 
     app.use(helmet({
@@ -31,18 +32,21 @@ async function bootstrap() {
 
     app.setGlobalPrefix('api/v1');
 
-    app.useGlobalPipes(new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-        transformOptions: {
-            enableImplicitConversion: true,
-        },
-        validationError: {
-            target: false,
-            value: false,
-        },
-    }));
+    app.useGlobalPipes(
+        new SanitizarHtmlPipe(),
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            transform: true,
+            transformOptions: {
+                enableImplicitConversion: true,
+            },
+            validationError: {
+                target: false,
+                value: false,
+            },
+        }),
+    );
 
     if (entorno !== 'produccion') {
         const documento = SwaggerModule.createDocument(app, configuracionSwagger);

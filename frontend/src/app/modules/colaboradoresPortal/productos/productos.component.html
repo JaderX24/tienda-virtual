@@ -6,10 +6,10 @@
         <!-- Encabezado -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">
-                <i class="bi bi-grid-3x3-gap me-2 text-teal"></i>Catálogo de Productos
+                <i class="bi bi-grid-3x3-gap me-2 text-teal"></i>{{ 'productos.catalogo' | traducir }}
             </h5>
             <span class="badge bg-light text-dark fs-6">
-                {{ totalProductos() }} productos
+                {{ totalProductos() }} {{ 'comun.productos' | traducir }}
             </span>
         </div>
 
@@ -20,7 +20,7 @@
                     <div class="card-body text-center py-3">
                         <div class="text-teal mb-1"><i class="bi bi-box-seam fs-4"></i></div>
                         <h4 class="fw-bold mb-0">{{ resumen().productosActivos }}</h4>
-                        <small class="text-muted">Activos</small>
+                        <small class="text-muted">{{ 'productos.activos' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     <div class="card-body text-center py-3">
                         <div class="text-danger mb-1"><i class="bi bi-exclamation-triangle fs-4"></i></div>
                         <h4 class="fw-bold mb-0">{{ resumen().agotados }}</h4>
-                        <small class="text-muted">Agotados</small>
+                        <small class="text-muted">{{ 'productos.agotados' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                     <div class="card-body text-center py-3">
                         <div class="text-warning mb-1"><i class="bi bi-arrow-down-circle fs-4"></i></div>
                         <h4 class="fw-bold mb-0">{{ resumen().stockBajo }}</h4>
-                        <small class="text-muted">Stock Bajo</small>
+                        <small class="text-muted">{{ 'productos.stockBajo' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                     <div class="card-body text-center py-3">
                         <div class="text-secondary mb-1"><i class="bi bi-pause-circle fs-4"></i></div>
                         <h4 class="fw-bold mb-0">{{ resumen().inactivos }}</h4>
-                        <small class="text-muted">Inactivos</small>
+                        <small class="text-muted">{{ 'productos.inactivos' | traducir }}</small>
                     </div>
                 </div>
             </div>
@@ -58,43 +58,43 @@
             <div class="card-body">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label fw-medium">Buscar producto</label>
+                        <label class="form-label fw-medium">{{ 'productos.buscar' | traducir }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control" placeholder="Nombre, SKU..."
+                            <input type="text" class="form-control" [placeholder]="'productos.placeholder' | traducir"
                                 [(ngModel)]="filtros.busqueda" (keyup.enter)="buscar()">
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label fw-medium">Categoría</label>
+                        <label class="form-label fw-medium">{{ 'productos.categoria' | traducir }}</label>
                         <select class="form-select" [(ngModel)]="filtros.categoriaId" (change)="buscar()">
-                            <option [ngValue]="undefined">Todas</option>
+                            <option [ngValue]="undefined">{{ 'comun.todas' | traducir }}</option>
                             @for (cat of categorias(); track cat.id) {
                                 <option [ngValue]="cat.id">{{ cat.nombre }} ({{ cat.totalProductos }})</option>
                             }
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label fw-medium">Estado</label>
+                        <label class="form-label fw-medium">{{ 'comun.estado' | traducir }}</label>
                         <select class="form-select" [(ngModel)]="filtros.estado" (change)="buscar()">
-                            <option value="todos">Todos</option>
-                            <option value="activo">Activos</option>
-                            <option value="inactivo">Inactivos</option>
-                            <option value="agotado">Agotados</option>
-                            <option value="stock_bajo">Stock Bajo</option>
+                            <option value="todos">{{ 'comun.todos' | traducir }}</option>
+                            <option value="activo">{{ 'productos.activos' | traducir }}</option>
+                            <option value="inactivo">{{ 'productos.inactivos' | traducir }}</option>
+                            <option value="agotado">{{ 'productos.agotados' | traducir }}</option>
+                            <option value="stock_bajo">{{ 'productos.stockBajo' | traducir }}</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <button class="btn btn-teal flex-fill" (click)="buscar()">
-                            <i class="bi bi-search me-1"></i>Buscar
+                            <i class="bi bi-search me-1"></i>{{ 'comun.buscar' | traducir }}
                         </button>
-                        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()" title="Limpiar filtros">
+                        <button class="btn btn-outline-secondary" (click)="limpiarFiltros()" [title]="'productos.limpiarFiltros' | traducir">
                             <i class="bi bi-x-lg"></i>
                         </button>
                         <button class="btn btn-outline-secondary"
                             (click)="mostrarFiltrosAvanzados = !mostrarFiltrosAvanzados"
                             [class.active]="mostrarFiltrosAvanzados"
-                            title="Filtros avanzados">
+                            [title]="'productos.filtrosAvanzados' | traducir">
                             <i class="bi bi-funnel"></i>
                         </button>
                     </div>
@@ -105,27 +105,27 @@
                     <hr class="my-3">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label fw-medium">Marca</label>
+                            <label class="form-label fw-medium">{{ 'productos.marca' | traducir }}</label>
                             <select class="form-select" [(ngModel)]="filtros.marcaId" (change)="buscar()">
-                                <option [ngValue]="undefined">Todas</option>
+                                <option [ngValue]="undefined">{{ 'comun.todas' | traducir }}</option>
                                 @for (marca of marcas(); track marca.id) {
                                     <option [ngValue]="marca.id">{{ marca.nombre }} ({{ marca.totalProductos }})</option>
                                 }
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-medium">Precio desde (L)</label>
+                            <label class="form-label fw-medium">{{ 'productos.precioDesde' | traducir }}</label>
                             <input type="number" class="form-control" placeholder="0.00"
                                 [(ngModel)]="precioDesde" min="0" step="0.01">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-medium">Precio hasta (L)</label>
+                            <label class="form-label fw-medium">{{ 'productos.precioHasta' | traducir }}</label>
                             <input type="number" class="form-control" placeholder="0.00"
                                 [(ngModel)]="precioHasta" min="0" step="0.01">
                         </div>
                         <div class="col-md-3">
                             <button class="btn btn-outline-teal w-100" (click)="buscar()">
-                                <i class="bi bi-funnel-fill me-1"></i>Aplicar filtros
+                                <i class="bi bi-funnel-fill me-1"></i>{{ 'productos.aplicarFiltros' | traducir }}
                             </button>
                         </div>
                     </div>
@@ -137,16 +137,16 @@
         @if (cargando()) {
             <div class="text-center py-5">
                 <div class="spinner-border text-teal" role="status">
-                    <span class="visually-hidden">Cargando...</span>
+                    <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
                 </div>
-                <p class="text-muted mt-2">Cargando productos...</p>
+                <p class="text-muted mt-2">{{ 'comun.cargandoProductos' | traducir }}</p>
             </div>
         } @else if (productos().length === 0) {
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
                     <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-                    <h6 class="mt-3 text-muted">No se encontraron productos</h6>
-                    <p class="text-muted small mb-0">Intenta con otros filtros de búsqueda</p>
+                    <h6 class="mt-3 text-muted">{{ 'productos.noEncontrados' | traducir }}</h6>
+                    <p class="text-muted small mb-0">{{ 'productos.intentaFiltros' | traducir }}</p>
                 </div>
             </div>
         } @else {
@@ -158,20 +158,20 @@
                                 <tr>
                                     <th style="width: 50px;"></th>
                                     <th class="cursor-pointer" (click)="cambiarOrden('nombre')">
-                                        Producto <i class="bi" [ngClass]="obtenerIconoOrden('nombre')"></i>
+                                        {{ 'comun.producto' | traducir }} <i class="bi" [ngClass]="obtenerIconoOrden('nombre')"></i>
                                     </th>
                                     <th class="cursor-pointer" (click)="cambiarOrden('sku')">
-                                        SKU <i class="bi" [ngClass]="obtenerIconoOrden('sku')"></i>
+                                        {{ 'comun.sku' | traducir }} <i class="bi" [ngClass]="obtenerIconoOrden('sku')"></i>
                                     </th>
-                                    <th>Categoría</th>
+                                    <th>{{ 'productos.categoria' | traducir }}</th>
                                     <th class="text-end cursor-pointer" (click)="cambiarOrden('precio')">
-                                        Precio <i class="bi" [ngClass]="obtenerIconoOrden('precio')"></i>
+                                        {{ 'comun.precio' | traducir }} <i class="bi" [ngClass]="obtenerIconoOrden('precio')"></i>
                                     </th>
                                     <th class="text-center cursor-pointer" (click)="cambiarOrden('stock')">
-                                        Stock <i class="bi" [ngClass]="obtenerIconoOrden('stock')"></i>
+                                        {{ 'comun.stock' | traducir }} <i class="bi" [ngClass]="obtenerIconoOrden('stock')"></i>
                                     </th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="text-center" style="width: 80px;">Acciones</th>
+                                    <th class="text-center">{{ 'comun.estado' | traducir }}</th>
+                                    <th class="text-center" style="width: 80px;">{{ 'comun.acciones' | traducir }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -193,10 +193,10 @@
                                                 <small class="text-muted">{{ producto.marca }}</small>
                                             }
                                             @if (producto.destacado) {
-                                                <i class="bi bi-star-fill text-warning ms-1" style="font-size: 0.7rem;" title="Destacado"></i>
+                                                <i class="bi bi-star-fill text-warning ms-1" style="font-size: 0.7rem;" [title]="'productos.destacado' | traducir"></i>
                                             }
                                             @if (!producto.activo) {
-                                                <span class="badge text-bg-secondary ms-1">Inactivo</span>
+                                                <span class="badge text-bg-secondary ms-1">{{ 'productos.inactivo' | traducir }}</span>
                                             }
                                         </td>
                                         <td class="text-muted small font-monospace">{{ producto.sku }}</td>
@@ -220,7 +220,7 @@
                                                 [class.text-success]="producto.stock > producto.stockMinimo">
                                                 {{ producto.stock }}
                                             </span>
-                                            <small class="text-muted d-block">Min: {{ producto.stockMinimo }}</small>
+                                            <small class="text-muted d-block">{{ 'productos.min' | traducir }} {{ producto.stockMinimo }}</small>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge rounded-pill" [ngClass]="obtenerClaseEstadoStock(producto.estadoStock)">
@@ -228,7 +228,7 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-teal" (click)="verDetalle(producto); $event.stopPropagation()" title="Ver detalle">
+                                            <button class="btn btn-sm btn-outline-teal" (click)="verDetalle(producto); $event.stopPropagation()" [title]="'productos.verDetalle' | traducir">
                                                 <i class="bi bi-eye"></i>
                                             </button>
                                         </td>
@@ -244,8 +244,8 @@
             @if (totalPaginas() > 1) {
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <small class="text-muted">
-                        Mostrando página {{ paginaActual() }} de {{ totalPaginas() }}
-                        ({{ totalProductos() }} resultados)
+                        {{ 'productos.mostrando' | traducir }} {{ paginaActual() }} {{ 'productos.de' | traducir }} {{ totalPaginas() }}
+                        ({{ totalProductos() }} {{ 'productos.resultados' | traducir }})
                     </small>
                     <nav>
                         <ul class="pagination pagination-sm mb-0">
@@ -281,15 +281,15 @@
 
         <!-- Botón volver -->
         <button class="btn btn-outline-secondary mb-3" (click)="volverALista()">
-            <i class="bi bi-arrow-left me-1"></i>Volver al catálogo
+            <i class="bi bi-arrow-left me-1"></i>{{ 'productos.volverCatalogo' | traducir }}
         </button>
 
         @if (cargandoDetalle()) {
             <div class="text-center py-5">
                 <div class="spinner-border text-teal" role="status">
-                    <span class="visually-hidden">Cargando...</span>
+                    <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
                 </div>
-                <p class="text-muted mt-2">Cargando detalle...</p>
+                <p class="text-muted mt-2">{{ 'comun.cargandoDetalle' | traducir }}</p>
             </div>
         } @else {
           @if (productoDetalle(); as producto) {
@@ -348,10 +348,10 @@
                                 </div>
                                 <div class="d-flex gap-2">
                                     @if (producto.destacado) {
-                                        <span class="badge text-bg-warning"><i class="bi bi-star-fill me-1"></i>Destacado</span>
+                                        <span class="badge text-bg-warning"><i class="bi bi-star-fill me-1"></i>{{ 'productos.destacado' | traducir }}</span>
                                     }
                                     <span class="badge" [ngClass]="producto.activo ? 'text-bg-success' : 'text-bg-secondary'">
-                                        {{ producto.activo ? 'Activo' : 'Inactivo' }}
+                                        {{ producto.activo ? ('productos.activo' | traducir) : ('productos.inactivo' | traducir) }}
                                     </span>
                                 </div>
                             </div>
@@ -364,14 +364,14 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-auto">
                                     <div class="detalle-item">
-                                        <label>Precio de venta</label>
+                                        <label>{{ 'productos.precioVenta' | traducir }}</label>
                                         <div class="fs-4 fw-bold text-teal">{{ formatearPrecio(producto.precio) }}</div>
                                     </div>
                                 </div>
                                 @if (producto.precioComparacion) {
                                     <div class="col-auto">
                                         <div class="detalle-item">
-                                            <label>Precio anterior</label>
+                                            <label>{{ 'productos.precioAnterior' | traducir }}</label>
                                             <div class="text-decoration-line-through text-muted">
                                                 {{ formatearPrecio(producto.precioComparacion) }}
                                             </div>
@@ -381,7 +381,7 @@
                                 @if (producto.costo !== null) {
                                     <div class="col-auto">
                                         <div class="detalle-item">
-                                            <label>Costo</label>
+                                            <label>{{ 'productos.costo' | traducir }}</label>
                                             <div>{{ formatearPrecio(producto.costo) }}</div>
                                         </div>
                                     </div>
@@ -389,7 +389,7 @@
                                 @if (producto.margenGanancia !== null) {
                                     <div class="col-auto">
                                         <div class="detalle-item">
-                                            <label>Margen</label>
+                                            <label>{{ 'productos.margen' | traducir }}</label>
                                             <div [class.text-success]="producto.margenGanancia > 20"
                                                 [class.text-warning]="producto.margenGanancia > 0 && producto.margenGanancia <= 20"
                                                 [class.text-danger]="producto.margenGanancia <= 0">
@@ -404,24 +404,24 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-auto">
                                     <div class="detalle-item">
-                                        <label>Stock actual</label>
+                                        <label>{{ 'productos.stockActual' | traducir }}</label>
                                         <div class="fs-5 fw-bold"
                                             [class.text-danger]="producto.stock <= 0"
                                             [class.text-warning]="producto.stock > 0 && producto.stock <= producto.stockMinimo"
                                             [class.text-success]="producto.stock > producto.stockMinimo">
-                                            {{ producto.stock }} uds.
+                                            {{ producto.stock }} {{ 'productos.uds' | traducir }}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-auto">
                                     <div class="detalle-item">
-                                        <label>Stock mínimo</label>
-                                        <div>{{ producto.stockMinimo }} uds.</div>
+                                        <label>{{ 'productos.stockMinimo' | traducir }}</label>
+                                        <div>{{ producto.stockMinimo }} {{ 'productos.uds' | traducir }}</div>
                                     </div>
                                 </div>
                                 <div class="col-auto">
                                     <div class="detalle-item">
-                                        <label>Estado stock</label>
+                                        <label>{{ 'productos.estadoStock' | traducir }}</label>
                                         <span class="badge rounded-pill" [ngClass]="obtenerClaseEstadoStock(producto.estadoStock)">
                                             {{ obtenerEtiquetaEstadoStock(producto.estadoStock) }}
                                         </span>
@@ -430,8 +430,8 @@
                                 @if (producto.peso !== null) {
                                     <div class="col-auto">
                                         <div class="detalle-item">
-                                            <label>Peso</label>
-                                            <div>{{ producto.peso }} kg</div>
+                                            <label>{{ 'productos.peso' | traducir }}</label>
+                                            <div>{{ producto.peso }} {{ 'productos.kg' | traducir }}</div>
                                         </div>
                                     </div>
                                 }
@@ -441,13 +441,13 @@
                             <div class="row g-3">
                                 <div class="col-auto">
                                     <div class="detalle-item">
-                                        <label>Creado</label>
+                                        <label>{{ 'productos.creado' | traducir }}</label>
                                         <div class="small">{{ formatearFecha(producto.creadoEn) }}</div>
                                     </div>
                                 </div>
                                 <div class="col-auto">
                                     <div class="detalle-item">
-                                        <label>Última actualización</label>
+                                        <label>{{ 'productos.ultimaActualizacion' | traducir }}</label>
                                         <div class="small">{{ formatearFecha(producto.actualizadoEn) }}</div>
                                     </div>
                                 </div>
@@ -464,13 +464,13 @@
                         <li class="nav-item">
                             <button class="nav-link" [class.active]="tabActiva() === 'info'"
                                 (click)="cambiarTab('info')">
-                                <i class="bi bi-info-circle me-1"></i>Información
+                                <i class="bi bi-info-circle me-1"></i>{{ 'productos.informacion' | traducir }}
                             </button>
                         </li>
                         <li class="nav-item">
                             <button class="nav-link" [class.active]="tabActiva() === 'movimientos'"
                                 (click)="cambiarTab('movimientos')">
-                                <i class="bi bi-arrow-left-right me-1"></i>Movimientos de inventario
+                                <i class="bi bi-arrow-left-right me-1"></i>{{ 'productos.movimientos' | traducir }}
                             </button>
                         </li>
                     </ul>
@@ -479,26 +479,26 @@
                     <!-- Tab Información -->
                     @if (tabActiva() === 'info') {
                         @if (producto.descripcion) {
-                            <h6 class="fw-bold mb-2">Descripción</h6>
+                            <h6 class="fw-bold mb-2">{{ 'productos.descripcion' | traducir }}</h6>
                             <p class="text-muted mb-0" style="white-space: pre-line;">{{ producto.descripcion }}</p>
                         } @else {
-                            <p class="text-muted mb-0">Este producto no tiene descripción detallada.</p>
+                            <p class="text-muted mb-0">{{ 'productos.sinDescripcion' | traducir }}</p>
                         }
                     }
 
                     <!-- Tab Movimientos -->
                     @if (tabActiva() === 'movimientos') {
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold mb-0">Historial de movimientos</h6>
+                            <h6 class="fw-bold mb-0">{{ 'productos.historialMov' | traducir }}</h6>
                             <div class="d-flex gap-2">
                                 <select class="form-select form-select-sm" style="width: auto;"
                                     [(ngModel)]="filtroTipoMovimiento" (change)="filtrarMovimientos()">
-                                    <option value="">Todos los tipos</option>
-                                    <option value="entrada">Entradas</option>
-                                    <option value="salida">Salidas</option>
-                                    <option value="ajuste">Ajustes</option>
-                                    <option value="transferencia">Transferencias</option>
-                                    <option value="devolucion">Devoluciones</option>
+                                    <option value="">{{ 'productos.todosLosTipos' | traducir }}</option>
+                                    <option value="entrada">{{ 'productos.entradas' | traducir }}</option>
+                                    <option value="salida">{{ 'productos.salidas' | traducir }}</option>
+                                    <option value="ajuste">{{ 'productos.ajustes' | traducir }}</option>
+                                    <option value="transferencia">{{ 'productos.transferencias' | traducir }}</option>
+                                    <option value="devolucion">{{ 'productos.devoluciones' | traducir }}</option>
                                 </select>
                             </div>
                         </div>
@@ -506,27 +506,27 @@
                         @if (cargandoMovimientos()) {
                             <div class="text-center py-4">
                                 <div class="spinner-border spinner-border-sm text-teal" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
+                                    <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
                                 </div>
                             </div>
                         } @else if (movimientos().length === 0) {
                             <div class="text-center py-4">
                                 <i class="bi bi-clock-history text-muted" style="font-size: 2rem;"></i>
-                                <p class="text-muted mt-2 mb-0">Sin movimientos registrados</p>
+                                <p class="text-muted mt-2 mb-0">{{ 'productos.sinMovimientos' | traducir }}</p>
                             </div>
                         } @else {
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Tipo</th>
-                                            <th class="text-center">Cantidad</th>
-                                            <th class="text-center">Stock anterior</th>
-                                            <th class="text-center">Stock nuevo</th>
-                                            <th class="text-center">Diferencia</th>
-                                            <th>Motivo</th>
-                                            <th>Usuario</th>
-                                            <th>Fecha</th>
+                                            <th>{{ 'comun.tipo' | traducir }}</th>
+                                            <th class="text-center">{{ 'comun.cantidad' | traducir }}</th>
+                                            <th class="text-center">{{ 'productos.stockAnterior' | traducir }}</th>
+                                            <th class="text-center">{{ 'productos.stockNuevo' | traducir }}</th>
+                                            <th class="text-center">{{ 'comun.diferencia' | traducir }}</th>
+                                            <th>{{ 'comun.motivo' | traducir }}</th>
+                                            <th>{{ 'comun.usuario' | traducir }}</th>
+                                            <th>{{ 'comun.fecha' | traducir }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>

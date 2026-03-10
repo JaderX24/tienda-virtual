@@ -17,17 +17,17 @@
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActivo() === 'hoy'" (click)="cambiarTab('hoy')">
-                <i class="bi bi-clock me-1"></i>Turno de Hoy
+                <i class="bi bi-clock me-1"></i>{{ 'turno.turnoHoy' | traducir }}
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActivo() === 'semana'" (click)="cambiarTab('semana')">
-                <i class="bi bi-calendar-week me-1"></i>Resumen Semanal
+                <i class="bi bi-calendar-week me-1"></i>{{ 'turno.resumenSemanal' | traducir }}
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" [class.active]="tabActivo() === 'historial'" (click)="cambiarTab('historial')">
-                <i class="bi bi-clock-history me-1"></i>Historial
+                <i class="bi bi-clock-history me-1"></i>{{ 'turno.historial' | traducir }}
             </button>
         </li>
     </ul>
@@ -35,9 +35,9 @@
     @if (cargando()) {
         <div class="text-center py-5">
             <div class="spinner-border text-teal" role="status">
-                <span class="visually-hidden">Cargando...</span>
+                <span class="visually-hidden">{{ 'comun.cargando' | traducir }}</span>
             </div>
-            <p class="text-muted mt-2">Cargando información del turno...</p>
+            <p class="text-muted mt-2">{{ 'comun.cargandoTurno' | traducir }}</p>
         </div>
     } @else {
         <!-- TAB: Turno de Hoy -->
@@ -52,7 +52,7 @@
                                     <div>
                                         <h5 class="fw-bold mb-1">
                                             <i class="bi bi-building me-2 text-teal"></i>
-                                            {{ turno.almacen?.nombre || 'Almacén' }}
+                                            {{ turno.almacen?.nombre || ('turno.almacen' | traducir) }}
                                         </h5>
                                         <p class="text-muted mb-0">
                                             @if (turno.almacen?.direccion) {
@@ -68,14 +68,14 @@
                                 <!-- Horario programado -->
                                 <div class="horario-grid mb-4">
                                     <div class="horario-item">
-                                        <small class="text-muted d-block">Inicio programado</small>
+                                        <small class="text-muted d-block">{{ 'turno.inicioProgramado' | traducir }}</small>
                                         <span class="fw-bold fs-5">{{ formatearHora(turno.horaInicioProgramada) }}</span>
                                     </div>
                                     <div class="horario-separador">
                                         <i class="bi bi-arrow-right text-muted"></i>
                                     </div>
                                     <div class="horario-item">
-                                        <small class="text-muted d-block">Fin programado</small>
+                                        <small class="text-muted d-block">{{ 'turno.finProgramado' | traducir }}</small>
                                         <span class="fw-bold fs-5">{{ formatearHora(turno.horaFinProgramada) }}</span>
                                     </div>
                                 </div>
@@ -88,7 +88,7 @@
                                                 <div class="registro-icono bg-success-subtle me-2">
                                                     <i class="bi bi-box-arrow-in-right text-success"></i>
                                                 </div>
-                                                <span class="fw-medium">Entrada</span>
+                                                <span class="fw-medium">{{ 'turno.entrada' | traducir }}</span>
                                             </div>
                                             @if (turno.horaEntrada) {
                                                 <span class="fs-4 fw-bold">{{ formatearHora(turno.horaEntrada) }}</span>
@@ -97,7 +97,7 @@
                                                     {{ obtenerEtiquetaPuntualidad(turno.puntualidad) }}
                                                 </small>
                                             } @else {
-                                                <span class="fs-5 text-muted">Pendiente</span>
+                                                <span class="fs-5 text-muted">{{ 'turno.pendiente' | traducir }}</span>
                                             }
                                         </div>
                                     </div>
@@ -107,12 +107,12 @@
                                                 <div class="registro-icono bg-danger-subtle me-2">
                                                     <i class="bi bi-box-arrow-right text-danger"></i>
                                                 </div>
-                                                <span class="fw-medium">Salida</span>
+                                                <span class="fw-medium">{{ 'turno.salida' | traducir }}</span>
                                             </div>
                                             @if (turno.horaSalida) {
                                                 <span class="fs-4 fw-bold">{{ formatearHora(turno.horaSalida) }}</span>
                                             } @else {
-                                                <span class="fs-5 text-muted">Pendiente</span>
+                                                <span class="fs-5 text-muted">{{ 'turno.pendiente' | traducir }}</span>
                                             }
                                         </div>
                                     </div>
@@ -120,14 +120,14 @@
 
                                 @if (turno.estado === 'en_curso') {
                                     <div class="tiempo-transcurrido text-center mb-4">
-                                        <small class="text-muted d-block mb-1">Tiempo en turno</small>
+                                        <small class="text-muted d-block mb-1">{{ 'turno.tiempoEnTurno' | traducir }}</small>
                                         <span class="fs-3 fw-bold text-teal">{{ tiempoTranscurrido() }}</span>
                                     </div>
                                 }
 
                                 @if (turno.horasTrabajadas !== null && turno.estado === 'finalizado') {
                                     <div class="horas-trabajadas text-center mb-4">
-                                        <small class="text-muted d-block mb-1">Total horas trabajadas</small>
+                                        <small class="text-muted d-block mb-1">{{ 'turno.totalHoras' | traducir }}</small>
                                         <span class="fs-3 fw-bold text-teal">{{ turno.horasTrabajadas }} h</span>
                                     </div>
                                 }
@@ -141,7 +141,7 @@
                                             @if (procesando()) {
                                                 <span class="spinner-border spinner-border-sm me-2"></span>
                                             }
-                                            <i class="bi bi-box-arrow-in-right me-2"></i>Registrar Entrada
+                                            <i class="bi bi-box-arrow-in-right me-2"></i>{{ 'turno.registrarEntrada' | traducir }}
                                         </button>
                                     }
                                     @if (turno.estado === 'en_curso') {
@@ -151,7 +151,7 @@
                                             @if (procesando()) {
                                                 <span class="spinner-border spinner-border-sm me-2"></span>
                                             }
-                                            <i class="bi bi-box-arrow-right me-2"></i>Registrar Salida
+                                            <i class="bi bi-box-arrow-right me-2"></i>{{ 'turno.registrarSalida' | traducir }}
                                         </button>
                                     }
                                 </div>
@@ -163,7 +163,7 @@
                             <div class="card border-0 shadow-sm mt-4">
                                 <div class="card-header bg-white border-bottom py-3">
                                     <h6 class="fw-bold mb-0">
-                                        <i class="bi bi-activity me-2 text-teal"></i>Actividad del Turno
+                                        <i class="bi bi-activity me-2 text-teal"></i>{{ 'turno.actividadTurno' | traducir }}
                                     </h6>
                                 </div>
                                 <div class="card-body p-0">
@@ -171,11 +171,11 @@
                                         <table class="table table-hover mb-0">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th>Operación</th>
-                                                    <th>Producto</th>
-                                                    <th class="text-center">Cantidad</th>
-                                                    <th>Almacén</th>
-                                                    <th>Hora</th>
+                                                    <th>{{ 'turno.operacion' | traducir }}</th>
+                                                    <th>{{ 'comun.producto' | traducir }}</th>
+                                                    <th class="text-center">{{ 'comun.cantidad' | traducir }}</th>
+                                                    <th>{{ 'comun.almacen' | traducir }}</th>
+                                                    <th>{{ 'turno.hora' | traducir }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -218,28 +218,28 @@
                             <div class="card border-0 shadow-sm mb-4">
                                 <div class="card-header bg-white border-bottom py-3">
                                     <h6 class="fw-bold mb-0">
-                                        <i class="bi bi-building me-2 text-teal"></i>Almacén
+                                        <i class="bi bi-building me-2 text-teal"></i>{{ 'turno.almacen' | traducir }}
                                     </h6>
                                 </div>
                                 <div class="card-body">
                                     <ul class="list-unstyled mb-0">
                                         <li class="mb-2">
-                                            <small class="text-muted d-block">Nombre</small>
+                                            <small class="text-muted d-block">{{ 'comun.nombre' | traducir }}</small>
                                             <span class="fw-medium">{{ turno.almacen.nombre }}</span>
                                         </li>
                                         <li class="mb-2">
-                                            <small class="text-muted d-block">Código</small>
+                                            <small class="text-muted d-block">{{ 'comun.codigo' | traducir }}</small>
                                             <span class="fw-medium">{{ turno.almacen.codigo }}</span>
                                         </li>
                                         @if (turno.almacen.direccion) {
                                             <li class="mb-2">
-                                                <small class="text-muted d-block">Dirección</small>
+                                                <small class="text-muted d-block">{{ 'comun.direccion' | traducir }}</small>
                                                 <span class="fw-medium">{{ turno.almacen.direccion }}</span>
                                             </li>
                                         }
                                         @if (turno.almacen.telefono) {
                                             <li>
-                                                <small class="text-muted d-block">Teléfono</small>
+                                                <small class="text-muted d-block">{{ 'comun.telefono' | traducir }}</small>
                                                 <span class="fw-medium">{{ turno.almacen.telefono }}</span>
                                             </li>
                                         }
@@ -253,14 +253,14 @@
                             <div class="card border-0 shadow-sm">
                                 <div class="card-header bg-white border-bottom py-3">
                                     <h6 class="fw-bold mb-0">
-                                        <i class="bi bi-sticky me-2 text-teal"></i>Notas
+                                        <i class="bi bi-sticky me-2 text-teal"></i>{{ 'turno.notas' | traducir }}
                                     </h6>
                                 </div>
                                 <div class="card-body">
                                     @if (turno.notasEntrada) {
                                         <div class="mb-3">
                                             <small class="text-muted d-block mb-1">
-                                                <i class="bi bi-box-arrow-in-right me-1"></i>Entrada
+                                                <i class="bi bi-box-arrow-in-right me-1"></i>{{ 'turno.entrada' | traducir }}
                                             </small>
                                             <p class="mb-0">{{ turno.notasEntrada }}</p>
                                         </div>
@@ -268,7 +268,7 @@
                                     @if (turno.notasSalida) {
                                         <div>
                                             <small class="text-muted d-block mb-1">
-                                                <i class="bi bi-box-arrow-right me-1"></i>Salida
+                                                <i class="bi bi-box-arrow-right me-1"></i>{{ 'turno.salida' | traducir }}
                                             </small>
                                             <p class="mb-0">{{ turno.notasSalida }}</p>
                                         </div>
@@ -285,10 +285,10 @@
                         <div class="sin-turno-icono mb-3">
                             <i class="bi bi-calendar-x"></i>
                         </div>
-                        <h5 class="fw-bold mb-2">Sin turno programado para hoy</h5>
+                        <h5 class="fw-bold mb-2">{{ 'turno.sinTurno' | traducir }}</h5>
                         <p class="text-muted mb-4">
-                            No tienes un turno asignado para el día de hoy.<br>
-                            Consulta con tu supervisor si crees que esto es un error.
+                            {{ 'turno.sinTurnoDesc' | traducir }}<br>
+                            {{ 'turno.consultaSupervisor' | traducir }}
                         </p>
                         <div class="card border-0 bg-light d-inline-block">
                             <div class="card-body text-center py-3 px-4">
@@ -309,7 +309,7 @@
                     <div class="col-6 col-lg-3">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body text-center">
-                                <p class="text-muted mb-1 small">Turnos Totales</p>
+                                <p class="text-muted mb-1 small">{{ 'turno.turnosTotales' | traducir }}</p>
                                 <h3 class="fw-bold mb-0 text-primary">{{ resumen.totalTurnos }}</h3>
                             </div>
                         </div>
@@ -317,7 +317,7 @@
                     <div class="col-6 col-lg-3">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body text-center">
-                                <p class="text-muted mb-1 small">Completados</p>
+                                <p class="text-muted mb-1 small">{{ 'turno.completados' | traducir }}</p>
                                 <h3 class="fw-bold mb-0 text-success">{{ resumen.turnosCompletados }}</h3>
                             </div>
                         </div>
@@ -325,7 +325,7 @@
                     <div class="col-6 col-lg-3">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body text-center">
-                                <p class="text-muted mb-1 small">Horas Trabajadas</p>
+                                <p class="text-muted mb-1 small">{{ 'turno.horasTrabajadas' | traducir }}</p>
                                 <h3 class="fw-bold mb-0 text-teal">{{ resumen.horasTrabajadas }} h</h3>
                             </div>
                         </div>
@@ -333,7 +333,7 @@
                     <div class="col-6 col-lg-3">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body text-center">
-                                <p class="text-muted mb-1 small">Puntualidad</p>
+                                <p class="text-muted mb-1 small">{{ 'turno.puntualidad' | traducir }}</p>
                                 <h3 class="fw-bold mb-0" [ngClass]="resumen.puntualidad >= 80 ? 'text-success' : 'text-warning'">
                                     {{ resumen.puntualidad }}%
                                 </h3>
@@ -346,7 +346,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom py-3">
                         <h6 class="fw-bold mb-0">
-                            <i class="bi bi-calendar-week me-2 text-teal"></i>Turnos de la Semana
+                            <i class="bi bi-calendar-week me-2 text-teal"></i>{{ 'turno.turnosSemana' | traducir }}
                         </h6>
                     </div>
                     <div class="card-body p-0">
@@ -355,13 +355,13 @@
                                 <table class="table table-hover mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Día</th>
-                                            <th>Almacén</th>
-                                            <th>Programado</th>
-                                            <th>Entrada</th>
-                                            <th>Salida</th>
-                                            <th class="text-center">Horas</th>
-                                            <th class="text-center">Estado</th>
+                                            <th>{{ 'comun.dia' | traducir }}</th>
+                                            <th>{{ 'comun.almacen' | traducir }}</th>
+                                            <th>{{ 'comun.programado' | traducir }}</th>
+                                            <th>{{ 'turno.entrada' | traducir }}</th>
+                                            <th>{{ 'turno.salida' | traducir }}</th>
+                                            <th class="text-center">{{ 'comun.horas' | traducir }}</th>
+                                            <th class="text-center">{{ 'comun.estado' | traducir }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -391,7 +391,7 @@
                         } @else {
                             <div class="text-center py-4">
                                 <i class="bi bi-calendar-x text-muted fs-1"></i>
-                                <p class="text-muted mt-2 mb-0">Sin turnos programados esta semana</p>
+                                <p class="text-muted mt-2 mb-0">{{ 'turno.sinTurnosSemana' | traducir }}</p>
                             </div>
                         }
                     </div>
@@ -404,7 +404,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom py-3">
                     <h6 class="fw-bold mb-0">
-                        <i class="bi bi-clock-history me-2 text-teal"></i>Historial de Turnos
+                        <i class="bi bi-clock-history me-2 text-teal"></i>{{ 'turno.historialTurnos' | traducir }}
                     </h6>
                 </div>
                 <div class="card-body p-0">
@@ -413,13 +413,13 @@
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Fecha</th>
-                                        <th>Almacén</th>
-                                        <th>Entrada</th>
-                                        <th>Salida</th>
-                                        <th class="text-center">Horas</th>
-                                        <th class="text-center">Puntualidad</th>
-                                        <th class="text-center">Estado</th>
+                                        <th>{{ 'comun.fecha' | traducir }}</th>
+                                        <th>{{ 'comun.almacen' | traducir }}</th>
+                                        <th>{{ 'turno.entrada' | traducir }}</th>
+                                        <th>{{ 'turno.salida' | traducir }}</th>
+                                        <th class="text-center">{{ 'comun.horas' | traducir }}</th>
+                                        <th class="text-center">{{ 'turno.puntualidad' | traducir }}</th>
+                                        <th class="text-center">{{ 'comun.estado' | traducir }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -477,7 +477,7 @@
                     } @else {
                         <div class="text-center py-4">
                             <i class="bi bi-clock-history text-muted fs-1"></i>
-                            <p class="text-muted mt-2 mb-0">Sin historial de turnos</p>
+                            <p class="text-muted mt-2 mb-0">{{ 'turno.sinHistorial' | traducir }}</p>
                         </div>
                     }
                 </div>
@@ -494,9 +494,9 @@
                     <div class="modal-header border-bottom">
                         <h5 class="modal-title fw-bold">
                             @if (tipoNota() === 'entrada') {
-                                <i class="bi bi-box-arrow-in-right me-2 text-success"></i>Registrar Entrada
+                                <i class="bi bi-box-arrow-in-right me-2 text-success"></i>{{ 'turno.registrarEntradaModal' | traducir }}
                             } @else {
-                                <i class="bi bi-box-arrow-right me-2 text-danger"></i>Registrar Salida
+                                <i class="bi bi-box-arrow-right me-2 text-danger"></i>{{ 'turno.registrarSalidaModal' | traducir }}
                             }
                         </h5>
                         <button type="button" class="btn-close" (click)="cerrarNotas()"></button>
@@ -504,45 +504,45 @@
                     <div class="modal-body">
                         <p class="text-muted mb-3">
                             @if (tipoNota() === 'entrada') {
-                                Estás a punto de registrar tu entrada al turno. Puedes agregar notas opcionales.
+                                {{ 'turno.entradaDesc' | traducir }}
                             } @else {
-                                Estás a punto de registrar tu salida y finalizar el turno. Puedes agregar notas opcionales.
+                                {{ 'turno.salidaDesc' | traducir }}
                             }
                         </p>
                         <div class="mb-3">
-                            <label class="form-label fw-medium">Notas (opcional)</label>
+                            <label class="form-label fw-medium">{{ 'turno.notasOpcional' | traducir }}</label>
                             @if (tipoNota() === 'entrada') {
                                 <textarea class="form-control" rows="3"
                                     [(ngModel)]="notasEntrada"
-                                    placeholder="Ej: Inicio de turno normal, todo en orden..."
+                                    [placeholder]="'turno.ejEntrada' | traducir"
                                     maxlength="500"></textarea>
                             } @else {
                                 <textarea class="form-control" rows="3"
                                     [(ngModel)]="notasSalida"
-                                    placeholder="Ej: Turno completado sin novedades..."
+                                    [placeholder]="'turno.ejSalida' | traducir"
                                     maxlength="500"></textarea>
                             }
                         </div>
                         <div class="d-flex align-items-center text-muted small">
                             <i class="bi bi-clock me-2"></i>
-                            <span>Hora actual: <strong>{{ horaActual() }}</strong></span>
+                            <span>{{ 'turno.horaActual' | traducir }} <strong>{{ horaActual() }}</strong></span>
                         </div>
                     </div>
                     <div class="modal-footer border-top">
-                        <button type="button" class="btn btn-outline-secondary" (click)="cerrarNotas()">Cancelar</button>
+                        <button type="button" class="btn btn-outline-secondary" (click)="cerrarNotas()">{{ 'comun.cancelar' | traducir }}</button>
                         @if (tipoNota() === 'entrada') {
                             <button type="button" class="btn btn-teal" (click)="confirmarAccion()" [disabled]="procesando()">
                                 @if (procesando()) {
                                     <span class="spinner-border spinner-border-sm me-2"></span>
                                 }
-                                <i class="bi bi-check-lg me-1"></i>Confirmar Entrada
+                                <i class="bi bi-check-lg me-1"></i>{{ 'turno.confirmarEntrada' | traducir }}
                             </button>
                         } @else {
                             <button type="button" class="btn btn-danger" (click)="confirmarAccion()" [disabled]="procesando()">
                                 @if (procesando()) {
                                     <span class="spinner-border spinner-border-sm me-2"></span>
                                 }
-                                <i class="bi bi-check-lg me-1"></i>Confirmar Salida
+                                <i class="bi bi-check-lg me-1"></i>{{ 'turno.confirmarSalida' | traducir }}
                             </button>
                         }
                     </div>

@@ -21,7 +21,7 @@ import {
 import { Request } from 'express';
 import { AuthColaboradorService } from './auth-colaborador.service';
 import { LoginColaboradorDto } from './dto';
-import { JwtAuthGuard } from '../../../common/guards';
+import { JwtColaboradorGuard } from '../../../common/guards';
 import { UsuarioActual } from '../../../common/decorators';
 
 @ApiTags('Colaboradores - Autenticación')
@@ -73,9 +73,85 @@ export class AuthColaboradorController {
         }
     }
 
+    @Post('verificar-2fa')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+        summary: 'Verificar código 2FA',
+        description: 'Verifica el código de doble factor durante el proceso de login',
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                token2FA: { type: 'string' },
+                codigo: { type: 'string', minLength: 6, maxLength: 6 },
+            },
+            required: ['token2FA', 'codigo'],
+        },
+    })
+    async verificar2FA(
+        @Body('token2FA') token2FA: string,
+        @Body('codigo') codigo: string,
+    ) {
+        if (!token2FA || !codigo || codigo.length !== 6) {
+            return {
+                exito: false,
+                mensaje: 'Datos de verificación inválidos',
+                codigo: 'DATOS_INVALIDOS',
+            };
+        }
+
+        try {
+            return await this.authService.verificar2FA(token2FA, codigo);
+        } catch (error) {
+            if (error instanceof UnauthorizedException) {
+                return {
+                    exito: false,
+                    mensaje: error.message,
+                    codigo: 'VERIFICACION_FALLIDA',
+                };
+            }
+            return {
+                exito: false,
+                mensaje: 'Error al verificar el código',
+                codigo: 'ERROR_INTERNO',
+            };
+        }
+    }
+
+    @Post('reenviar-2fa')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+        summary: 'Reenviar código 2FA por correo',
+        description: 'Reenvía el código de verificación al correo del colaborador',
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                token2FA: { type: 'string' },
+            },
+            required: ['token2FA'],
+        },
+    })
+    async reenviarCodigo2FA(@Body('token2FA') token2FA: string) {
+        if (!token2FA) {
+            return { exito: false, mensaje: 'Token requerido' };
+        }
+
+        try {
+            return await this.authService.reenviarCodigo2FA(token2FA);
+        } catch (error) {
+            if (error instanceof UnauthorizedException) {
+                return { exito: false, mensaje: error.message };
+            }
+            return { exito: false, mensaje: 'Error al reenviar el código' };
+        }
+    }
+
     @Post('logout')
     @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtColaboradorGuard)
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Cerrar sesión del colaborador',
@@ -117,7 +193,7 @@ export class AuthColaboradorController {
     }
 
     @Get('sesiones')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtColaboradorGuard)
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Obtener sesiones activas del colaborador',
@@ -132,7 +208,7 @@ export class AuthColaboradorController {
     }
 
     @Delete('sesiones')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtColaboradorGuard)
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Cerrar todas las sesiones del colaborador',

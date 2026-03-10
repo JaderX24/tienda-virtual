@@ -1,5 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 
@@ -10,13 +10,29 @@ import {
     seguridadConfig,
     correoConfig,
     archivosConfig,
+    validarVariablesEntorno,
 } from './config';
 
 import { PrismaModule } from './prisma';
-import { FiltroExcepcionesGlobal } from './common/filters';
-import { LoggingInterceptor, TransformadorRespuestaInterceptor } from './common/interceptors';
-import { CorrelacionIdMiddleware } from './common/middlewares';
-import { JwtAuthGuard } from './common/guards';
+import {
+    FiltroExcepcionesGlobal,
+    ManejadorExcepcionesAdmin,
+    ManejadorExcepcionesColab,
+} from './common/filters';
+import {
+    LoggingInterceptor,
+    TransformadorRespuestaInterceptor,
+    AuditoriaAdminInterceptor,
+    ActividadSesionInterceptor,
+} from './common/interceptors';
+import {
+    CorrelacionIdMiddleware,
+    SanitizarHeadersMiddleware,
+    ValidarContentTypeMiddleware,
+    RegistroPeticionAdminMiddleware,
+    RegistroPeticionColabMiddleware,
+} from './common/middlewares';
+
 
 import { AdminModule } from './modules/admin';
 import { AuthColaboradorModule } from './modules/colaboradoresPortal/auth';
@@ -37,6 +53,7 @@ import { MiPerfilColaboradorModule } from './modules/colaboradoresPortal/miperfi
             isGlobal: true,
             envFilePath: '.env',
             cache: true,
+            validate: validarVariablesEntorno,
             load: [
                 appConfig,
                 databaseConfig,
@@ -47,10 +64,13 @@ import { MiPerfilColaboradorModule } from './modules/colaboradoresPortal/miperfi
             ],
         }),
 
-        ThrottlerModule.forRoot([{
-            ttl: 60000,
-            limit: 100,
-        }]),
+        ThrottlerModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ([{
+                ttl: configService.get<number>('seguridad.rateLimitTtl', 60) * 1000,
+                limit: configService.get<number>('seguridad.rateLimitMax', 100),
+            }]),
+        }),
 
         PrismaModule,
 
@@ -68,6 +88,8 @@ import { MiPerfilColaboradorModule } from './modules/colaboradoresPortal/miperfi
         MiPerfilColaboradorModule,
     ],
     providers: [
+        ManejadorExcepcionesAdmin,
+        ManejadorExcepcionesColab,
         {
             provide: APP_GUARD,
             useClass: ThrottlerGuard,
@@ -84,10 +106,35 @@ import { MiPerfilColaboradorModule } from './modules/colaboradoresPortal/miperfi
             provide: APP_INTERCEPTOR,
             useClass: TransformadorRespuestaInterceptor,
         },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: AuditoriaAdminInterceptor,
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: ActividadSesionInterceptor,
+        },
     ],
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(CorrelacionIdMiddleware).forRoutes('*');
+        // Middlewares globales para todas las rutas
+        consumer
+            .apply(
+                CorrelacionIdMiddleware,
+                SanitizarHeadersMiddleware,
+                ValidarContentTypeMiddleware,
+            )
+            .forRoutes('*');
+
+        // Middlewares del portal administrativo
+        consumer
+            .apply(RegistroPeticionAdminMiddleware)
+            .forRoutes('admin/*path');
+
+        // Middlewares del portal de colaboradores
+        consumer
+            .apply(RegistroPeticionColabMiddleware)
+            .forRoutes('colaborador/*path');
     }
 }

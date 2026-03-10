@@ -5,3 +5,4 @@ export { default as seguridadConfig } from './seguridad.config';
 export { default as correoConfig } from './correo.config';
 export { default as archivosConfig } from './archivos.config';
 export { configuracionSwagger } from './swagger.config';
+export { validarVariablesEntorno } from './validacion-env.config';

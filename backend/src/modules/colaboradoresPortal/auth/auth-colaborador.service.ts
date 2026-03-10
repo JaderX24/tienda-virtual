@@ -8,19 +8,11 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { hashearToken } from '../../../common/utils';
 import { LoginColaboradorDto } from './dto';
 import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
-
-// Claves de parámetros en tabla sistema_parametros
-const CLAVE_INTENTOS_MAX = 'LOGIN_INTENTOS_MAX';
-const CLAVE_BLOQUEO_MINUTOS = 'LOGIN_BLOQUEO_MINUTOS';
-
-// Valores por defecto si no se encuentran en BD
-const INTENTOS_MAX_DEFECTO = 5;
-const BLOQUEO_MINUTOS_DEFECTO = 15;
-
-// Duración del caché de parámetros en milisegundos (5 minutos)
-const CACHE_PARAMETROS_TTL = 5 * 60 * 1000;
+import { DobleFactorService } from './doble-factor.service';
+import { ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../common/services';
 
 interface RegistroIntento {
     intentos: number;
@@ -28,8 +20,11 @@ interface RegistroIntento {
     bloqueadoHasta?: Date;
 }
 
-interface CacheParametro {
-    valor: number;
+interface Token2FATemporal {
+    usuarioId: number;
+    correo: string;
+    ip?: string;
+    userAgent?: string;
     expiraEn: Date;
 }
 
@@ -37,12 +32,14 @@ interface CacheParametro {
 export class AuthColaboradorService {
     private readonly logger = new Logger(AuthColaboradorService.name);
     private intentosFallidos: Map<string, RegistroIntento> = new Map();
-    private cacheParametros: Map<string, CacheParametro> = new Map();
+    private tokens2FA: Map<string, Token2FATemporal> = new Map();
 
     constructor(
         private prisma: PrismaService,
         private jwtService: JwtService,
         private configService: ConfigService,
+        private dobleFactorService: DobleFactorService,
+        private parametrosSeguridad: ParametrosSeguridadService,
     ) {}
 
     async login(loginDto: LoginColaboradorDto, ip?: string, userAgent?: string) {
@@ -103,6 +100,11 @@ export class AuthColaboradorService {
 
         this.limpiarIntentosFallidos(correo);
 
+        // Verificar si el usuario tiene 2FA habilitado
+        if (usuario.requiere2fa && usuario.metodo2fa !== 'ninguno') {
+            return this.iniciar2FA(usuario, ip, userAgent);
+        }
+
         // Obtener rol principal
         const rolPrincipal = usuario.roles[0]?.rol || null;
 
@@ -148,8 +150,175 @@ export class AuthColaboradorService {
         };
     }
 
+    private async iniciar2FA(usuario: any, ip?: string, userAgent?: string) {
+        const token2FAExpiracionMinutos = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.TOKEN_2FA_EXPIRACION_MINUTOS);
+
+        const token2FA = crypto.randomBytes(32).toString('hex');
+
+        this.tokens2FA.set(token2FA, {
+            usuarioId: usuario.id,
+            correo: usuario.correo,
+            ip,
+            userAgent,
+            expiraEn: new Date(Date.now() + token2FAExpiracionMinutos * 60 * 1000),
+        });
+
+        // Si el método es correo, enviar el código automáticamente
+        if (usuario.metodo2fa === 'correo') {
+            await this.dobleFactorService.enviarCodigoCorreo(
+                usuario.id,
+                usuario.correo,
+                usuario.nombre,
+            );
+        }
+
+        await this.registrarBitacora(usuario.id, '2fa_requerido', ip, userAgent, usuario.correo, 'info');
+
+        return {
+            exito: true,
+            requiere2FA: true,
+            metodo2fa: usuario.metodo2fa,
+            token2FA,
+            mensaje: usuario.metodo2fa === 'correo'
+                ? 'Se ha enviado un código de verificación a tu correo electrónico'
+                : 'Ingresa el código de tu aplicación autenticadora',
+        };
+    }
+
+    async verificar2FA(token2FA: string, codigo: string) {
+        const registro = this.tokens2FA.get(token2FA);
+
+        if (!registro) {
+            throw new UnauthorizedException('Token de verificación inválido o expirado');
+        }
+
+        if (new Date() > registro.expiraEn) {
+            this.tokens2FA.delete(token2FA);
+            throw new UnauthorizedException('El tiempo de verificación ha expirado, inicie sesión nuevamente');
+        }
+
+        const usuario = await this.prisma.colabUsuario.findUnique({
+            where: { id: registro.usuarioId },
+            include: {
+                roles: {
+                    where: { esPrincipal: true },
+                    include: {
+                        rol: {
+                            include: {
+                                rolesPermisos: {
+                                    include: { permiso: true },
+                                },
+                            },
+                        },
+                    },
+                },
+                permisosDirectos: {
+                    where: {
+                        tipo: 'otorgado',
+                        OR: [
+                            { fechaFin: null },
+                            { fechaFin: { gt: new Date() } },
+                        ],
+                    },
+                    include: { permiso: true },
+                },
+            },
+        });
+
+        if (!usuario || !usuario.esActivo) {
+            this.tokens2FA.delete(token2FA);
+            throw new UnauthorizedException(MENSAJES_ERROR.CUENTA_INACTIVA);
+        }
+
+        // Verificar código según método
+        let codigoValido = false;
+
+        if (usuario.metodo2fa === 'app' && usuario.secreto2fa) {
+            codigoValido = this.dobleFactorService.verificarCodigoApp(usuario.secreto2fa, codigo);
+        } else if (usuario.metodo2fa === 'correo') {
+            codigoValido = await this.dobleFactorService.verificarCodigoCorreo(usuario.id, codigo);
+        }
+
+        if (!codigoValido) {
+            await this.registrarBitacora(usuario.id, '2fa_fallido', registro.ip, registro.userAgent, usuario.correo, 'warn');
+            throw new UnauthorizedException('Código de verificación incorrecto');
+        }
+
+        this.tokens2FA.delete(token2FA);
+
+        // Generar tokens de sesión completos
+        const rolPrincipal = usuario.roles[0]?.rol || null;
+        const permisosRol = rolPrincipal?.rolesPermisos?.map((rp) => rp.permiso.codigo) || [];
+        const permisosDirectos = usuario.permisosDirectos?.map((up) => up.permiso.codigo) || [];
+        const permisos = [...new Set([...permisosRol, ...permisosDirectos])];
+
+        const tokens = await this.generarTokens(
+            usuario.id,
+            usuario.correo,
+            rolPrincipal?.codigo || '',
+            permisos,
+        );
+
+        await this.registrarSesion(usuario.id, tokens.accessToken, tokens.refreshToken, registro.ip || '', registro.userAgent);
+
+        await this.prisma.colabUsuario.update({
+            where: { id: usuario.id },
+            data: { ultimoAcceso: new Date() },
+        });
+
+        await this.registrarBitacora(usuario.id, 'login_exitoso_2fa', registro.ip, registro.userAgent, usuario.correo, 'info');
+
+        return {
+            exito: true,
+            mensaje: MENSAJES_EXITO.LOGIN_EXITOSO,
+            usuario: {
+                id: usuario.id,
+                nombre: `${usuario.nombre} ${usuario.apellido}`,
+                correo: usuario.correo,
+                avatar: usuario.avatarUrl,
+                rol: rolPrincipal
+                    ? { codigo: rolPrincipal.codigo, nombre: rolPrincipal.nombre }
+                    : null,
+                permisos,
+            },
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+            expiresIn: this.obtenerTiempoExpiracion(),
+        };
+    }
+
+    async reenviarCodigo2FA(token2FA: string) {
+        const registro = this.tokens2FA.get(token2FA);
+
+        if (!registro || new Date() > registro.expiraEn) {
+            if (registro) this.tokens2FA.delete(token2FA);
+            throw new UnauthorizedException('Token de verificación inválido o expirado');
+        }
+
+        const usuario = await this.prisma.colabUsuario.findUnique({
+            where: { id: registro.usuarioId },
+            select: { id: true, nombre: true, correo: true, metodo2fa: true },
+        });
+
+        if (!usuario || usuario.metodo2fa !== 'correo') {
+            throw new UnauthorizedException('No se puede reenviar el código');
+        }
+
+        const enviado = await this.dobleFactorService.enviarCodigoCorreo(
+            usuario.id,
+            usuario.correo,
+            usuario.nombre,
+        );
+
+        if (!enviado) {
+            return { exito: false, mensaje: 'No se pudo enviar el código, intente nuevamente' };
+        }
+
+        return { exito: true, mensaje: 'Se ha reenviado el código a tu correo electrónico' };
+    }
+
     async cerrarSesion(usuarioId: number, token: string) {
-        const tokenHash = this.hashearToken(token);
+        const tokenHash = hashearToken(token);
 
         await this.prisma.colabSesion.updateMany({
             where: {
@@ -177,7 +346,7 @@ export class AuthColaboradorService {
             throw new UnauthorizedException(MENSAJES_ERROR.TOKEN_INVALIDO);
         }
 
-        const refreshTokenHash = this.hashearToken(refreshToken);
+        const refreshTokenHash = hashearToken(refreshToken);
 
         const sesion = await this.prisma.colabSesion.findFirst({
             where: {
@@ -330,10 +499,10 @@ export class AuthColaboradorService {
             permisos,
         };
 
-        const accessSecret = this.configService.get<string>('jwt.accessSecret');
-        const refreshSecret = this.configService.get<string>('jwt.refreshSecret');
-        const accessExpiracion = this.configService.get<string>('jwt.accessExpiracion') || '15m';
-        const refreshExpiracion = this.configService.get<string>('jwt.refreshExpiracion') || '7d';
+        const accessSecret = this.configService.get<string>('jwt.colabAccessSecret');
+        const refreshSecret = this.configService.get<string>('jwt.colabRefreshSecret');
+        const accessExpiracion = this.configService.get<string>('jwt.colabAccessExpiracion');
+        const refreshExpiracion = this.configService.get<string>('jwt.colabRefreshExpiracion');
 
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
@@ -362,8 +531,8 @@ export class AuthColaboradorService {
             permisos,
         };
 
-        const accessSecret = this.configService.get<string>('jwt.accessSecret');
-        const accessExpiracion = this.configService.get<string>('jwt.accessExpiracion') || '15m';
+        const accessSecret = this.configService.get<string>('jwt.colabAccessSecret');
+        const accessExpiracion = this.configService.get<string>('jwt.colabAccessExpiracion');
 
         return this.jwtService.signAsync(payload, {
             secret: accessSecret,
@@ -378,7 +547,7 @@ export class AuthColaboradorService {
         ip: string,
         userAgent?: string,
     ) {
-        const refreshExpiracion = this.configService.get<string>('jwt.refreshExpiracion') || '7d';
+        const refreshExpiracion = this.configService.get<string>('jwt.colabRefreshExpiracion')!;
         const diasExpiracion = parseInt(refreshExpiracion) || 7;
         const expiraEn = new Date();
         expiraEn.setDate(expiraEn.getDate() + diasExpiracion);
@@ -399,17 +568,14 @@ export class AuthColaboradorService {
             },
         });
 
-        // Verificar límite de sesiones simultáneas
-        const usuario = await this.prisma.colabUsuario.findUnique({
-            where: { id: usuarioId },
-            select: { maxSesionesSimultaneas: true },
-        });
+        // Verificar límite de sesiones simultáneas desde parámetros del sistema
+        const maxSesiones = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.MAXIMO_SESIONES_USUARIO);
 
         const sesionesActivas = await this.prisma.colabSesion.count({
             where: { usuarioId, esActiva: true },
         });
 
-        if (usuario && sesionesActivas >= usuario.maxSesionesSimultaneas) {
+        if (sesionesActivas >= maxSesiones) {
             // Cerrar la sesión más antigua
             const sesionMasAntigua = await this.prisma.colabSesion.findFirst({
                 where: { usuarioId, esActiva: true },
@@ -428,11 +594,15 @@ export class AuthColaboradorService {
             }
         }
 
+        // Registrar o actualizar dispositivo
+        const dispositivoId = await this.registrarDispositivo(usuarioId, userAgent);
+
         await this.prisma.colabSesion.create({
             data: {
                 usuarioId,
-                tokenHash: this.hashearToken(accessToken),
-                refreshTokenHash: this.hashearToken(refreshToken),
+                tokenHash: hashearToken(accessToken),
+                refreshTokenHash: hashearToken(refreshToken),
+                dispositivoId,
                 ipAddress: ip,
                 userAgent,
                 expiraEn,
@@ -441,8 +611,74 @@ export class AuthColaboradorService {
         });
     }
 
-    private hashearToken(token: string): string {
-        return crypto.createHash('sha256').update(token).digest('hex');
+    private async registrarDispositivo(usuarioId: number, userAgent?: string): Promise<number | null> {
+        if (!userAgent) return null;
+
+        const huella = this.generarHuellaDispositivo(userAgent);
+        const navegador = this.extraerNavegador(userAgent);
+        const sistemaOperativo = this.extraerSO(userAgent);
+        const tipoDispositivo = this.detectarTipoDispositivo(userAgent);
+        const nombreDispositivo = `${navegador} en ${sistemaOperativo}`;
+
+        const dispositivoExistente = await this.prisma.colabDispositivo.findFirst({
+            where: {
+                usuarioId,
+                huellaDispositivo: huella,
+                esActivo: true,
+            },
+        });
+
+        if (dispositivoExistente) {
+            await this.prisma.colabDispositivo.update({
+                where: { id: dispositivoExistente.id },
+                data: { ultimoUso: new Date() },
+            });
+            return dispositivoExistente.id;
+        }
+
+        const nuevoDispositivo = await this.prisma.colabDispositivo.create({
+            data: {
+                usuarioId,
+                huellaDispositivo: huella,
+                nombreDispositivo: nombreDispositivo,
+                tipoDispositivo,
+                navegador,
+                sistemaOperativo,
+                ultimoUso: new Date(),
+            },
+        });
+
+        return nuevoDispositivo.id;
+    }
+
+    private generarHuellaDispositivo(userAgent: string): string {
+        return crypto.createHash('sha256').update(userAgent).digest('hex');
+    }
+
+    private extraerNavegador(userAgent: string): string {
+        if (userAgent.includes('Edg/')) return 'Microsoft Edge';
+        if (userAgent.includes('Chrome/') && !userAgent.includes('Edg/')) return 'Google Chrome';
+        if (userAgent.includes('Firefox/')) return 'Mozilla Firefox';
+        if (userAgent.includes('Safari/') && !userAgent.includes('Chrome')) return 'Safari';
+        if (userAgent.includes('Opera') || userAgent.includes('OPR/')) return 'Opera';
+        return 'Navegador desconocido';
+    }
+
+    private extraerSO(userAgent: string): string {
+        if (userAgent.includes('Windows NT 10')) return 'Windows 10/11';
+        if (userAgent.includes('Windows')) return 'Windows';
+        if (userAgent.includes('Mac OS X')) return 'macOS';
+        if (userAgent.includes('Android')) return 'Android';
+        if (userAgent.includes('iPhone') || userAgent.includes('iPad')) return 'iOS';
+        if (userAgent.includes('Linux')) return 'Linux';
+        return 'SO desconocido';
+    }
+
+    private detectarTipoDispositivo(userAgent: string): string {
+        if (/Mobi|Android.*Mobile|iPhone/i.test(userAgent)) return 'movil';
+        if (/iPad|Android(?!.*Mobile)|Tablet/i.test(userAgent)) return 'tablet';
+        if (/Macintosh|Windows NT|Linux(?!.*Android)/i.test(userAgent)) return 'escritorio';
+        return 'otro';
     }
 
     private async registrarBitacora(
@@ -469,34 +705,6 @@ export class AuthColaboradorService {
         }
     }
 
-    private async obtenerParametroSeguridad(clave: string, valorDefecto: number): Promise<number> {
-        const cache = this.cacheParametros.get(clave);
-
-        if (cache && new Date() < cache.expiraEn) {
-            return cache.valor;
-        }
-
-        try {
-            const parametro = await this.prisma.parametroSistema.findUnique({
-                where: { clave },
-                select: { valor: true },
-            });
-
-            const valorParseado = parametro ? parseInt(parametro.valor, 10) : valorDefecto;
-            const resultado = isNaN(valorParseado) ? valorDefecto : valorParseado;
-
-            this.cacheParametros.set(clave, {
-                valor: resultado,
-                expiraEn: new Date(Date.now() + CACHE_PARAMETROS_TTL),
-            });
-
-            return resultado;
-        } catch (error) {
-            this.logger.error(`Error al obtener parámetro '${clave}': ${error}`);
-            return valorDefecto;
-        }
-    }
-
     private async verificarBloqueo(correo: string) {
         const registro = this.intentosFallidos.get(correo);
 
@@ -512,8 +720,8 @@ export class AuthColaboradorService {
     }
 
     private async registrarIntentoFallido(correo: string) {
-        const intentosMaximos = await this.obtenerParametroSeguridad(CLAVE_INTENTOS_MAX, INTENTOS_MAX_DEFECTO);
-        const tiempoBloqueoMinutos = await this.obtenerParametroSeguridad(CLAVE_BLOQUEO_MINUTOS, BLOQUEO_MINUTOS_DEFECTO);
+        const intentosMaximos = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.INTENTOS_MAXIMOS_LOGIN);
+        const tiempoBloqueoMinutos = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.TIEMPO_BLOQUEO_MINUTOS);
 
         const registro = this.intentosFallidos.get(correo) || {
             intentos: 0,
@@ -538,7 +746,7 @@ export class AuthColaboradorService {
     }
 
     private obtenerTiempoExpiracion(): number {
-        const expiracion = this.configService.get<string>('jwt.accessExpiracion') || '15m';
+        const expiracion = this.configService.get<string>('jwt.colabAccessExpiracion')!;
         const match = expiracion.match(/(\d+)([mhd])/);
 
         if (!match) return 900;

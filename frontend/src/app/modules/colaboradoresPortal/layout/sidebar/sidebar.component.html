@@ -2,9 +2,9 @@
     <div class="sidebar-header">
         <a routerLink="/colaborador/dashboard" class="sidebar-brand" (click)="cerrarMobile.emit()">
             <img src="assets/images/logo_empresa.png" alt="TiendaVirtual" class="brand-logo">
-            @if (!colapsado) { <span class="brand-text">Portal Bodega</span> }
+            @if (!colapsado) { <span class="brand-text">{{ 'portal.bodega' | traducir }}</span> }
         </a>
-        <button type="button" class="btn-toggle-sidebar d-lg-none" (click)="cerrarMobile.emit()" aria-label="Cerrar menú">
+        <button type="button" class="btn-toggle-sidebar d-lg-none" (click)="cerrarMobile.emit()" [attr.aria-label]="'portal.cerrarMenu' | traducir">
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
@@ -22,7 +22,7 @@
     <nav class="sidebar-nav">
         @for (seccion of menuCompleto(); track seccion.titulo) {
             <div class="nav-section">
-                @if (!colapsado) { <h6 class="nav-section-title">{{ seccion.titulo }}</h6> }
+                @if (!colapsado) { <h6 class="nav-section-title">{{ seccion.titulo | traducir }}</h6> }
                 @else { <div class="nav-section-divider"></div> }
 
                 <ul class="nav-menu">
@@ -30,10 +30,10 @@
                         <li class="nav-item" [class.activo]="estaActivo(item)" [class.expandido]="item.expandido || tieneHijosActivos(item)">
                             @if (item.hijos && item.hijos.length > 0) {
                                 <a class="nav-link has-submenu" (click)="toggleSubmenu(item)" [class.activo]="estaActivo(item)"
-                                    [attr.data-tooltip]="colapsado ? item.titulo : null" [attr.title]="colapsado ? item.titulo : null">
+                                    [attr.data-tooltip]="colapsado ? (item.titulo | traducir) : null" [attr.title]="colapsado ? (item.titulo | traducir) : null">
                                     <i class="nav-icon bi {{ item.icono }}"></i>
                                     @if (!colapsado) {
-                                        <span class="nav-text">{{ item.titulo }}</span>
+                                        <span class="nav-text">{{ item.titulo | traducir }}</span>
                                         @if (item.badge) { <span class="nav-badge" [ngClass]="item.badge.clase">{{ item.badge.texto }}</span> }
                                         <i class="nav-arrow bi" [class.bi-chevron-down]="item.expandido || tieneHijosActivos(item)"
                                             [class.bi-chevron-right]="!item.expandido && !tieneHijosActivos(item)"></i>
@@ -45,7 +45,7 @@
                                             <li class="nav-subitem" [class.activo]="estaActivo(hijo)">
                                                 <a class="nav-sublink" [routerLink]="hijo.ruta" (click)="cerrarMobile.emit()" [class.activo]="estaActivo(hijo)">
                                                     <i class="nav-subicon bi {{ hijo.icono }}"></i>
-                                                    <span class="nav-subtext">{{ hijo.titulo }}</span>
+                                                    <span class="nav-subtext">{{ hijo.titulo | traducir }}</span>
                                                 </a>
                                             </li>
                                         }
@@ -53,10 +53,10 @@
                                 }
                             } @else {
                                 <a class="nav-link" [routerLink]="item.ruta" (click)="cerrarMobile.emit()" [class.activo]="estaActivo(item)"
-                                    [attr.data-tooltip]="colapsado ? item.titulo : null" [attr.title]="colapsado ? item.titulo : null">
+                                    [attr.data-tooltip]="colapsado ? (item.titulo | traducir) : null" [attr.title]="colapsado ? (item.titulo | traducir) : null">
                                     <i class="nav-icon bi {{ item.icono }}"></i>
                                     @if (!colapsado) {
-                                        <span class="nav-text">{{ item.titulo }}</span>
+                                        <span class="nav-text">{{ item.titulo | traducir }}</span>
                                         @if (item.badge) { <span class="nav-badge" [ngClass]="item.badge.clase">{{ item.badge.texto }}</span> }
                                     }
                                 </a>
@@ -69,9 +69,9 @@
     </nav>
 
     <div class="sidebar-logout">
-        <button type="button" class="btn-logout" (click)="cerrarSesion()" [title]="colapsado ? 'Cerrar Sesión' : ''">
+        <button type="button" class="btn-logout" (click)="cerrarSesion()" [title]="colapsado ? ('portal.cerrarSesion' | traducir) : ''">
             <i class="bi bi-box-arrow-left"></i>
-            @if (!colapsado) { <span>Cerrar Sesión</span> }
+            @if (!colapsado) { <span>{{ 'portal.cerrarSesion' | traducir }}</span> }
         </button>
     </div>
 

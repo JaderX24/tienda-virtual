@@ -14,6 +14,8 @@ import {
     ActualizarPreferenciasDto,
     ActualizarSeguridadDto,
 } from './dto';
+import { DobleFactorService } from '../auth/doble-factor.service';
+import { ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../common/services';
 
 @Injectable()
 export class MiPerfilColaboradorService {
@@ -22,6 +24,8 @@ export class MiPerfilColaboradorService {
     constructor(
         private prisma: PrismaService,
         private configService: ConfigService,
+        private dobleFactorService: DobleFactorService,
+        private parametrosSeguridad: ParametrosSeguridadService,
     ) {}
 
     // Obtener perfil completo del colaborador
@@ -48,7 +52,6 @@ export class MiPerfilColaboradorService {
                 zonaHoraria: true,
                 requiere2fa: true,
                 metodo2fa: true,
-                maxSesionesSimultaneas: true,
                 contrasenaTemporal: true,
                 ultimoCambioContrasena: true,
                 ultimoAcceso: true,
@@ -177,8 +180,13 @@ export class MiPerfilColaboradorService {
                 navegador: true,
                 sistemaOperativo: true,
                 esConfiable: true,
+                confirmadoEn: true,
                 ultimoUso: true,
                 creadoEn: true,
+                sesiones: {
+                    where: { esActiva: true },
+                    select: { id: true },
+                },
             },
         });
 
@@ -191,6 +199,8 @@ export class MiPerfilColaboradorService {
                 navegador: d.navegador,
                 sistemaOperativo: d.sistemaOperativo,
                 esConfiable: d.esConfiable,
+                confirmadoEn: d.confirmadoEn,
+                sesionesActivas: d.sesiones.length,
                 ultimoUso: d.ultimoUso,
                 registradoEn: d.creadoEn,
             })),
@@ -244,22 +254,23 @@ export class MiPerfilColaboradorService {
         }
 
         // Verificar que no sea una contraseña usada recientemente
+        const historialCantidad = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.HISTORIAL_CONTRASENA_CANTIDAD);
         const historial = await this.prisma.colabHistorialContrasena.findMany({
             where: { usuarioId },
             orderBy: { creadoEn: 'desc' },
-            take: 5,
+            take: historialCantidad,
             select: { contrasenaHash: true },
         });
 
         for (const registro of historial) {
             const coincide = await bcrypt.compare(dto.nuevaContrasena, registro.contrasenaHash);
             if (coincide) {
-                throw new BadRequestException('No puede reutilizar una de las últimas 5 contraseñas');
+                throw new BadRequestException(`No puede reutilizar una de las últimas ${historialCantidad} contraseñas`);
             }
         }
 
-        const rounds = this.configService.get<number>('BCRYPT_ROUNDS') || 12;
-        const nuevoHash = await bcrypt.hash(dto.nuevaContrasena, rounds);
+        const bcryptRounds = await this.parametrosSeguridad.obtenerNumero(CLAVES_PARAMETRO.BCRYPT_SALT_ROUNDS);
+        const nuevoHash = await bcrypt.hash(dto.nuevaContrasena, bcryptRounds);
 
         await this.prisma.$transaction(async (tx) => {
             // Guardar en historial
@@ -374,25 +385,8 @@ export class MiPerfilColaboradorService {
         };
     }
 
-    // Actualizar configuración de seguridad
+    // Actualizar configuración de seguridad (solo campos que NO son 2FA)
     async actualizarSeguridad(usuarioId: number, dto: ActualizarSeguridadDto, ip?: string) {
-        const datosActualizar: Record<string, any> = {};
-
-        if (dto.requiere2fa !== undefined) datosActualizar.requiere2fa = dto.requiere2fa;
-        if (dto.metodo2fa) datosActualizar.metodo2fa = dto.metodo2fa;
-        if (dto.maxSesionesSimultaneas !== undefined) datosActualizar.maxSesionesSimultaneas = dto.maxSesionesSimultaneas;
-
-        // Si desactiva 2FA, limpiar secreto
-        if (dto.requiere2fa === false) {
-            datosActualizar.secreto2fa = null;
-            datosActualizar.metodo2fa = 'ninguno';
-        }
-
-        await this.prisma.colabUsuario.update({
-            where: { id: usuarioId },
-            data: datosActualizar,
-        });
-
         await this.registrarBitacora(
             usuarioId,
             'actualizacion_seguridad',
@@ -403,6 +397,134 @@ export class MiPerfilColaboradorService {
         return {
             exito: true,
             mensaje: 'Configuración de seguridad actualizada',
+        };
+    }
+
+    // Iniciar configuración de 2FA - genera secreto y QR (app) o envía código (correo)
+    async iniciar2FA(usuarioId: number, metodo: string, ip?: string) {
+        if (metodo !== 'correo' && metodo !== 'app') {
+            throw new BadRequestException('Método 2FA no válido. Use "correo" o "app"');
+        }
+
+        const usuario = await this.prisma.colabUsuario.findUnique({
+            where: { id: usuarioId },
+            select: { id: true, nombre: true, correo: true, requiere2fa: true },
+        });
+
+        if (!usuario) throw new NotFoundException('Usuario no encontrado');
+
+        if (usuario.requiere2fa) {
+            throw new BadRequestException('La autenticación de dos factores ya está habilitada');
+        }
+
+        if (metodo === 'app') {
+            const { secreto, otpauthUrl } = this.dobleFactorService.generarSecretoApp();
+            const qrCodeUrl = await this.dobleFactorService.generarCodigoQR(otpauthUrl);
+
+            // Guardar secreto temporalmente (se confirmará al verificar)
+            await this.prisma.colabUsuario.update({
+                where: { id: usuarioId },
+                data: { secreto2fa: secreto, metodo2fa: 'app' },
+            });
+
+            await this.registrarBitacora(usuarioId, '2fa_inicio_app', 'Inicio de configuración 2FA con app', ip);
+
+            return {
+                exito: true,
+                metodo: 'app',
+                qrCodeUrl,
+                mensaje: 'Escanea el código QR con tu aplicación autenticadora y luego ingresa el código de 6 dígitos para confirmar',
+            };
+        }
+
+        // Método correo
+        const enviado = await this.dobleFactorService.enviarCodigoCorreo(
+            usuario.id,
+            usuario.correo,
+            usuario.nombre,
+        );
+
+        if (!enviado) {
+            throw new BadRequestException('No se pudo enviar el código de verificación');
+        }
+
+        await this.prisma.colabUsuario.update({
+            where: { id: usuarioId },
+            data: { metodo2fa: 'correo' },
+        });
+
+        await this.registrarBitacora(usuarioId, '2fa_inicio_correo', 'Inicio de configuración 2FA con correo', ip);
+
+        return {
+            exito: true,
+            metodo: 'correo',
+            mensaje: 'Se ha enviado un código de verificación a tu correo electrónico',
+        };
+    }
+
+    // Confirmar activación de 2FA con código
+    async confirmar2FA(usuarioId: number, codigo: string, ip?: string) {
+        const usuario = await this.prisma.colabUsuario.findUnique({
+            where: { id: usuarioId },
+            select: { id: true, metodo2fa: true, secreto2fa: true, requiere2fa: true },
+        });
+
+        if (!usuario) throw new NotFoundException('Usuario no encontrado');
+
+        if (usuario.requiere2fa) {
+            throw new BadRequestException('La autenticación de dos factores ya está habilitada');
+        }
+
+        let codigoValido = false;
+
+        if (usuario.metodo2fa === 'app' && usuario.secreto2fa) {
+            codigoValido = this.dobleFactorService.verificarCodigoApp(usuario.secreto2fa, codigo);
+        } else if (usuario.metodo2fa === 'correo') {
+            codigoValido = await this.dobleFactorService.verificarCodigoCorreo(usuarioId, codigo);
+        } else {
+            throw new BadRequestException('Primero inicie el proceso de configuración 2FA');
+        }
+
+        if (!codigoValido) {
+            throw new BadRequestException('Código de verificación incorrecto');
+        }
+
+        await this.dobleFactorService.activar2FA(usuarioId, usuario.metodo2fa as 'correo' | 'app', usuario.secreto2fa || undefined);
+
+        await this.registrarBitacora(usuarioId, '2fa_activado', `2FA activado con método: ${usuario.metodo2fa}`, ip);
+
+        return {
+            exito: true,
+            mensaje: 'Autenticación de dos factores activada correctamente',
+        };
+    }
+
+    // Desactivar 2FA
+    async desactivar2FA(usuarioId: number, contrasena: string, ip?: string) {
+        const usuario = await this.prisma.colabUsuario.findUnique({
+            where: { id: usuarioId },
+            select: { id: true, contrasenaHash: true, requiere2fa: true },
+        });
+
+        if (!usuario) throw new NotFoundException('Usuario no encontrado');
+
+        if (!usuario.requiere2fa) {
+            throw new BadRequestException('La autenticación de dos factores no está habilitada');
+        }
+
+        // Requiere contraseña para desactivar (seguridad)
+        const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasenaHash);
+        if (!contrasenaValida) {
+            throw new BadRequestException('Contraseña incorrecta');
+        }
+
+        await this.dobleFactorService.desactivar2FA(usuarioId);
+
+        await this.registrarBitacora(usuarioId, '2fa_desactivado', '2FA desactivado por el usuario', ip);
+
+        return {
+            exito: true,
+            mensaje: 'Autenticación de dos factores desactivada',
         };
     }
 
@@ -460,8 +582,41 @@ export class MiPerfilColaboradorService {
         };
     }
 
-    // Eliminar dispositivo
-    async eliminarDispositivo(usuarioId: number, dispositivoId: number) {
+    // Marcar o desmarcar dispositivo como confiable
+    async alternarConfianza(usuarioId: number, dispositivoId: number) {
+        const dispositivo = await this.prisma.colabDispositivo.findFirst({
+            where: { id: dispositivoId, usuarioId, esActivo: true },
+        });
+
+        if (!dispositivo) {
+            throw new NotFoundException('Dispositivo no encontrado');
+        }
+
+        const nuevoEstado = !dispositivo.esConfiable;
+
+        await this.prisma.colabDispositivo.update({
+            where: { id: dispositivoId },
+            data: {
+                esConfiable: nuevoEstado,
+                confirmadoEn: nuevoEstado ? new Date() : null,
+            },
+        });
+
+        await this.registrarBitacora(
+            usuarioId,
+            nuevoEstado ? 'dispositivo_confiable' : 'dispositivo_no_confiable',
+            `Dispositivo "${dispositivo.nombreDispositivo}" ${nuevoEstado ? 'marcado como confiable' : 'removido de confianza'}`,
+        );
+
+        return {
+            exito: true,
+            mensaje: nuevoEstado ? 'Dispositivo marcado como confiable' : 'Confianza del dispositivo revocada',
+            datos: { esConfiable: nuevoEstado },
+        };
+    }
+
+    // Renombrar dispositivo
+    async renombrarDispositivo(usuarioId: number, dispositivoId: number, nombre: string) {
         const dispositivo = await this.prisma.colabDispositivo.findFirst({
             where: { id: dispositivoId, usuarioId, esActivo: true },
         });
@@ -472,8 +627,45 @@ export class MiPerfilColaboradorService {
 
         await this.prisma.colabDispositivo.update({
             where: { id: dispositivoId },
+            data: { nombreDispositivo: nombre.trim() },
+        });
+
+        return {
+            exito: true,
+            mensaje: 'Dispositivo renombrado correctamente',
+        };
+    }
+
+    // Eliminar dispositivo
+    async eliminarDispositivo(usuarioId: number, dispositivoId: number) {
+        const dispositivo = await this.prisma.colabDispositivo.findFirst({
+            where: { id: dispositivoId, usuarioId, esActivo: true },
+        });
+
+        if (!dispositivo) {
+            throw new NotFoundException('Dispositivo no encontrado');
+        }
+
+        // Cerrar sesiones vinculadas al dispositivo
+        await this.prisma.colabSesion.updateMany({
+            where: { dispositivoId, esActiva: true },
+            data: {
+                esActiva: false,
+                cerradaEn: new Date(),
+                motivoCierre: 'dispositivo_eliminado',
+            },
+        });
+
+        await this.prisma.colabDispositivo.update({
+            where: { id: dispositivoId },
             data: { esActivo: false },
         });
+
+        await this.registrarBitacora(
+            usuarioId,
+            'dispositivo_eliminado',
+            `Dispositivo "${dispositivo.nombreDispositivo}" eliminado`,
+        );
 
         return {
             exito: true,
@@ -486,6 +678,13 @@ export class MiPerfilColaboradorService {
     private async formatearPerfil(usuario: any) {
         const rolPrincipal = usuario.roles?.find((r: any) => r.esPrincipal)?.rol
             || usuario.roles?.[0]?.rol;
+
+        // Leer sesiones máximas desde la tabla de parámetros del sistema
+        const configSesiones = await this.prisma.parametroSistema.findUnique({
+            where: { clave: 'MAXIMO_SESIONES_USUARIO' },
+            select: { valor: true },
+        });
+        const maxSesionesSimultaneas = configSesiones ? parseInt(configSesiones.valor, 10) || 1 : 1;
 
         // Obtener datos de almacenes desde InventarioAlmacen
         const almacenesIds = usuario.asignaciones?.map((a: any) => a.almacenId) || [];
@@ -525,7 +724,7 @@ export class MiPerfilColaboradorService {
             zonaHoraria: usuario.zonaHoraria,
             requiere2fa: usuario.requiere2fa,
             metodo2fa: usuario.metodo2fa,
-            maxSesionesSimultaneas: usuario.maxSesionesSimultaneas,
+            maxSesionesSimultaneas,
             contrasenaTemporal: usuario.contrasenaTemporal,
             ultimoCambioContrasena: usuario.ultimoCambioContrasena,
             ultimoAcceso: usuario.ultimoAcceso,

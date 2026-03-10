@@ -4,17 +4,20 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthColaboradorService } from '../../auth/services/auth-colaborador.service';
 import { MENU_COLABORADOR, ItemMenuColab, SeccionMenuColab } from './menu.config';
+import { IdiomaService } from '../../../../core/services/idioma.service';
+import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
 
 @Component({
     selector: 'app-sidebar-colab',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, TraducirPipe],
     templateUrl: './sidebar.component.html',
     styleUrl: './sidebar.component.scss',
 })
 export class SidebarColabComponent {
     private authService = inject(AuthColaboradorService);
     private router = inject(Router);
+    private idiomaService = inject(IdiomaService);
 
     @Input() colapsado = false;
     @Input() mostrarMobile = false;
@@ -95,16 +98,17 @@ export class SidebarColabComponent {
     get nombreUsuario(): string { return this.usuario?.nombre || 'Colaborador'; }
     get rolUsuario(): string {
         const codigo = this.usuario?.rol?.codigo || '';
-        const mapeoRoles: Record<string, string> = {
-            'jefe_bodega': 'Jefe de Bodega',
-            'supervisor': 'Supervisor',
-            'inventarista': 'Inventarista',
-            'recepcionista': 'Recepcionista',
-            'despachador': 'Despachador',
-            'auxiliar': 'Auxiliar',
-            'consulta': 'Solo Consulta',
+        const mapeoClaves: Record<string, string> = {
+            'jefe_bodega': 'rol.jefeBodega',
+            'supervisor': 'rol.supervisor',
+            'inventarista': 'rol.inventarista',
+            'recepcionista': 'rol.recepcionista',
+            'despachador': 'rol.despachador',
+            'auxiliar': 'rol.auxiliar',
+            'consulta': 'rol.consulta',
         };
-        return mapeoRoles[codigo] || this.usuario?.rol?.nombre || 'Colaborador';
+        const clave = mapeoClaves[codigo];
+        return clave ? this.idiomaService.t(clave) : this.usuario?.rol?.nombre || this.idiomaService.t('rol.colaborador');
     }
 
     cerrarSesion(): void {
