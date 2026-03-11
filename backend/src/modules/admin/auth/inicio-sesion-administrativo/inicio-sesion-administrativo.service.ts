@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { LoginAdminDto } from './dto';
-import { MENSAJES_ERROR, ROLES, PERMISOS_POR_ROL, TipoRol } from '../../../../common/constants';
+import { MENSAJES_ERROR, ROLES } from '../../../../common/constants';
 import { JwtPayload } from '../../../../common/strategies';
 import { ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../../common/services';
 
@@ -85,12 +85,7 @@ export class InicioSesionAdministrativoService {
 
         this.limpiarIntentosFallidos(correo);
 
-        // Obtener permisos de la BD o usar los permisos por defecto del rol
-        let permisos = usuario.rol?.permisos?.map((rp) => rp.permiso.codigo) || [];
-        
-        if (permisos.length === 0 && usuario.rol?.codigo) {
-            permisos = PERMISOS_POR_ROL[usuario.rol.codigo as TipoRol] || [];
-        }
+        const permisos = usuario.rol?.permisos?.map((rp) => rp.permiso.codigo) || [];
 
         const tokens = await this.generarTokens(
             usuario.id,
@@ -179,12 +174,7 @@ export class InicioSesionAdministrativoService {
             throw new UnauthorizedException(MENSAJES_ERROR.CUENTA_INACTIVA);
         }
 
-        // Obtener permisos de la BD o usar los permisos por defecto del rol
-        let permisos = usuario.rol?.permisos?.map((rp) => rp.permiso.codigo) || [];
-        
-        if (permisos.length === 0 && usuario.rol?.codigo) {
-            permisos = PERMISOS_POR_ROL[usuario.rol.codigo as TipoRol] || [];
-        }
+        const permisos = usuario.rol?.permisos?.map((rp) => rp.permiso.codigo) || [];
 
         const nuevoAccessToken = await this.generarAccessToken(
             usuario.id,

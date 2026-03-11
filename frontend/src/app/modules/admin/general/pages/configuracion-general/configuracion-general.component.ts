@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ConfiguracionSistemaService } from '../../services';
 import { ParametroSistema } from '../../interfaces';
 import { ToastService } from '../../../../../core/services';
+import { EstadoVisualizacionService } from '../../../../../core/services/estado-visualizacion.service';
 
 @Component({
     selector: 'app-configuracion-general',
@@ -16,6 +17,7 @@ import { ToastService } from '../../../../../core/services';
 export class ConfiguracionGeneralComponent implements OnInit {
     private configuracionService = inject(ConfiguracionSistemaService);
     private toastService = inject(ToastService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
 
     parametros = signal<ParametroSistema[]>([]);
     cargando = signal(true);
@@ -23,12 +25,17 @@ export class ConfiguracionGeneralComponent implements OnInit {
     parametroEditando = signal<number | null>(null);
     valorTemporal = signal('');
 
-    readonly categorias = [
-        { clave: 'seguridad', nombre: 'Seguridad', icono: 'bi-shield-lock' },
-        { clave: 'archivos', nombre: 'Archivos', icono: 'bi-folder' },
-        { clave: 'sistema', nombre: 'Sistema', icono: 'bi-gear' },
-        { clave: 'correo', nombre: 'Correo', icono: 'bi-envelope' }
-    ];
+    readonly categorias = computed(() => {
+        const lista = this.parametros();
+        if (!Array.isArray(lista) || lista.length === 0) return [];
+
+        const categoriasUnicas = [...new Set(lista.map(p => p.categoria))];
+        return categoriasUnicas.map(clave => ({
+            clave,
+            nombre: clave.charAt(0).toUpperCase() + clave.slice(1),
+            icono: this.estadoVisualizacion.obtenerIcono('categoria_parametro', clave)
+        }));
+    });
 
     categoriaActiva = signal('seguridad');
 
@@ -151,13 +158,7 @@ export class ConfiguracionGeneralComponent implements OnInit {
     }
 
     obtenerIconoTipo(tipo: string): string {
-        const iconos: Record<string, string> = {
-            'texto': 'bi-fonts',
-            'numero': 'bi-123',
-            'booleano': 'bi-toggle-on',
-            'json': 'bi-braces'
-        };
-        return iconos[tipo] || 'bi-question';
+        return this.estadoVisualizacion.obtenerIcono('tipo_parametro', tipo);
     }
 
     formatearClave(clave: string): string {

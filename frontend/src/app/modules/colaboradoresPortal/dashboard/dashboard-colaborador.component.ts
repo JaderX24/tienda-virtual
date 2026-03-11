@@ -94,16 +94,7 @@ export class DashboardColaboradorComponent implements OnInit, OnDestroy {
 
     private establecerRol(): void {
         const codigo = this.authService.rol();
-        const mapeoClaves: Record<string, string> = {
-            'jefe_bodega': 'rol.jefeBodega',
-            'supervisor': 'rol.supervisor',
-            'inventarista': 'rol.inventarista',
-            'recepcionista': 'rol.recepcionista',
-            'despachador': 'rol.despachador',
-            'auxiliar': 'rol.auxiliar',
-            'consulta': 'rol.consulta',
-        };
-        const clave = mapeoClaves[codigo] || 'rol.colaborador';
+        const clave = codigo ? 'rol.' + codigo.replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase()) : 'rol.colaborador';
         this.rolUsuario.set(this.idiomaService.t(clave));
     }
 

@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNumber, IsIn, Min, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsNumber, Min, MinLength, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class AjustarStockDto {
     @ApiProperty({ description: 'Cantidad a ajustar' })
@@ -29,11 +30,9 @@ export class RegistrarMovimientoDto {
     @Type(() => Number)
     cantidad!: number;
 
-    @ApiProperty({ description: 'Tipo de movimiento', enum: ['entrada', 'salida', 'ajuste', 'devolucion', 'transferencia'] })
+    @ApiProperty({ description: 'Tipo de movimiento' })
     @IsString({ message: 'El tipo de movimiento debe ser una cadena de texto' })
-    @IsIn(['entrada', 'salida', 'ajuste', 'devolucion', 'transferencia'], {
-        message: 'Tipo de movimiento inválido. Valores permitidos: entrada, salida, ajuste, devolucion, transferencia',
-    })
+    @EsCatalogoValido('tiposMovimiento', { message: 'Tipo de movimiento no válido' })
     tipoMovimiento!: string;
 
     @ApiProperty({ description: 'Motivo del movimiento' })

@@ -1,31 +1,8 @@
-export enum TipoNegocio {
-    TIENDA_ROPA = 'tienda_ropa',
-    RESTAURANTE = 'restaurante',
-    SUPERMERCADO = 'supermercado',
-    FARMACIA = 'farmacia',
-    TECNOLOGIA = 'tecnologia',
-    FERRETERIA = 'ferreteria',
-    LIBRERIA = 'libreria',
-    SERVICIOS = 'servicios',
-    MAYORISTA = 'mayorista',
-    OTRO = 'otro'
-}
+export type TipoNegocio = string;
 
-export enum PlanSuscripcion {
-    BASICO = 'basico',
-    PROFESIONAL = 'profesional',
-    EMPRESARIAL = 'empresarial',
-    PREMIUM = 'premium'
-}
+export type PlanSuscripcion = string;
 
-export enum RangoEmpleados {
-    UNO_CINCO = '1-5',
-    SEIS_VEINTE = '6-20',
-    VEINTIUNO_CINCUENTA = '21-50',
-    CINCUENTA_UNO_CIEN = '51-100',
-    CIEN_UNO_QUINIENTOS = '101-500',
-    MAS_QUINIENTOS = '500+'
-}
+export type RangoEmpleados = string;
 
 export interface RedesSociales {
     facebook?: string;

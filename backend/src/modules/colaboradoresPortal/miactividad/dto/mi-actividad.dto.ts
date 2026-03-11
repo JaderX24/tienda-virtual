@@ -5,9 +5,9 @@ import {
     Min,
     Max,
     MaxLength,
-    IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class FiltrosMiActividadDto {
     @IsOptional()
@@ -40,30 +40,18 @@ export class FiltrosMiActividadDto {
 export class FiltrosBitacoraDto extends FiltrosMiActividadDto {
     @IsOptional()
     @IsString()
-    @IsIn([
-        'login_exitoso', 'login_fallido', 'logout',
-        'cambio_contrasena', 'recuperacion_contrasena',
-        'bloqueo_cuenta', 'desbloqueo_cuenta',
-        'verificacion_2fa', 'fallo_2fa',
-        'dispositivo_nuevo', 'dispositivo_rechazado',
-        'ip_no_autorizada', 'acceso_fuera_horario',
-        'sesion_forzada', 'intento_escalacion',
-        'acceso_denegado', 'multiples_intentos',
-    ])
+    @EsCatalogoValido('tiposEventoSeguridad')
     tipoEvento?: string;
 
     @IsOptional()
     @IsString()
-    @IsIn(['info', 'warn', 'error', 'critical'])
+    @EsCatalogoValido('nivelesSeveridad')
     severidad?: string;
 }
 
 export class FiltrosOperacionesDto extends FiltrosMiActividadDto {
     @IsOptional()
     @IsString()
-    @IsIn([
-        'entrada', 'salida', 'ajuste_positivo', 'ajuste_negativo',
-        'transferencia', 'recepcion', 'despacho',
-    ])
+    @EsCatalogoValido('tiposOperacion')
     tipoOperacion?: string;
 }

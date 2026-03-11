@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RolesService } from '../../services';
 import { Rol, FiltrosRol } from '../../interfaces';
-import { ToastService } from '../../../../../core/services';
+import { ToastService, OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-lista-roles',
@@ -16,6 +16,7 @@ import { ToastService } from '../../../../../core/services';
 export class ListaRolesComponent implements OnInit {
     private rolesService = inject(RolesService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     roles = signal<Rol[]>([]);
     cargando = signal(true);
@@ -114,7 +115,7 @@ export class ListaRolesComponent implements OnInit {
     }
 
     esRolProtegido(rol: Rol): boolean {
-        const rolesProtegidos = ['super_admin', 'admin'];
+        const rolesProtegidos = this.opcionesCatalogo.obtenerGrupo('rolesProtegidos').map(o => o.valor);
         return rolesProtegidos.includes(rol.codigo);
     }
 }

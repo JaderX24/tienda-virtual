@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InventarioService } from '../../services';
+import { ToastService, EstadoVisualizacionService } from '../../../../../core/services';
 import {
     ResumenInventario,
     MovimientoPorTipo,
@@ -20,6 +21,8 @@ import { forkJoin } from 'rxjs';
 })
 export class DashboardInventarioComponent implements OnInit, AfterViewInit, OnDestroy {
     private inventarioService = inject(InventarioService);
+    private toastService = inject(ToastService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
     private dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     cargando = signal(true);
@@ -81,23 +84,9 @@ export class DashboardInventarioComponent implements OnInit, AfterViewInit, OnDe
             },
             error: () => {
                 this.cargando.set(false);
-                this.cargarDatosDemo();
+                this.toastService.error('Error al cargar los datos del inventario');
                 setTimeout(() => this.dibujarGraficas(), 100);
             }
-        });
-    }
-
-    private cargarDatosDemo(): void {
-        this.resumen.set({
-            totalProductos: 584,
-            productosActivos: 512,
-            sinStock: 23,
-            stockBajo: 47,
-            valorTotalInventario: 2450000,
-            valorTotalCosto: 1680000,
-            totalMovimientosHoy: 34,
-            totalMovimientosSemana: 187,
-            totalMovimientosMes: 685,
         });
     }
 

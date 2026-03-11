@@ -112,8 +112,8 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge rounded-pill" [ngClass]="obtenerClaseEstado(t.estado)">
-                                            <i class="bi me-1" [ngClass]="obtenerIconoEstado(t.estado)"></i>
+                                        <span class="badge rounded-pill" [ngClass]="t.estado | claseEstado:'transferencia'">
+                                            <i class="bi me-1" [ngClass]="t.estado | iconoEstado:'transferencia'"></i>
                                             {{ obtenerEtiquetaEstado(t.estado) }}
                                         </span>
                                     </td>
@@ -311,7 +311,7 @@
                         <!-- Info -->
                         <div class="alert alert-info mt-3 mb-0 small">
                             <i class="bi bi-info-circle me-1"></i>
-                            <span [innerHTML]="'transferencias.pendienteInfo' | traducir"></span>
+                            {{ 'transferencias.pendienteInfo' | traducir }}
                         </div>
                     </div>
                     <div class="modal-footer border-top">
@@ -344,8 +344,8 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <span class="badge rounded-pill fs-6" [ngClass]="obtenerClaseEstado(t.estado)">
-                                <i class="bi me-1" [ngClass]="obtenerIconoEstado(t.estado)"></i>
+                            <span class="badge rounded-pill fs-6" [ngClass]="t.estado | claseEstado:'transferencia'">
+                                <i class="bi me-1" [ngClass]="t.estado | iconoEstado:'transferencia'"></i>
                                 {{ obtenerEtiquetaEstado(t.estado) }}
                             </span>
                         </div>

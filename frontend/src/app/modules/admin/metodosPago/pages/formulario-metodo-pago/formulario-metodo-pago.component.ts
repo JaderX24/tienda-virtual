@@ -11,6 +11,7 @@ import {
     ModoIntegracion
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-formulario-metodo-pago',
@@ -25,6 +26,7 @@ export class FormularioMetodoPagoComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private metodosPagoService = inject(MetodosPagoService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     formulario!: FormGroup;
     cargando = signal(true);
@@ -42,13 +44,7 @@ export class FormularioMetodoPagoComponent implements OnInit {
     tiposPasarela = this.metodosPagoService.obtenerTiposPasarela();
     modosIntegracion = this.metodosPagoService.obtenerModosIntegracion();
 
-    monedasDisponibles = [
-        { codigo: 'HNL', nombre: 'Lempira (HNL)' },
-        { codigo: 'USD', nombre: 'Dólar (USD)' },
-        { codigo: 'EUR', nombre: 'Euro (EUR)' },
-        { codigo: 'MXN', nombre: 'Peso Mexicano (MXN)' },
-        { codigo: 'GTQ', nombre: 'Quetzal (GTQ)' }
-    ];
+    get monedasDisponibles() { return this.opcionesCatalogo.obtenerGrupo('monedas'); }
 
     ngOnInit(): void {
         this.inicializarFormulario();
@@ -73,7 +69,7 @@ export class FormularioMetodoPagoComponent implements OnInit {
             urlDocumentacion: ['', [Validators.maxLength(500)]],
 
             // Paso 2: Configuración técnica
-            modoIntegracion: [ModoIntegracion.API, [Validators.required]],
+            modoIntegracion: ['api', [Validators.required]],
             urlApiSandbox: ['', [Validators.maxLength(500)]],
             urlApiProduccion: ['', [Validators.maxLength(500)]],
             versionApi: ['', [Validators.maxLength(20)]],

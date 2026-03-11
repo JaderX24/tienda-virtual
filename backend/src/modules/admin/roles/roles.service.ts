@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CrearRolDto, ActualizarRolDto, FiltroRolesDto } from './dto';
-import { MENSAJES_ERROR, MENSAJES_EXITO } from '../../../common/constants';
+import { MENSAJES_ERROR, MENSAJES_EXITO, ROLES } from '../../../common/constants';
 
 @Injectable()
 export class RolesService {
@@ -117,8 +117,8 @@ export class RolesService {
             throw new NotFoundException('Rol no encontrado');
         }
 
-        const rolesProtegidos = ['super_admin', 'admin'];
-        if (rolesProtegidos.includes(rol.codigo)) {
+        const rolesProtegidos: string[] = [ROLES.SUPER_ADMIN, ROLES.ADMIN];
+        if (rolesProtegidos.includes(rol.codigo as string)) {
             throw new ConflictException('No se puede cambiar el estado de roles del sistema');
         }
 

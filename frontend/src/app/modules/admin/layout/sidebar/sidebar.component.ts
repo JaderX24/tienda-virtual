@@ -4,6 +4,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthAdminService } from '../../auth/services/auth-admin.service';
 import { MENU_ADMIN, ItemMenu, SeccionMenu } from './menu.config';
+import { OpcionesCatalogoService } from '../../../../core/services';
 
 interface UsuarioSidebar {
     nombre: string;
@@ -24,6 +25,7 @@ interface UsuarioSidebar {
 export class SidebarComponent {
     private authService = inject(AuthAdminService);
     private router = inject(Router);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
     
     @Input() colapsado = false;
     @Input() mostrarMobile = false;
@@ -44,10 +46,9 @@ export class SidebarComponent {
 
     private inicializarMenu(): void {
         const rolUsuario = this.authService.rol();
-        const rolesConAccesoTotal = ['super_admin', 'admin'];
+        const rolesAccesoTotal = this.opcionesCatalogo.obtenerGrupo('rolesAdminAccesoTotal').map(o => o.valor);
         
-        // Si es super_admin o admin, mostrar todo el menú sin filtrar
-        if (rolesConAccesoTotal.includes(rolUsuario)) {
+        if (rolesAccesoTotal.includes(rolUsuario)) {
             this.menuCompleto.set(MENU_ADMIN);
         } else {
             const menuFiltrado = this.filtrarMenuPorPermisos(MENU_ADMIN);
@@ -131,15 +132,7 @@ export class SidebarComponent {
     }
 
     get rolUsuario(): string {
-        const codigo = this.usuario?.rol?.codigo || '';
-        const mapeoRoles: Record<string, string> = {
-            'super_admin': 'Super Administrador',
-            'admin': 'Administrador',
-            'gerente': 'Gerente',
-            'vendedor': 'Vendedor',
-            'bodeguero': 'Bodeguero',
-        };
-        return mapeoRoles[codigo] || this.usuario?.rol?.nombre || 'Sin rol';
+        return this.usuario?.rol?.nombre || 'Sin rol';
     }
 
     cerrarSesion(): void {

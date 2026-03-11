@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ColaboradoresService } from '../../services';
 import { Colaborador, FiltrosColaborador } from '../../interfaces';
+import { OpcionesCatalogoService, ToastService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-lista-colaboradores',
@@ -14,6 +15,8 @@ import { Colaborador, FiltrosColaborador } from '../../interfaces';
 })
 export class ListaColaboradoresComponent implements OnInit {
     private colaboradoresService = inject(ColaboradoresService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
+    private toastService = inject(ToastService);
 
     colaboradores = signal<Colaborador[]>([]);
     cargando = signal(true);
@@ -32,12 +35,7 @@ export class ListaColaboradoresComponent implements OnInit {
     mostrarModalEstado = signal(false);
     procesando = signal(false);
 
-    tiposContrato = [
-        { valor: 'permanente', etiqueta: 'Permanente' },
-        { valor: 'temporal', etiqueta: 'Temporal' },
-        { valor: 'medio_tiempo', etiqueta: 'Medio Tiempo' },
-        { valor: 'practicante', etiqueta: 'Practicante' }
-    ];
+    get tiposContrato() { return this.opcionesCatalogo.obtenerGrupo('tiposContrato'); }
 
     ngOnInit(): void {
         this.cargarColaboradores();
@@ -62,8 +60,9 @@ export class ListaColaboradoresComponent implements OnInit {
             },
             error: () => {
                 this.cargando.set(false);
-                this.colaboradores.set(this.colaboradoresMock);
-                this.totalColaboradores.set(this.colaboradoresMock.length);
+                this.colaboradores.set([]);
+                this.totalColaboradores.set(0);
+                this.toastService.error('Error al cargar los colaboradores');
             }
         });
     }
@@ -134,13 +133,8 @@ export class ListaColaboradoresComponent implements OnInit {
     }
 
     obtenerEtiquetaContrato(tipo: string): string {
-        const mapa: Record<string, string> = {
-            permanente: 'Permanente',
-            temporal: 'Temporal',
-            medio_tiempo: 'Medio Tiempo',
-            practicante: 'Practicante'
-        };
-        return mapa[tipo] || tipo;
+        const encontrado = this.tiposContrato.find(t => t.valor === tipo);
+        return encontrado ? encontrado.etiqueta : tipo;
     }
 
     obtenerPaginas(): number[] {
@@ -164,120 +158,4 @@ export class ListaColaboradoresComponent implements OnInit {
 
         return paginas;
     }
-
-    private colaboradoresMock: Colaborador[] = [
-        {
-            id: 1,
-            nombre: 'José Luis',
-            apellido: 'Martínez Reyes',
-            correo: 'jose.martinez@bodega.tiendavirtual.com',
-            telefono: '+504 9876-5432',
-            codigoColaborador: 'COL-001',
-            cargo: 'Jefe de Bodega',
-            fechaIngreso: new Date('2024-03-15'),
-            tipoContrato: 'permanente',
-            empresaId: 1,
-            empresa: { id: 1, nombre: 'TiendaVirtual HN' },
-            esActivo: true,
-            esVerificado: true,
-            requiere2fa: false,
-            accesoSoloIpConfiable: false,
-            accesoSoloHorarioTurno: true,
-            accesoSoloDispositivoRegistrado: false,
-            maxSesionesSimultaneas: 1,
-            ultimoAcceso: new Date(),
-            creadoEn: new Date('2024-03-15'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 2,
-            nombre: 'María Elena',
-            apellido: 'López Castillo',
-            correo: 'maria.lopez@bodega.tiendavirtual.com',
-            telefono: '+504 8765-4321',
-            codigoColaborador: 'COL-002',
-            cargo: 'Operadora de Inventario',
-            fechaIngreso: new Date('2024-06-01'),
-            tipoContrato: 'permanente',
-            empresaId: 1,
-            empresa: { id: 1, nombre: 'TiendaVirtual HN' },
-            esActivo: true,
-            esVerificado: true,
-            requiere2fa: false,
-            accesoSoloIpConfiable: false,
-            accesoSoloHorarioTurno: true,
-            accesoSoloDispositivoRegistrado: false,
-            maxSesionesSimultaneas: 1,
-            ultimoAcceso: new Date('2026-01-28'),
-            creadoEn: new Date('2024-06-01'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 3,
-            nombre: 'Carlos',
-            apellido: 'Hernández Rivera',
-            correo: 'carlos.hernandez@bodega.tiendavirtual.com',
-            codigoColaborador: 'COL-003',
-            cargo: 'Auxiliar de Bodega',
-            fechaIngreso: new Date('2025-01-10'),
-            tipoContrato: 'temporal',
-            empresaId: 1,
-            empresa: { id: 1, nombre: 'TiendaVirtual HN' },
-            esActivo: true,
-            esVerificado: false,
-            requiere2fa: false,
-            accesoSoloIpConfiable: false,
-            accesoSoloHorarioTurno: false,
-            accesoSoloDispositivoRegistrado: false,
-            maxSesionesSimultaneas: 1,
-            ultimoAcceso: new Date('2026-01-27'),
-            creadoEn: new Date('2025-01-10'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 4,
-            nombre: 'Ana Gabriela',
-            apellido: 'Mejía Flores',
-            correo: 'ana.mejia@bodega.tiendavirtual.com',
-            codigoColaborador: 'COL-004',
-            cargo: 'Practicante Logística',
-            fechaIngreso: new Date('2025-09-01'),
-            tipoContrato: 'practicante',
-            empresaId: 1,
-            empresa: { id: 1, nombre: 'TiendaVirtual HN' },
-            esActivo: false,
-            esVerificado: true,
-            requiere2fa: false,
-            accesoSoloIpConfiable: false,
-            accesoSoloHorarioTurno: false,
-            accesoSoloDispositivoRegistrado: false,
-            maxSesionesSimultaneas: 1,
-            motivoInactivacion: 'Finalizó periodo de prácticas',
-            creadoEn: new Date('2025-09-01'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 5,
-            nombre: 'Roberto',
-            apellido: 'Pineda Aguilar',
-            correo: 'roberto.pineda@bodega.tiendavirtual.com',
-            telefono: '+504 7654-3210',
-            codigoColaborador: 'COL-005',
-            cargo: 'Despachador',
-            fechaIngreso: new Date('2024-11-20'),
-            tipoContrato: 'medio_tiempo',
-            empresaId: 1,
-            empresa: { id: 1, nombre: 'TiendaVirtual HN' },
-            esActivo: true,
-            esVerificado: true,
-            requiere2fa: false,
-            accesoSoloIpConfiable: false,
-            accesoSoloHorarioTurno: true,
-            accesoSoloDispositivoRegistrado: false,
-            maxSesionesSimultaneas: 1,
-            ultimoAcceso: new Date('2026-01-28'),
-            creadoEn: new Date('2024-11-20'),
-            actualizadoEn: new Date()
-        }
-    ];
 }

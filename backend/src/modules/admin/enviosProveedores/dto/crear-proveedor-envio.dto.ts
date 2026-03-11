@@ -5,7 +5,6 @@ import {
     IsBoolean,
     IsNumber,
     IsArray,
-    IsIn,
     MinLength,
     MaxLength,
     Min,
@@ -16,11 +15,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-const TIPOS_PROVEEDOR = ['interno', 'externo', 'freelance', 'empresa_courier'] as const;
-
-const TIPOS_SERVICIO = ['local', 'nacional', 'internacional', 'express', 'standard', 'economico'] as const;
-
-const ZONAS_COBERTURA = ['local', 'regional', 'nacional', 'internacional'] as const;
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class CrearContactoProveedorDto {
     @ApiProperty({ description: 'Nombre completo del contacto' })
@@ -104,9 +99,9 @@ export class CrearProveedorEnvioDto {
     @MaxLength(20, { message: 'El RTN no puede exceder 20 caracteres' })
     rtn?: string;
 
-    @ApiProperty({ description: 'Tipo de proveedor', enum: TIPOS_PROVEEDOR })
+    @ApiProperty({ description: 'Tipo de proveedor' })
     @IsString({ message: 'El tipo debe ser una cadena de texto' })
-    @IsIn([...TIPOS_PROVEEDOR], { message: 'Tipo de proveedor no válido' })
+    @EsCatalogoValido('tiposProveedorEnvio', { message: 'Tipo de proveedor no válido' })
     tipo!: string;
 
     @ApiPropertyOptional({ description: 'Descripción del proveedor' })

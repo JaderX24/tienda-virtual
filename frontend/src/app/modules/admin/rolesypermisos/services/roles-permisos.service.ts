@@ -9,7 +9,6 @@ import {
     PermisoConEstado,
     AsignarPermisosDto,
     RespuestaApi,
-    MODULOS_NOMBRES
 } from '../interfaces';
 
 @Injectable({
@@ -75,7 +74,7 @@ export class RolesPermisosService {
         return Array.from(grupos.entries())
             .map(([modulo, permisos]) => ({
                 modulo,
-                nombreModulo: MODULOS_NOMBRES[modulo] || modulo,
+                nombreModulo: permisos[0]?.nombreModulo || modulo.charAt(0).toUpperCase() + modulo.slice(1),
                 permisos: permisos.sort((a, b) => a.nombre.localeCompare(b.nombre))
             }))
             .sort((a, b) => a.nombreModulo.localeCompare(b.nombreModulo));

@@ -60,7 +60,7 @@
                                             }
                                         </p>
                                     </div>
-                                    <span class="badge rounded-pill fs-6" [ngClass]="obtenerClaseEstado(turno.estado)">
+                                    <span class="badge rounded-pill fs-6" [ngClass]="turno.estado | claseEstado:'turno'">
                                         {{ obtenerEtiquetaEstado(turno.estado) }}
                                     </span>
                                 </div>
@@ -92,7 +92,7 @@
                                             </div>
                                             @if (turno.horaEntrada) {
                                                 <span class="fs-4 fw-bold">{{ formatearHora(turno.horaEntrada) }}</span>
-                                                <small class="d-block mt-1" [ngClass]="obtenerClasePuntualidad(turno.puntualidad)">
+                                                <small class="d-block mt-1" [ngClass]="turno.puntualidad | claseEstado:'puntualidad'">
                                                     <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
                                                     {{ obtenerEtiquetaPuntualidad(turno.puntualidad) }}
                                                 </small>
@@ -379,7 +379,7 @@
                                                     {{ turno.horasTrabajadas !== null ? turno.horasTrabajadas + ' h' : '-' }}
                                                 </td>
                                                 <td class="text-center">
-                                                    <span class="badge rounded-pill" [ngClass]="obtenerClaseEstado(turno.estado)">
+                                                    <span class="badge rounded-pill" [ngClass]="turno.estado | claseEstado:'turno'">
                                                         {{ obtenerEtiquetaEstado(turno.estado) }}
                                                     </span>
                                                 </td>
@@ -433,12 +433,12 @@
                                                 {{ turno.horasTrabajadas !== null ? turno.horasTrabajadas + ' h' : '-' }}
                                             </td>
                                             <td class="text-center">
-                                                <span [ngClass]="obtenerClasePuntualidad(turno.puntualidad)">
+                                                <span [ngClass]="turno.puntualidad | claseEstado:'puntualidad'">
                                                     {{ obtenerEtiquetaPuntualidad(turno.puntualidad) }}
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge rounded-pill" [ngClass]="obtenerClaseEstado(turno.estado)">
+                                                <span class="badge rounded-pill" [ngClass]="turno.estado | claseEstado:'turno'">
                                                     {{ obtenerEtiquetaEstado(turno.estado) }}
                                                 </span>
                                             </td>

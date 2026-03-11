@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { EmpresasService } from '../../services';
 import { Empresa, FiltrosEmpresa, TipoNegocio, PlanSuscripcion } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-lista-empresas',
@@ -16,6 +17,7 @@ import { ToastService } from '../../../../../core/services/toast.service';
 export class ListaEmpresasComponent implements OnInit {
     private empresasService = inject(EmpresasService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     empresas = signal<Empresa[]>([]);
     cargando = signal(true);
@@ -35,25 +37,8 @@ export class ListaEmpresasComponent implements OnInit {
     mostrarModalEstado = signal(false);
     procesando = signal(false);
 
-    tiposNegocio = [
-        { valor: TipoNegocio.TIENDA_ROPA, etiqueta: 'Tienda de Ropa' },
-        { valor: TipoNegocio.RESTAURANTE, etiqueta: 'Restaurante' },
-        { valor: TipoNegocio.SUPERMERCADO, etiqueta: 'Supermercado' },
-        { valor: TipoNegocio.FARMACIA, etiqueta: 'Farmacia' },
-        { valor: TipoNegocio.TECNOLOGIA, etiqueta: 'Tecnologia' },
-        { valor: TipoNegocio.FERRETERIA, etiqueta: 'Ferreteria' },
-        { valor: TipoNegocio.LIBRERIA, etiqueta: 'Libreria' },
-        { valor: TipoNegocio.SERVICIOS, etiqueta: 'Servicios' },
-        { valor: TipoNegocio.MAYORISTA, etiqueta: 'Mayorista' },
-        { valor: TipoNegocio.OTRO, etiqueta: 'Otro' }
-    ];
-
-    planesSuscripcion = [
-        { valor: PlanSuscripcion.BASICO, etiqueta: 'Basico' },
-        { valor: PlanSuscripcion.PROFESIONAL, etiqueta: 'Profesional' },
-        { valor: PlanSuscripcion.EMPRESARIAL, etiqueta: 'Empresarial' },
-        { valor: PlanSuscripcion.PREMIUM, etiqueta: 'Premium' }
-    ];
+    get tiposNegocio() { return this.opcionesCatalogo.obtenerGrupo('tiposNegocio'); }
+    get planesSuscripcion() { return this.opcionesCatalogo.obtenerGrupo('planesSuscripcion'); }
 
     ngOnInit(): void {
         this.cargarEmpresas();
@@ -186,55 +171,4 @@ export class ListaEmpresasComponent implements OnInit {
         }
         return paginas;
     }
-
-    private empresasMock: Empresa[] = [
-        {
-            id: 1, nombre: 'Supermercados La Colonia', rtn: '0801-1990-000001',
-            correo: 'admin@lacolonia.hn', telefono: '+504 2233-4455',
-            tipoNegocio: TipoNegocio.SUPERMERCADO, planSuscripcion: PlanSuscripcion.EMPRESARIAL,
-            representanteLegal: 'Carlos Eduardo Mendoza', activa: true,
-            departamento: 'Francisco Morazan', ciudad: 'Tegucigalpa', pais: 'HN',
-            creadoEn: new Date('2024-01-15'), actualizadoEn: new Date()
-        },
-        {
-            id: 2, nombre: 'Boutique Eleganza', rtn: '0801-2000-000002',
-            correo: 'info@eleganza.hn', telefono: '+504 9988-7766',
-            tipoNegocio: TipoNegocio.TIENDA_ROPA, planSuscripcion: PlanSuscripcion.PROFESIONAL,
-            representanteLegal: 'Maria Fernanda Lopez', activa: true,
-            departamento: 'Cortes', ciudad: 'San Pedro Sula', pais: 'HN',
-            creadoEn: new Date('2024-03-20'), actualizadoEn: new Date()
-        },
-        {
-            id: 3, nombre: 'TecnoShop Honduras', rtn: '0501-1995-000003',
-            correo: 'ventas@tecnoshop.hn', telefono: '+504 2255-6677',
-            tipoNegocio: TipoNegocio.TECNOLOGIA, planSuscripcion: PlanSuscripcion.PREMIUM,
-            representanteLegal: 'Roberto Andres Martinez', activa: true,
-            departamento: 'Francisco Morazan', ciudad: 'Tegucigalpa', pais: 'HN',
-            creadoEn: new Date('2024-06-10'), actualizadoEn: new Date()
-        },
-        {
-            id: 4, nombre: 'Farmacia San Rafael', rtn: '0801-1988-000004',
-            correo: 'farmacia@sanrafael.hn', telefono: '+504 2244-5566',
-            tipoNegocio: TipoNegocio.FARMACIA, planSuscripcion: PlanSuscripcion.BASICO,
-            representanteLegal: 'Ana Patricia Hernandez', activa: false,
-            departamento: 'Atlantida', ciudad: 'La Ceiba', pais: 'HN',
-            creadoEn: new Date('2024-08-05'), actualizadoEn: new Date()
-        },
-        {
-            id: 5, nombre: 'Restaurante El Patio', rtn: '0801-2010-000005',
-            correo: 'contacto@elpatio.hn', telefono: '+504 9977-8899',
-            tipoNegocio: TipoNegocio.RESTAURANTE, planSuscripcion: PlanSuscripcion.PROFESIONAL,
-            representanteLegal: 'Jorge Luis Pineda', activa: true,
-            departamento: 'Comayagua', ciudad: 'Comayagua', pais: 'HN',
-            creadoEn: new Date('2025-01-12'), actualizadoEn: new Date()
-        },
-        {
-            id: 6, nombre: 'Ferreteria El Constructor', rtn: '0501-2005-000006',
-            correo: 'ventas@elconstructor.hn', telefono: '+504 2266-7788',
-            tipoNegocio: TipoNegocio.FERRETERIA, planSuscripcion: PlanSuscripcion.EMPRESARIAL,
-            representanteLegal: 'Laura Cristina Ramos', activa: true,
-            departamento: 'Cortes', ciudad: 'San Pedro Sula', pais: 'HN',
-            creadoEn: new Date('2025-02-18'), actualizadoEn: new Date()
-        }
-    ];
 }

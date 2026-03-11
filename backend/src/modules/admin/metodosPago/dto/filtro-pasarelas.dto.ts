@@ -2,15 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, IsBoolean, IsIn, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { VALIDACIONES } from '../../../../common/constants';
-
-const TIPOS_PASARELA = [
-    'tarjeta', 'transferencia', 'wallet_digital',
-    'efectivo', 'criptomoneda', 'bnpl', 'otro',
-] as const;
-
-const MODOS_INTEGRACION = [
-    'api', 'redirect', 'iframe', 'sdk', 'webhook',
-] as const;
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class FiltroPasarelasDto {
     @ApiPropertyOptional({ description: 'Buscar por nombre, código o proveedor' })
@@ -18,16 +10,16 @@ export class FiltroPasarelasDto {
     @IsString()
     busqueda?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por tipo de pasarela', enum: TIPOS_PASARELA })
+    @ApiPropertyOptional({ description: 'Filtrar por tipo de pasarela' })
     @IsOptional()
     @IsString()
-    @IsIn([...TIPOS_PASARELA], { message: 'Tipo de pasarela no válido' })
+    @EsCatalogoValido('tiposPasarela', { message: 'Tipo de pasarela no válido' })
     tipo?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por modo de integración', enum: MODOS_INTEGRACION })
+    @ApiPropertyOptional({ description: 'Filtrar por modo de integración' })
     @IsOptional()
     @IsString()
-    @IsIn([...MODOS_INTEGRACION], { message: 'Modo de integración no válido' })
+    @EsCatalogoValido('modosIntegracion', { message: 'Modo de integración no válido' })
     modoIntegracion?: string;
 
     @ApiPropertyOptional({ description: 'Filtrar por estado activo' })

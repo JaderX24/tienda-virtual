@@ -90,7 +90,6 @@ export class RolesPermisosColaboradorComponent implements OnInit {
             },
             error: () => {
                 this.cargando.set(false);
-                this.roles.set(this.rolesMock);
                 this.toastService.error('Error al cargar los roles');
             }
         });
@@ -103,7 +102,6 @@ export class RolesPermisosColaboradorComponent implements OnInit {
                 this.cargando.set(false);
             },
             error: () => {
-                this.modulosConPermisos.set(this.modulosMock);
                 this.cargando.set(false);
                 this.toastService.error('Error al cargar los permisos');
             }
@@ -398,76 +396,4 @@ export class RolesPermisosColaboradorComponent implements OnInit {
     actualizarFormRol(campo: string, valor: any): void {
         this.formRol.update(form => ({ ...form, [campo]: valor }));
     }
-
-    // Datos mock para desarrollo
-    private rolesMock: ColabRolPortal[] = [
-        {
-            id: 1, codigo: 'jefe_bodega', nombre: 'Jefe de Bodega',
-            descripcion: 'Responsable principal del almacén', nivelJerarquia: 100,
-            esSupervisor: true, color: '#dc3545', esActivo: true,
-            creadoEn: '2026-01-15', _count: { usuariosRoles: 2, rolesPermisos: 25 }
-        },
-        {
-            id: 2, codigo: 'supervisor', nombre: 'Supervisor',
-            descripcion: 'Supervisa operaciones del almacén', nivelJerarquia: 80,
-            esSupervisor: true, color: '#fd7e14', esActivo: true,
-            creadoEn: '2026-01-15', _count: { usuariosRoles: 3, rolesPermisos: 20 }
-        },
-        {
-            id: 3, codigo: 'inventarista', nombre: 'Inventarista',
-            descripcion: 'Gestiona el inventario', nivelJerarquia: 60,
-            esSupervisor: false, color: '#0d6efd', esActivo: true,
-            creadoEn: '2026-01-15', _count: { usuariosRoles: 5, rolesPermisos: 15 }
-        },
-        {
-            id: 4, codigo: 'recepcionista', nombre: 'Recepcionista',
-            descripcion: 'Recibe mercadería entrante', nivelJerarquia: 50,
-            esSupervisor: false, color: '#198754', esActivo: true,
-            creadoEn: '2026-01-15', _count: { usuariosRoles: 4, rolesPermisos: 10 }
-        },
-        {
-            id: 5, codigo: 'despachador', nombre: 'Despachador',
-            descripcion: 'Despacha pedidos', nivelJerarquia: 50,
-            esSupervisor: false, color: '#6f42c1', esActivo: true,
-            creadoEn: '2026-01-15', _count: { usuariosRoles: 3, rolesPermisos: 10 }
-        },
-        {
-            id: 6, codigo: 'consulta', nombre: 'Solo Consulta',
-            descripcion: 'Acceso de solo lectura', nivelJerarquia: 10,
-            esSupervisor: false, color: '#6c757d', esActivo: true,
-            creadoEn: '2026-01-15', _count: { usuariosRoles: 1, rolesPermisos: 5 }
-        }
-    ];
-
-    private modulosMock: ColabModuloConPermisos[] = [
-        {
-            id: 1, codigo: 'colab_dashboard', nombre: 'Dashboard', icono: 'bi-speedometer2', orden: 1,
-            permisos: [
-                { id: 1, codigo: 'colab_dashboard.ver', nombre: 'Ver Dashboard', accion: 'ver' }
-            ]
-        },
-        {
-            id: 2, codigo: 'colab_inventario', nombre: 'Inventario', icono: 'bi-boxes', orden: 3,
-            permisos: [
-                { id: 2, codigo: 'colab_inventario.ver', nombre: 'Ver Inventario', accion: 'ver' },
-                { id: 3, codigo: 'colab_inventario.editar', nombre: 'Editar Inventario', accion: 'editar' }
-            ]
-        },
-        {
-            id: 3, codigo: 'colab_entradas', nombre: 'Entradas', icono: 'bi-box-arrow-in-down', orden: 4,
-            permisos: [
-                { id: 4, codigo: 'colab_entradas.ver', nombre: 'Ver Entradas', accion: 'ver' },
-                { id: 5, codigo: 'colab_entradas.crear', nombre: 'Crear Entradas', accion: 'crear' },
-                { id: 6, codigo: 'colab_entradas.aprobar', nombre: 'Aprobar Entradas', accion: 'aprobar' }
-            ]
-        },
-        {
-            id: 4, codigo: 'colab_conteos', nombre: 'Conteos', icono: 'bi-clipboard-check', orden: 7,
-            permisos: [
-                { id: 7, codigo: 'colab_conteos.ver', nombre: 'Ver Conteos', accion: 'ver' },
-                { id: 8, codigo: 'colab_conteos.crear', nombre: 'Crear Conteos', accion: 'crear' },
-                { id: 9, codigo: 'colab_conteos.aprobar', nombre: 'Aprobar Conteos', accion: 'aprobar' }
-            ]
-        }
-    ];
 }

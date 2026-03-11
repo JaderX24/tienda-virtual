@@ -91,7 +91,7 @@
                                     <label class="form-label">Género</label>
                                     <select class="form-select" formControlName="genero">
                                         <option value="">Seleccionar...</option>
-                                        @for (genero of generos; track genero.valor) {
+                                        @for (genero of generos(); track genero.valor) {
                                             <option [value]="genero.valor">{{ genero.etiqueta }}</option>
                                         }
                                     </select>
@@ -126,7 +126,7 @@
                                     <label class="form-label">Tipo de Documento <span class="text-danger">*</span></label>
                                     <select class="form-select" formControlName="tipoDocumento" [class.is-invalid]="tieneError('tipoDocumento')">
                                         <option value="">Seleccionar...</option>
-                                        @for (tipo of tiposDocumento; track tipo.valor) {
+                                        @for (tipo of tiposDocumento(); track tipo.valor) {
                                             <option [value]="tipo.valor">{{ tipo.etiqueta }}</option>
                                         }
                                     </select>

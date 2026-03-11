@@ -151,8 +151,8 @@
                                         </td>
                                         <td class="text-muted small text-nowrap">{{ formatearFecha(c.fechaProgramada) }}</td>
                                         <td>
-                                            <span class="badge rounded-pill" [ngClass]="obtenerClaseEstado(c.estado)">
-                                                <i class="bi me-1" [ngClass]="obtenerIconoEstado(c.estado)"></i>
+                                            <span class="badge rounded-pill" [ngClass]="c.estado | claseEstado:'conteo'">
+                                                <i class="bi me-1" [ngClass]="c.estado | iconoEstado:'conteo'"></i>
                                                 {{ obtenerEtiquetaEstado(c.estado) }}
                                             </span>
                                         </td>
@@ -254,8 +254,8 @@
                 <h5 class="mb-0 fw-bold">
                     <i class="bi bi-clipboard-check me-2 text-teal"></i>{{ det.codigo }}
                 </h5>
-                <span class="badge rounded-pill fs-6" [ngClass]="obtenerClaseEstado(det.estado)">
-                    <i class="bi me-1" [ngClass]="obtenerIconoEstado(det.estado)"></i>
+                <span class="badge rounded-pill fs-6" [ngClass]="det.estado | claseEstado:'conteo'">
+                    <i class="bi me-1" [ngClass]="det.estado | iconoEstado:'conteo'"></i>
                     {{ obtenerEtiquetaEstado(det.estado) }}
                 </span>
             </div>

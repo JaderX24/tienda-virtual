@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { ClaseEstadoPipe, IconoEstadoPipe } from '../../../core/pipes/global';
 import { IdiomaService } from '../../../core/services/idioma.service';
 import {
     ConteoService,
@@ -21,7 +22,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
     selector: 'app-conteos',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe, IconoEstadoPipe],
     templateUrl: './conteos.component.html',
     styleUrl: './conteos.component.scss',
 })
@@ -434,18 +435,6 @@ export class ConteosComponent implements OnInit, OnDestroy {
         });
     }
 
-    obtenerClaseEstado(estado: string): string {
-        const clases: Record<string, string> = {
-            programado: 'bg-secondary-subtle text-secondary',
-            en_progreso: 'bg-info-subtle text-info',
-            completado: 'bg-primary-subtle text-primary',
-            aprobado: 'bg-success-subtle text-success',
-            rechazado: 'bg-danger-subtle text-danger',
-            cancelado: 'bg-warning-subtle text-warning',
-        };
-        return clases[estado] || 'bg-secondary-subtle text-secondary';
-    }
-
     obtenerEtiquetaEstado(estado: string): string {
         const etiquetas: Record<string, string> = {
             programado: this.idiomaService.t('etiqueta.programado'),
@@ -456,18 +445,6 @@ export class ConteosComponent implements OnInit, OnDestroy {
             cancelado: this.idiomaService.t('etiqueta.cancelado'),
         };
         return etiquetas[estado] || estado;
-    }
-
-    obtenerIconoEstado(estado: string): string {
-        const iconos: Record<string, string> = {
-            programado: 'bi-calendar-event',
-            en_progreso: 'bi-play-circle',
-            completado: 'bi-check2-circle',
-            aprobado: 'bi-check-circle-fill',
-            rechazado: 'bi-x-circle',
-            cancelado: 'bi-slash-circle',
-        };
-        return iconos[estado] || 'bi-question-circle';
     }
 
     puedeIniciar(conteo: Conteo): boolean {

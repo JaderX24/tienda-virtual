@@ -130,7 +130,7 @@
                                             <h6 class="mb-0 fw-semibold notificacion-titulo-texto">
                                                 {{ notificacion.titulo }}
                                             </h6>
-                                            <span class="badge rounded-pill" [ngClass]="obtenerClaseTipo(notificacion.tipo)">
+                                            <span class="badge rounded-pill" [ngClass]="notificacion.tipo | claseEstado:'notificacion'">
                                                 {{ obtenerEtiquetaTipo(notificacion.tipo) }}
                                             </span>
                                             @if (!notificacion.leida) {

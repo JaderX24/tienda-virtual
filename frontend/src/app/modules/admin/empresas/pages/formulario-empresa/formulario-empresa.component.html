@@ -142,15 +142,9 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Pais <span class="required">*</span></label>
                                     <select class="form-select" formControlName="pais">
-                                        <option value="HN">Honduras</option>
-                                        <option value="GT">Guatemala</option>
-                                        <option value="SV">El Salvador</option>
-                                        <option value="NI">Nicaragua</option>
-                                        <option value="CR">Costa Rica</option>
-                                        <option value="PA">Panama</option>
-                                        <option value="MX">Mexico</option>
-                                        <option value="US">Estados Unidos</option>
-                                        <option value="CO">Colombia</option>
+                                        @for (pais of paises; track pais.valor) {
+                                            <option [value]="pais.valor">{{ pais.etiqueta }}</option>
+                                        }
                                     </select>
                                 </div>
                                 <div class="col-md-4">
@@ -159,8 +153,8 @@
                                         <select class="form-select" formControlName="departamento"
                                             [class.is-invalid]="tieneError('departamento')">
                                             <option value="">Seleccionar...</option>
-                                            @for (dep of departamentosHN; track dep) {
-                                                <option [value]="dep">{{ dep }}</option>
+                                            @for (dep of departamentosHN; track dep.valor) {
+                                                <option [value]="dep.valor">{{ dep.etiqueta }}</option>
                                             }
                                         </select>
                                     } @else {
@@ -256,8 +250,8 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Moneda</label>
                                     <select class="form-select" formControlName="moneda">
-                                        @for (moneda of monedas; track moneda.codigo) {
-                                            <option [value]="moneda.codigo">{{ moneda.nombre }}</option>
+                                        @for (moneda of monedas; track moneda.valor) {
+                                            <option [value]="moneda.valor">{{ moneda.etiqueta }}</option>
                                         }
                                     </select>
                                 </div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { ClaseEstadoPipe } from '../../../core/pipes/global';
 import {
     MiTurnoService,
     Turno,
@@ -14,7 +15,7 @@ import { IdiomaService } from '../../../core/services/idioma.service';
 @Component({
     selector: 'app-mi-turno',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe],
     templateUrl: './mi-turno.component.html',
     styleUrl: './mi-turno.component.scss',
 })
@@ -207,15 +208,6 @@ export class MiTurnoComponent implements OnInit, OnDestroy {
         return mapa[estado] || estado;
     }
 
-    obtenerClaseEstado(estado: string): string {
-        const mapa: Record<string, string> = {
-            programado: 'bg-info-subtle text-info',
-            en_curso: 'bg-success-subtle text-success',
-            finalizado: 'bg-secondary-subtle text-secondary',
-        };
-        return mapa[estado] || 'bg-light text-dark';
-    }
-
     obtenerEtiquetaPuntualidad(puntualidad: string): string {
         const mapa: Record<string, string> = {
             anticipado: this.idiomaService.t('etiqueta.anticipado'),
@@ -225,17 +217,6 @@ export class MiTurnoComponent implements OnInit, OnDestroy {
             pendiente: this.idiomaService.t('comun.pendiente'),
         };
         return mapa[puntualidad] || puntualidad;
-    }
-
-    obtenerClasePuntualidad(puntualidad: string): string {
-        const mapa: Record<string, string> = {
-            anticipado: 'text-primary',
-            puntual: 'text-success',
-            leve_retraso: 'text-warning',
-            retraso: 'text-danger',
-            pendiente: 'text-muted',
-        };
-        return mapa[puntualidad] || 'text-muted';
     }
 
     obtenerIconoOperacion(tipo: string): string {

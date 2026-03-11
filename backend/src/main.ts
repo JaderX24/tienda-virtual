@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { configuracionSwagger } from './config';
@@ -10,6 +11,9 @@ import { SanitizarHtmlPipe } from './common/pipes';
 async function bootstrap() {
     const logger = new Logger('Bootstrap');
     const app = await NestFactory.create(AppModule);
+
+    // Permite inyección de dependencias en validadores de class-validator
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
     const configService = app.get(ConfigService);
     const puerto = configService.get<number>('app.puerto')!;

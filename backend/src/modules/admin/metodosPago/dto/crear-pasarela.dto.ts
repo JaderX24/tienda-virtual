@@ -4,7 +4,6 @@ import {
     IsOptional,
     IsBoolean,
     IsNumber,
-    IsIn,
     IsArray,
     MinLength,
     MaxLength,
@@ -13,14 +12,7 @@ import {
     Matches,
 } from 'class-validator';
 
-const TIPOS_PASARELA = [
-    'tarjeta', 'transferencia', 'wallet_digital',
-    'efectivo', 'criptomoneda', 'bnpl', 'otro',
-] as const;
-
-const MODOS_INTEGRACION = [
-    'api', 'redirect', 'iframe', 'sdk', 'webhook',
-] as const;
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class CrearPasarelaDto {
     @ApiProperty({ description: 'Código único de la pasarela' })
@@ -44,9 +36,9 @@ export class CrearPasarelaDto {
     @MaxLength(500, { message: 'La descripción no puede exceder 500 caracteres' })
     descripcion?: string;
 
-    @ApiProperty({ description: 'Tipo de pasarela', enum: TIPOS_PASARELA })
+    @ApiProperty({ description: 'Tipo de pasarela' })
     @IsString({ message: 'El tipo debe ser una cadena de texto' })
-    @IsIn([...TIPOS_PASARELA], { message: 'Tipo de pasarela no válido' })
+    @EsCatalogoValido('tiposPasarela', { message: 'Tipo de pasarela no válido' })
     tipo!: string;
 
     @ApiPropertyOptional({ description: 'Nombre del proveedor' })
@@ -67,9 +59,9 @@ export class CrearPasarelaDto {
     @MaxLength(500, { message: 'La URL de documentación no puede exceder 500 caracteres' })
     urlDocumentacion?: string;
 
-    @ApiProperty({ description: 'Modo de integración', enum: MODOS_INTEGRACION })
+    @ApiProperty({ description: 'Modo de integración' })
     @IsString({ message: 'El modo de integración debe ser una cadena de texto' })
-    @IsIn([...MODOS_INTEGRACION], { message: 'Modo de integración no válido' })
+    @EsCatalogoValido('modosIntegracion', { message: 'Modo de integración no válido' })
     modoIntegracion!: string;
 
     @ApiPropertyOptional({ description: 'URL del API en ambiente sandbox' })

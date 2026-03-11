@@ -1,32 +1,10 @@
-export enum TipoProveedor {
-    INTERNO = 'interno',
-    EXTERNO = 'externo',
-    FREELANCE = 'freelance',
-    EMPRESA_COURIER = 'empresa_courier'
-}
+export type TipoProveedor = string;
 
-export enum EstadoProveedor {
-    ACTIVO = 'activo',
-    INACTIVO = 'inactivo',
-    SUSPENDIDO = 'suspendido',
-    EN_REVISION = 'en_revision'
-}
+export type EstadoProveedor = string;
 
-export enum TipoServicio {
-    LOCAL = 'local',
-    NACIONAL = 'nacional',
-    INTERNACIONAL = 'internacional',
-    EXPRESS = 'express',
-    STANDARD = 'standard',
-    ECONOMICO = 'economico'
-}
+export type TipoServicio = string;
 
-export enum ZonaCobertura {
-    LOCAL = 'local',
-    REGIONAL = 'regional',
-    NACIONAL = 'nacional',
-    INTERNACIONAL = 'internacional'
-}
+export type ZonaCobertura = string;
 
 export interface ContactoProveedor {
     id: number;
@@ -216,24 +194,3 @@ export interface OpcionSelect {
     valor: string;
     etiqueta: string;
 }
-
-export const DEPARTAMENTOS_HONDURAS: OpcionSelect[] = [
-    { valor: 'ATL', etiqueta: 'Atlántida' },
-    { valor: 'CHO', etiqueta: 'Choluteca' },
-    { valor: 'COL', etiqueta: 'Colón' },
-    { valor: 'COM', etiqueta: 'Comayagua' },
-    { valor: 'COP', etiqueta: 'Copán' },
-    { valor: 'COR', etiqueta: 'Cortés' },
-    { valor: 'EPA', etiqueta: 'El Paraíso' },
-    { valor: 'FMO', etiqueta: 'Francisco Morazán' },
-    { valor: 'GDA', etiqueta: 'Gracias a Dios' },
-    { valor: 'INT', etiqueta: 'Intibucá' },
-    { valor: 'ISB', etiqueta: 'Islas de la Bahía' },
-    { valor: 'LPA', etiqueta: 'La Paz' },
-    { valor: 'LEM', etiqueta: 'Lempira' },
-    { valor: 'OCC', etiqueta: 'Ocotepeque' },
-    { valor: 'OLA', etiqueta: 'Olancho' },
-    { valor: 'SBA', etiqueta: 'Santa Bárbara' },
-    { valor: 'VAL', etiqueta: 'Valle' },
-    { valor: 'YOR', etiqueta: 'Yoro' }
-];

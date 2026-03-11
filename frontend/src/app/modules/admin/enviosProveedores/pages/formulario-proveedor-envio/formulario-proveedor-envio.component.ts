@@ -10,10 +10,10 @@ import {
     ContactoProveedor,
     TipoProveedor,
     TipoServicio,
-    ZonaCobertura,
-    DEPARTAMENTOS_HONDURAS
+    ZonaCobertura
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-formulario-proveedor-envio',
@@ -28,6 +28,7 @@ export class FormularioProveedorEnvioComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private proveedoresService = inject(ProveedoresEnvioService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     formulario!: FormGroup;
     cargando = signal(true);
@@ -45,7 +46,7 @@ export class FormularioProveedorEnvioComponent implements OnInit {
     tiposProveedor = this.proveedoresService.obtenerTiposProveedor();
     tiposServicio = this.proveedoresService.obtenerTiposServicio();
     zonasCobertura = this.proveedoresService.obtenerZonasCobertura();
-    departamentosHonduras = DEPARTAMENTOS_HONDURAS;
+    departamentosHonduras = this.opcionesCatalogo.obtenerGrupo('departamentos');
 
     ngOnInit(): void {
         this.inicializarFormulario();

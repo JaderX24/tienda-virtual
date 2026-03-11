@@ -2,18 +2,18 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { EstadoVisualizacionService } from '../../../../core/services/estado-visualizacion.service';
 import {
     PasarelaPago,
     CrearPasarelaDto,
     ActualizarPasarelaDto,
     FiltrosPasarela,
     ResumenPasarelas,
-    TipoPasarela,
-    ModoIntegracion,
     OpcionSelect,
     RespuestaApi,
     RespuestaPaginada
 } from '../interfaces';
+import { OpcionesCatalogoService } from '../../../../core/services/opciones-catalogo.service';
 
 @Injectable({
     providedIn: 'root'
@@ -21,6 +21,8 @@ import {
 export class MetodosPagoService {
     private readonly apiUrl = `${environment.apiUrl}/admin/metodos-pago`;
     private readonly http = inject(HttpClient);
+    private readonly opcionesCatalogo = inject(OpcionesCatalogoService);
+    private readonly estadoVisualizacion = inject(EstadoVisualizacionService);
 
     private cargando = signal(false);
     private pasarelas = signal<PasarelaPago[]>([]);
@@ -135,65 +137,28 @@ export class MetodosPagoService {
         );
     }
 
-    // Opciones estáticas para selects
+    // Opciones dinámicas desde catálogos
 
     obtenerTiposPasarela(): OpcionSelect[] {
-        return [
-            { valor: TipoPasarela.TARJETA, etiqueta: 'Tarjeta de Crédito/Débito' },
-            { valor: TipoPasarela.TRANSFERENCIA, etiqueta: 'Transferencia Bancaria' },
-            { valor: TipoPasarela.WALLET_DIGITAL, etiqueta: 'Billetera Digital' },
-            { valor: TipoPasarela.EFECTIVO, etiqueta: 'Efectivo' },
-            { valor: TipoPasarela.CRIPTOMONEDA, etiqueta: 'Criptomoneda' },
-            { valor: TipoPasarela.BNPL, etiqueta: 'Compra Ahora, Paga Después' },
-            { valor: TipoPasarela.OTRO, etiqueta: 'Otro' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('tiposPasarela');
     }
 
     obtenerModosIntegracion(): OpcionSelect[] {
-        return [
-            { valor: ModoIntegracion.API, etiqueta: 'API Directa' },
-            { valor: ModoIntegracion.REDIRECT, etiqueta: 'Redirección' },
-            { valor: ModoIntegracion.IFRAME, etiqueta: 'iFrame' },
-            { valor: ModoIntegracion.SDK, etiqueta: 'SDK' },
-            { valor: ModoIntegracion.WEBHOOK, etiqueta: 'Webhook' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('modosIntegracion');
     }
 
-    obtenerTipoTexto(tipo: TipoPasarela): string {
-        const mapa: Record<TipoPasarela, string> = {
-            [TipoPasarela.TARJETA]: 'Tarjeta',
-            [TipoPasarela.TRANSFERENCIA]: 'Transferencia',
-            [TipoPasarela.WALLET_DIGITAL]: 'Billetera Digital',
-            [TipoPasarela.EFECTIVO]: 'Efectivo',
-            [TipoPasarela.CRIPTOMONEDA]: 'Criptomoneda',
-            [TipoPasarela.BNPL]: 'Compra Ahora, Paga Después',
-            [TipoPasarela.OTRO]: 'Otro'
-        };
-        return mapa[tipo] || tipo;
+    obtenerTipoTexto(tipo: string): string {
+        const opcion = this.obtenerTiposPasarela().find(o => o.valor === tipo);
+        return opcion?.etiqueta || tipo;
     }
 
-    obtenerModoTexto(modo: ModoIntegracion): string {
-        const mapa: Record<ModoIntegracion, string> = {
-            [ModoIntegracion.API]: 'API Directa',
-            [ModoIntegracion.REDIRECT]: 'Redirección',
-            [ModoIntegracion.IFRAME]: 'iFrame',
-            [ModoIntegracion.SDK]: 'SDK',
-            [ModoIntegracion.WEBHOOK]: 'Webhook'
-        };
-        return mapa[modo] || modo;
+    obtenerModoTexto(modo: string): string {
+        const opcion = this.obtenerModosIntegracion().find(o => o.valor === modo);
+        return opcion?.etiqueta || modo;
     }
 
-    obtenerIconoTipo(tipo: TipoPasarela): string {
-        const mapa: Record<TipoPasarela, string> = {
-            [TipoPasarela.TARJETA]: 'bi-credit-card-2-front',
-            [TipoPasarela.TRANSFERENCIA]: 'bi-bank',
-            [TipoPasarela.WALLET_DIGITAL]: 'bi-wallet2',
-            [TipoPasarela.EFECTIVO]: 'bi-cash-stack',
-            [TipoPasarela.CRIPTOMONEDA]: 'bi-currency-bitcoin',
-            [TipoPasarela.BNPL]: 'bi-calendar2-check',
-            [TipoPasarela.OTRO]: 'bi-three-dots'
-        };
-        return mapa[tipo] || 'bi-question-circle';
+    obtenerIconoTipo(tipo: string): string {
+        return this.estadoVisualizacion.obtenerIcono('tipo_pasarela', tipo);
     }
 
     formatearMonto(monto: number): string {

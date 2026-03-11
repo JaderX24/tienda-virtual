@@ -6,17 +6,13 @@ import {
     IsNotEmpty,
     IsBoolean,
     IsNumber,
-    IsIn,
     IsDateString,
     MinLength,
     MaxLength,
     Min,
     Max,
 } from 'class-validator';
-
-const TIPOS_CONTRATO = ['permanente', 'temporal', 'medio_tiempo', 'practicante'] as const;
-const GENEROS = ['masculino', 'femenino', 'otro', 'no_especificado'] as const;
-const METODOS_2FA = ['ninguno', 'app', 'sms', 'correo'] as const;
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class CrearColaboradorDto {
     @ApiProperty({ description: 'Nombre del colaborador' })
@@ -57,9 +53,9 @@ export class CrearColaboradorDto {
     @IsDateString({}, { message: 'La fecha de nacimiento debe tener formato válido' })
     fechaNacimiento?: string;
 
-    @ApiPropertyOptional({ description: 'Género del colaborador', enum: GENEROS })
+    @ApiPropertyOptional({ description: 'Género del colaborador' })
     @IsOptional()
-    @IsIn([...GENEROS], { message: 'El género debe ser: masculino, femenino, otro o no_especificado' })
+    @EsCatalogoValido('generos', { message: 'El género no es válido' })
     genero?: string;
 
     @ApiPropertyOptional({ description: 'Teléfono del colaborador' })
@@ -91,8 +87,8 @@ export class CrearColaboradorDto {
     @IsDateString({}, { message: 'La fecha de ingreso debe tener formato válido' })
     fechaIngreso?: string;
 
-    @ApiProperty({ description: 'Tipo de contrato', enum: TIPOS_CONTRATO })
-    @IsIn([...TIPOS_CONTRATO], { message: 'El tipo de contrato debe ser: permanente, temporal, medio_tiempo o practicante' })
+    @ApiProperty({ description: 'Tipo de contrato' })
+    @EsCatalogoValido('tiposContrato', { message: 'El tipo de contrato no es válido' })
     tipoContrato!: string;
 
     @ApiPropertyOptional({ description: 'ID de la empresa asignada' })
@@ -105,9 +101,9 @@ export class CrearColaboradorDto {
     @IsBoolean({ message: 'El campo requiere2fa debe ser verdadero o falso' })
     requiere2fa?: boolean;
 
-    @ApiPropertyOptional({ description: 'Método de autenticación 2FA', enum: METODOS_2FA })
+    @ApiPropertyOptional({ description: 'Método de autenticación 2FA' })
     @IsOptional()
-    @IsIn([...METODOS_2FA], { message: 'El método 2FA debe ser: ninguno, app, sms o correo' })
+    @EsCatalogoValido('metodos2fa', { message: 'El método 2FA no es válido' })
     metodo2fa?: string;
 
     @ApiPropertyOptional({ description: 'Restringir acceso solo en horario de turno' })

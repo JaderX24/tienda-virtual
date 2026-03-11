@@ -3,13 +3,13 @@ import {
     IsOptional,
     IsInt,
     IsPositive,
-    IsIn,
     Min,
     Max,
     MinLength,
     MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class CrearTransferenciaDto {
     @Type(() => Number)
@@ -68,7 +68,7 @@ export class ConsultarTransferenciasDto {
 
     @IsOptional()
     @IsString()
-    @IsIn(['pendiente', 'en_transito', 'completada', 'cancelada'])
+    @EsCatalogoValido('estadosTransferencia')
     estado?: string;
 
     @IsOptional()
@@ -100,7 +100,7 @@ export class ConsultarTransferenciasDto {
 
 export class ActualizarEstadoTransferenciaDto {
     @IsString()
-    @IsIn(['en_transito', 'completada', 'cancelada'])
+    @EsCatalogoValido('estadosTransferencia')
     estado!: string;
 
     @IsOptional()

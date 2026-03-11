@@ -10,6 +10,7 @@ import {
     FiltrosProducto
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { EstadoVisualizacionService } from '../../../../../core/services/estado-visualizacion.service';
 
 @Component({
     selector: 'app-lista-productos',
@@ -21,6 +22,7 @@ import { ToastService } from '../../../../../core/services/toast.service';
 export class ListaProductosComponent implements OnInit {
     private productosService = inject(ProductosService);
     private toastService = inject(ToastService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
 
     productos = signal<Producto[]>([]);
     categorias = signal<CategoriaResumen[]>([]);
@@ -164,15 +166,15 @@ export class ListaProductosComponent implements OnInit {
     }
 
     obtenerClasesEstado(activo: boolean): string {
-        return activo ? 'badge-estado activo' : 'badge-estado inactivo';
+        return this.estadoVisualizacion.obtenerClase('activo_inactivo', String(activo));
     }
 
     obtenerTextoEstado(activo: boolean): string {
-        return activo ? 'Activo' : 'Inactivo';
+        return this.estadoVisualizacion.obtenerEtiqueta('activo_inactivo', String(activo));
     }
 
     obtenerIconoEstado(activo: boolean): string {
-        return activo ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+        return this.estadoVisualizacion.obtenerIcono('activo_inactivo', String(activo));
     }
 
     formatearFecha(fecha: string): string {

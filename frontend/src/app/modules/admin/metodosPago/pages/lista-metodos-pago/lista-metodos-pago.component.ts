@@ -5,11 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { MetodosPagoService } from '../../services';
 import {
     PasarelaPago,
-    FiltrosPasarela,
-    TipoPasarela,
-    ModoIntegracion
+    FiltrosPasarela
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { EstadoVisualizacionService } from '../../../../../core/services/estado-visualizacion.service';
 
 @Component({
     selector: 'app-lista-metodos-pago',
@@ -21,14 +20,15 @@ import { ToastService } from '../../../../../core/services/toast.service';
 export class ListaMetodosPagoComponent implements OnInit {
     private metodosPagoService = inject(MetodosPagoService);
     private toastService = inject(ToastService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
 
     pasarelas = signal<PasarelaPago[]>([]);
     cargando = signal(true);
     errorCarga = signal<string | null>(null);
 
     busqueda = signal('');
-    tipoSeleccionado = signal<TipoPasarela | null>(null);
-    modoSeleccionado = signal<ModoIntegracion | null>(null);
+    tipoSeleccionado = signal<string | null>(null);
+    modoSeleccionado = signal<string | null>(null);
     estadoSeleccionado = signal<boolean | null>(null);
 
     paginaActual = signal(1);
@@ -157,28 +157,28 @@ export class ListaMetodosPagoComponent implements OnInit {
         });
     }
 
-    obtenerTipoTexto(tipo: TipoPasarela): string {
+    obtenerTipoTexto(tipo: string): string {
         return this.metodosPagoService.obtenerTipoTexto(tipo);
     }
 
-    obtenerModoTexto(modo: ModoIntegracion): string {
+    obtenerModoTexto(modo: string): string {
         return this.metodosPagoService.obtenerModoTexto(modo);
     }
 
-    obtenerIconoTipo(tipo: TipoPasarela): string {
+    obtenerIconoTipo(tipo: string): string {
         return this.metodosPagoService.obtenerIconoTipo(tipo);
     }
 
     obtenerClasesEstado(esActivo: boolean): string {
-        return esActivo ? 'badge-estado activo' : 'badge-estado inactivo';
+        return this.estadoVisualizacion.obtenerClase('activo_inactivo', String(esActivo));
     }
 
     obtenerIconoEstado(esActivo: boolean): string {
-        return esActivo ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+        return this.estadoVisualizacion.obtenerIcono('activo_inactivo', String(esActivo));
     }
 
     obtenerTextoEstado(esActivo: boolean): string {
-        return esActivo ? 'Activo' : 'Inactivo';
+        return this.estadoVisualizacion.obtenerEtiqueta('activo_inactivo', String(esActivo));
     }
 
     obtenerCaracteristicas(pasarela: PasarelaPago): string[] {

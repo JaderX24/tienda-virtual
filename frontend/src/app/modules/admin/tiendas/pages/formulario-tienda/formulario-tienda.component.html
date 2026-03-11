@@ -307,12 +307,9 @@
                                 class="form-select"
                                 [class.is-invalid]="tieneError('pais')"
                                 formControlName="pais">
-                                <option value="HN">Honduras</option>
-                                <option value="GT">Guatemala</option>
-                                <option value="SV">El Salvador</option>
-                                <option value="NI">Nicaragua</option>
-                                <option value="CR">Costa Rica</option>
-                                <option value="PA">Panamá</option>
+                                @for (pais of paises; track pais.valor) {
+                                    <option [value]="pais.valor">{{ pais.etiqueta }}</option>
+                                }
                             </select>
                             @if (tieneError('pais')) {
                                 <div class="invalid-feedback">{{ obtenerError('pais') }}</div>
@@ -325,8 +322,8 @@
                                 [class.is-invalid]="tieneError('departamento')"
                                 formControlName="departamento">
                                 <option value="">Selecciona departamento</option>
-                                @for (depto of departamentosHN; track depto) {
-                                    <option [value]="depto">{{ depto }}</option>
+                                @for (depto of departamentosHN; track depto.valor) {
+                                    <option [value]="depto.valor">{{ depto.etiqueta }}</option>
                                 }
                             </select>
                             @if (tieneError('departamento')) {
@@ -428,8 +425,8 @@
                                 class="form-select"
                                 [class.is-invalid]="tieneError('moneda')"
                                 formControlName="moneda">
-                                @for (moneda of monedas; track moneda.codigo) {
-                                    <option [value]="moneda.codigo">{{ moneda.nombre }}</option>
+                                @for (moneda of monedas; track moneda.valor) {
+                                    <option [value]="moneda.valor">{{ moneda.etiqueta }}</option>
                                 }
                             </select>
                             @if (tieneError('moneda')) {

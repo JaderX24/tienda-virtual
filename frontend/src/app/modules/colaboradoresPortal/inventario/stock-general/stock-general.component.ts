@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { ClaseEstadoPipe } from '../../../../core/pipes/global';
 import { IdiomaService } from '../../../../core/services/idioma.service';
 import {
     InventarioService,
@@ -13,7 +14,7 @@ import {
 @Component({
     selector: 'app-stock-general',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe],
     templateUrl: './stock-general.component.html',
     styleUrl: './stock-general.component.scss',
 })
@@ -86,15 +87,6 @@ export class StockGeneralComponent implements OnInit, OnDestroy {
         this.busqueda = '';
         this.almacenSeleccionado = 0;
         this.cargarStock(1);
-    }
-
-    obtenerClaseEstado(estado: string): string {
-        const mapa: Record<string, string> = {
-            disponible: 'text-bg-success',
-            bajo: 'text-bg-warning',
-            agotado: 'text-bg-danger',
-        };
-        return mapa[estado] || 'text-bg-secondary';
     }
 
     obtenerEtiquetaEstado(estado: string): string {

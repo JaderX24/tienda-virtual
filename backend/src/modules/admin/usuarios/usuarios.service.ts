@@ -74,7 +74,7 @@ export class UsuariosService {
 
         this.logger.log(`Usuario creado: ${usuario.correo}`);
 
-        const urlFrontend = this.configService.get<string>('app.urlFrontend') || 'http://localhost:4200';
+        const urlFrontend = this.configService.getOrThrow<string>('app.urlFrontend');
         const correoEnviado = await this.correoService.enviarBienvenidaUsuario({
             nombre: usuario.nombre,
             correo: usuario.correo,

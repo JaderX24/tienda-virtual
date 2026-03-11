@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UsuariosService } from '../../services';
 import { Usuario, Rol, FiltrosUsuario } from '../../interfaces';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 @Component({
     selector: 'app-lista-usuarios',
@@ -14,17 +15,10 @@ import { Usuario, Rol, FiltrosUsuario } from '../../interfaces';
 })
 export class ListaUsuariosComponent implements OnInit {
     private usuariosService = inject(UsuariosService);
-
-    // Datos de prueba mientras no hay backend
-    private readonly rolesMock: Rol[] = [
-        { id: 1, codigo: 'admin', nombre: 'Administrador', activo: true },
-        { id: 2, codigo: 'vendedor', nombre: 'Vendedor', activo: true },
-        { id: 3, codigo: 'inventario', nombre: 'Encargado de Inventario', activo: true },
-        { id: 4, codigo: 'soporte', nombre: 'Soporte al Cliente', activo: true }
-    ];
+    private toastService = inject(ToastService);
 
     usuarios = signal<Usuario[]>([]);
-    roles = signal<Rol[]>(this.rolesMock);
+    roles = signal<Rol[]>([]);
     cargando = signal(true);
     
     // Filtros
@@ -68,8 +62,7 @@ export class ListaUsuariosComponent implements OnInit {
             },
             error: () => {
                 this.cargando.set(false);
-                this.usuarios.set(this.usuariosMock);
-                this.totalUsuarios.set(this.usuariosMock.length);
+                this.toastService.error('Error al cargar los usuarios');
             }
         });
     }
@@ -79,11 +72,9 @@ export class ListaUsuariosComponent implements OnInit {
             next: (roles) => {
                 if (Array.isArray(roles)) {
                     this.roles.set(roles);
-                } else {
-                    this.roles.set(this.rolesMock);
                 }
             },
-            error: () => this.roles.set(this.rolesMock)
+            error: () => this.toastService.error('Error al cargar los roles')
         });
     }
 
@@ -176,78 +167,4 @@ export class ListaUsuariosComponent implements OnInit {
         
         return paginas;
     }
-
-    private usuariosMock: Usuario[] = [
-        {
-            id: 1,
-            nombre: 'Administrador Sistema',
-            correo: 'admin@tiendavirtual.com',
-            telefono: '+504 9999-0001',
-            activo: true,
-            rolId: 1,
-            rol: { id: 1, codigo: 'admin', nombre: 'Administrador', activo: true },
-            ultimoAcceso: new Date(),
-            creadoEn: new Date('2024-01-15'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 2,
-            nombre: 'María García López',
-            correo: 'maria.garcia@tiendavirtual.com',
-            telefono: '+504 9999-0002',
-            activo: true,
-            rolId: 2,
-            rol: { id: 2, codigo: 'vendedor', nombre: 'Vendedor', activo: true },
-            ultimoAcceso: new Date('2026-01-27'),
-            creadoEn: new Date('2024-03-20'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 3,
-            nombre: 'Carlos Mendoza',
-            correo: 'carlos.mendoza@tiendavirtual.com',
-            telefono: '+504 9999-0003',
-            activo: true,
-            rolId: 3,
-            rol: { id: 3, codigo: 'inventario', nombre: 'Encargado de Inventario', activo: true },
-            ultimoAcceso: new Date('2026-01-26'),
-            creadoEn: new Date('2024-06-10'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 4,
-            nombre: 'Ana Sofía Hernández',
-            correo: 'ana.hernandez@tiendavirtual.com',
-            telefono: '+504 9999-0004',
-            activo: false,
-            rolId: 4,
-            rol: { id: 4, codigo: 'soporte', nombre: 'Soporte al Cliente', activo: true },
-            ultimoAcceso: new Date('2025-12-15'),
-            creadoEn: new Date('2024-08-05'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 5,
-            nombre: 'Roberto Martínez',
-            correo: 'roberto.martinez@tiendavirtual.com',
-            telefono: '+504 9999-0005',
-            activo: true,
-            rolId: 2,
-            rol: { id: 2, codigo: 'vendedor', nombre: 'Vendedor', activo: true },
-            ultimoAcceso: new Date('2026-01-28'),
-            creadoEn: new Date('2025-01-12'),
-            actualizadoEn: new Date()
-        },
-        {
-            id: 6,
-            nombre: 'Laura Pineda',
-            correo: 'laura.pineda@tiendavirtual.com',
-            activo: true,
-            rolId: 2,
-            rol: { id: 2, codigo: 'vendedor', nombre: 'Vendedor', activo: true },
-            ultimoAcceso: new Date('2026-01-27'),
-            creadoEn: new Date('2025-02-18'),
-            actualizadoEn: new Date()
-        }
-    ];
 }

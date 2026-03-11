@@ -106,8 +106,8 @@
                         [ngModel]="departamentoSeleccionado()"
                         (ngModelChange)="departamentoSeleccionado.set($event)">
                         <option value="">Todos los departamentos</option>
-                        @for (depto of departamentos; track depto) {
-                            <option [value]="depto">{{ depto }}</option>
+                        @for (depto of departamentos; track depto.valor) {
+                            <option [value]="depto.valor">{{ depto.etiqueta }}</option>
                         }
                     </select>
                 </div>

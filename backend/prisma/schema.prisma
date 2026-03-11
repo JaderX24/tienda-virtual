@@ -467,6 +467,23 @@ model ParametroSistema {
   @@map("parametros_sistema")
 }
 
+model Catalogo {
+  id            Int       @id @default(autoincrement())
+  grupo         String    @db.VarChar(50)
+  valor         String    @db.VarChar(100)
+  etiqueta      String    @db.VarChar(200)
+  descripcion   String?   @db.VarChar(500)
+  orden         Int       @default(0)
+  activo        Boolean   @default(true)
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  @@unique([grupo, valor])
+  @@index([grupo])
+  @@index([activo])
+  @@map("catalogos")
+}
+
 // ============================================
 // MÓDULO DE EMPRESAS
 // ============================================

@@ -320,7 +320,7 @@
                                     <tr>
                                         <td class="ps-3 small">{{ formatearFecha(mov.fecha) }}</td>
                                         <td>
-                                            <span class="badge rounded-pill {{ obtenerClaseTipoOperacion(mov.tipoOperacion) }}">
+                                            <span class="badge rounded-pill" [ngClass]="mov.tipoOperacion | claseEstado:'tipo_operacion'">
                                                 {{ mov.tipoOperacionTexto }}
                                             </span>
                                         </td>
@@ -486,7 +486,7 @@
                                         <td class="text-center fw-bold text-danger">{{ prod.diferencia }}</td>
                                         <td class="text-end">{{ formatearMoneda(prod.precio) }}</td>
                                         <td class="text-center">
-                                            <span [class]="obtenerClaseEstadoStock(prod.estado)">
+                                            <span class="badge" [ngClass]="prod.estado | claseEstado:'stock'">
                                                 {{ prod.estado === 'agotado' ? ('reportes.agotado' | traducir) : ('reportes.bajo' | traducir) }}
                                             </span>
                                         </td>
@@ -606,7 +606,7 @@
                                     <tr>
                                         <td class="ps-3 small">{{ formatearFecha(op.fecha) }}</td>
                                         <td>
-                                            <span class="badge rounded-pill {{ obtenerClaseTipoOperacion(op.tipoOperacion) }}">
+                                            <span class="badge rounded-pill" [ngClass]="op.tipoOperacion | claseEstado:'tipo_operacion'">
                                                 {{ op.tipoOperacionTexto }}
                                             </span>
                                         </td>

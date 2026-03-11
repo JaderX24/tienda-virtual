@@ -180,7 +180,7 @@ export class ColaboradoresService {
             ? colaborador.roles.find(r => r.esPrincipal)?.rol.nombre || colaborador.roles[0]?.rol.nombre
             : undefined;
 
-        const urlFrontend = this.configService.get<string>('app.urlFrontend') || 'http://localhost:4200';
+        const urlFrontend = this.configService.getOrThrow<string>('app.urlFrontend');
 
         const correoEnviado = await this.correoService.enviarBienvenidaColaborador({
             nombre: `${colaborador.nombre} ${colaborador.apellido}`,

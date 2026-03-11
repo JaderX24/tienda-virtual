@@ -1,50 +1,12 @@
-export enum TipoTienda {
-    TIENDA_FISICA = 'tienda_fisica',
-    TIENDA_VIRTUAL = 'tienda_virtual',
-    TIENDA_HIBRIDA = 'tienda_hibrida',
-    QUIOSCO = 'quiosco',
-    SUCURSAL = 'sucursal',
-    FRANQUICIA = 'franquicia',
-    POPUP_STORE = 'popup_store',
-    OUTLET = 'outlet'
-}
+export type TipoTienda = string;
 
-export enum EstadoTienda {
-    ACTIVA = 'activa',
-    INACTIVA = 'inactiva',
-    EN_CONSTRUCCION = 'en_construccion',
-    MANTENIMIENTO = 'mantenimiento',
-    CERRADA_TEMPORAL = 'cerrada_temporal'
-}
+export type EstadoTienda = string;
 
-export enum TipoNegocioTienda {
-    TIENDA_ROPA = 'tienda_ropa',
-    RESTAURANTE = 'restaurante',
-    SUPERMERCADO = 'supermercado',
-    FARMACIA = 'farmacia',
-    TECNOLOGIA = 'tecnologia',
-    FERRETERIA = 'ferreteria',
-    LIBRERIA = 'libreria',
-    SERVICIOS = 'servicios',
-    MAYORISTA = 'mayorista',
-    OTRO = 'otro'
-}
+export type TipoNegocioTienda = string;
 
-export enum PlanSuscripcionTienda {
-    BASICO = 'basico',
-    PROFESIONAL = 'profesional',
-    EMPRESARIAL = 'empresarial',
-    PREMIUM = 'premium'
-}
+export type PlanSuscripcionTienda = string;
 
-export enum RangoEmpleadosTienda {
-    UNO_CINCO = '1-5',
-    SEIS_VEINTE = '6-20',
-    VEINTIUNO_CINCUENTA = '21-50',
-    CINCUENTA_UNO_CIEN = '51-100',
-    CIEN_UNO_QUINIENTOS = '101-500',
-    MAS_QUINIENTOS = '500+'
-}
+export type RangoEmpleadosTienda = string;
 
 export interface RedesSocialesTienda {
     facebook?: string;

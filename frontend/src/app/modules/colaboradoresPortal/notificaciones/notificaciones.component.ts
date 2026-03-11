@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { ClaseEstadoPipe } from '../../../core/pipes/global';
+import { EstadoVisualizacionService } from '../../../core/services/estado-visualizacion.service';
 import {
     NotificacionesService,
     Notificacion,
@@ -16,7 +18,7 @@ type TabActiva = 'todas' | 'sin-leer' | 'archivadas';
 @Component({
     selector: 'app-notificaciones',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe],
     templateUrl: './notificaciones.component.html',
     styleUrl: './notificaciones.component.scss',
 })
@@ -24,6 +26,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     private notificacionesService = inject(NotificacionesService);
     private toastService = inject(ToastService);
     private idiomaService = inject(IdiomaService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
     private destruir$ = new Subject<void>();
 
     cargando = signal(false);
@@ -287,17 +290,6 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
         });
     }
 
-    obtenerClaseTipo(tipo: string): string {
-        const clases: Record<string, string> = {
-            info: 'text-bg-info',
-            success: 'text-bg-success',
-            warning: 'text-bg-warning',
-            danger: 'text-bg-danger',
-            sistema: 'text-bg-secondary',
-        };
-        return clases[tipo] || 'text-bg-secondary';
-    }
-
     obtenerEtiquetaTipo(tipo: string): string {
         const etiquetas: Record<string, string> = {
             info: this.idiomaService.t('notif.informacion'),
@@ -310,14 +302,7 @@ export class NotificacionesComponent implements OnInit, OnDestroy {
     }
 
     obtenerClaseIcono(tipo: string): string {
-        const clases: Record<string, string> = {
-            info: 'icono-info',
-            success: 'icono-success',
-            warning: 'icono-warning',
-            danger: 'icono-danger',
-            sistema: 'icono-sistema',
-        };
-        return clases[tipo] || 'icono-info';
+        return this.estadoVisualizacion.obtenerClase('tipo_notificacion', tipo);
     }
 
     get hayNotificacionesSinLeer(): boolean {

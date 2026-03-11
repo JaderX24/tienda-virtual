@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { EstadoVisualizacionService } from '../../../../core/services/estado-visualizacion.service';
 import {
     ProveedorEnvio,
     ContactoProveedor,
@@ -11,14 +12,11 @@ import {
     ActualizarContactoProveedorDto,
     FiltrosProveedorEnvio,
     ResumenProveedores,
-    TipoProveedor,
-    EstadoProveedor,
-    TipoServicio,
-    ZonaCobertura,
     OpcionSelect,
     RespuestaApi,
     RespuestaPaginada
 } from '../interfaces';
+import { OpcionesCatalogoService } from '../../../../core/services/opciones-catalogo.service';
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +24,8 @@ import {
 export class ProveedoresEnvioService {
     private readonly apiUrl = `${environment.apiUrl}/admin/proveedores-envio`;
     private readonly http = inject(HttpClient);
+    private readonly opcionesCatalogo = inject(OpcionesCatalogoService);
+    private readonly estadoVisualizacion = inject(EstadoVisualizacionService);
 
     private cargando = signal(false);
     private proveedores = signal<ProveedorEnvio[]>([]);
@@ -161,107 +161,49 @@ export class ProveedoresEnvioService {
         );
     }
 
-    // Opciones para selects
+    // Opciones dinámicas desde catálogos
     obtenerTiposProveedor(): OpcionSelect[] {
-        return [
-            { valor: TipoProveedor.INTERNO, etiqueta: 'Interno' },
-            { valor: TipoProveedor.EXTERNO, etiqueta: 'Externo' },
-            { valor: TipoProveedor.FREELANCE, etiqueta: 'Freelance' },
-            { valor: TipoProveedor.EMPRESA_COURIER, etiqueta: 'Empresa Courier' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('tiposProveedorEnvio');
     }
 
     obtenerEstadosProveedor(): OpcionSelect[] {
-        return [
-            { valor: EstadoProveedor.ACTIVO, etiqueta: 'Activo' },
-            { valor: EstadoProveedor.INACTIVO, etiqueta: 'Inactivo' },
-            { valor: EstadoProveedor.SUSPENDIDO, etiqueta: 'Suspendido' },
-            { valor: EstadoProveedor.EN_REVISION, etiqueta: 'En Revisión' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('estadosProveedorEnvio');
     }
 
     obtenerTiposServicio(): OpcionSelect[] {
-        return [
-            { valor: TipoServicio.LOCAL, etiqueta: 'Local' },
-            { valor: TipoServicio.NACIONAL, etiqueta: 'Nacional' },
-            { valor: TipoServicio.INTERNACIONAL, etiqueta: 'Internacional' },
-            { valor: TipoServicio.EXPRESS, etiqueta: 'Express' },
-            { valor: TipoServicio.STANDARD, etiqueta: 'Estándar' },
-            { valor: TipoServicio.ECONOMICO, etiqueta: 'Económico' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('tiposServicioEnvio');
     }
 
     obtenerZonasCobertura(): OpcionSelect[] {
-        return [
-            { valor: ZonaCobertura.LOCAL, etiqueta: 'Local' },
-            { valor: ZonaCobertura.REGIONAL, etiqueta: 'Regional' },
-            { valor: ZonaCobertura.NACIONAL, etiqueta: 'Nacional' },
-            { valor: ZonaCobertura.INTERNACIONAL, etiqueta: 'Internacional' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('zonasCobertura');
     }
 
-    obtenerTipoTexto(tipo: TipoProveedor): string {
-        const mapa: Record<TipoProveedor, string> = {
-            [TipoProveedor.INTERNO]: 'Interno',
-            [TipoProveedor.EXTERNO]: 'Externo',
-            [TipoProveedor.FREELANCE]: 'Freelance',
-            [TipoProveedor.EMPRESA_COURIER]: 'Empresa Courier'
-        };
-        return mapa[tipo] || tipo;
+    obtenerTipoTexto(tipo: string): string {
+        const opcion = this.obtenerTiposProveedor().find(o => o.valor === tipo);
+        return opcion?.etiqueta || tipo;
     }
 
-    obtenerEstadoTexto(estado: EstadoProveedor): string {
-        const mapa: Record<EstadoProveedor, string> = {
-            [EstadoProveedor.ACTIVO]: 'Activo',
-            [EstadoProveedor.INACTIVO]: 'Inactivo',
-            [EstadoProveedor.SUSPENDIDO]: 'Suspendido',
-            [EstadoProveedor.EN_REVISION]: 'En Revisión'
-        };
-        return mapa[estado] || estado;
+    obtenerEstadoTexto(estado: string): string {
+        const opcion = this.obtenerEstadosProveedor().find(o => o.valor === estado);
+        return opcion?.etiqueta || estado;
     }
 
-    obtenerIconoTipo(tipo: TipoProveedor): string {
-        const mapa: Record<TipoProveedor, string> = {
-            [TipoProveedor.INTERNO]: 'bi-building-fill',
-            [TipoProveedor.EXTERNO]: 'bi-box-seam',
-            [TipoProveedor.FREELANCE]: 'bi-person-badge',
-            [TipoProveedor.EMPRESA_COURIER]: 'bi-truck'
-        };
-        return mapa[tipo] || 'bi-question-circle';
+    obtenerIconoTipo(tipo: string): string {
+        return this.estadoVisualizacion.obtenerIcono('tipo_proveedor_envio', tipo);
     }
 
-    obtenerIconoServicio(servicio: TipoServicio): string {
-        const mapa: Record<TipoServicio, string> = {
-            [TipoServicio.LOCAL]: 'bi-geo-alt',
-            [TipoServicio.NACIONAL]: 'bi-map',
-            [TipoServicio.INTERNACIONAL]: 'bi-globe-americas',
-            [TipoServicio.EXPRESS]: 'bi-lightning-charge',
-            [TipoServicio.STANDARD]: 'bi-clock',
-            [TipoServicio.ECONOMICO]: 'bi-piggy-bank'
-        };
-        return mapa[servicio] || 'bi-box';
+    obtenerIconoServicio(servicio: string): string {
+        return this.estadoVisualizacion.obtenerIcono('tipo_servicio_envio', servicio);
     }
 
-    obtenerServicioTexto(servicio: TipoServicio): string {
-        const mapa: Record<TipoServicio, string> = {
-            [TipoServicio.LOCAL]: 'Local',
-            [TipoServicio.NACIONAL]: 'Nacional',
-            [TipoServicio.INTERNACIONAL]: 'Internacional',
-            [TipoServicio.EXPRESS]: 'Express',
-            [TipoServicio.STANDARD]: 'Estándar',
-            [TipoServicio.ECONOMICO]: 'Económico'
-        };
-        return mapa[servicio] || servicio;
+    obtenerServicioTexto(servicio: string): string {
+        const opcion = this.obtenerTiposServicio().find(o => o.valor === servicio);
+        return opcion?.etiqueta || servicio;
     }
 
-    obtenerZonaTexto(zona: ZonaCobertura): string {
-        const mapa: Record<ZonaCobertura, string> = {
-            [ZonaCobertura.LOCAL]: 'Local',
-            [ZonaCobertura.REGIONAL]: 'Regional',
-            [ZonaCobertura.NACIONAL]: 'Nacional',
-            [ZonaCobertura.INTERNACIONAL]: 'Internacional'
-        };
-        return mapa[zona] || zona;
+    obtenerZonaTexto(zona: string): string {
+        const opcion = this.obtenerZonasCobertura().find(o => o.valor === zona);
+        return opcion?.etiqueta || zona;
     }
 
     formatearMonto(monto: number): string {

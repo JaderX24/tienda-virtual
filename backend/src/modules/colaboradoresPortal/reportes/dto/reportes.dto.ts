@@ -6,9 +6,9 @@ import {
     Min,
     Max,
     MaxLength,
-    IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class FiltrosReporteDto {
     @IsOptional()
@@ -38,10 +38,7 @@ export class FiltrosReporteDto {
 
     @IsOptional()
     @IsString()
-    @IsIn([
-        'entrada', 'salida', 'ajuste_positivo', 'ajuste_negativo',
-        'transferencia', 'recepcion', 'despacho',
-    ])
+    @EsCatalogoValido('tiposOperacion')
     tipoOperacion?: string;
 
     @IsOptional()
@@ -75,9 +72,6 @@ export class FiltrosExportarDto {
 
     @IsOptional()
     @IsString()
-    @IsIn([
-        'entrada', 'salida', 'ajuste_positivo', 'ajuste_negativo',
-        'transferencia', 'recepcion', 'despacho',
-    ])
+    @EsCatalogoValido('tiposOperacion')
     tipoOperacion?: string;
 }

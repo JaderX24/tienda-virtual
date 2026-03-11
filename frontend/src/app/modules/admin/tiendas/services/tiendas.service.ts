@@ -8,15 +8,12 @@ import {
     ActualizarTiendaDto,
     FiltrosTienda,
     EstadisticasTienda,
-    TipoTienda,
-    TipoNegocioTienda,
-    PlanSuscripcionTienda,
-    EstadoTienda,
     OpcionesFormulario,
     OpcionSelect,
     ResumenEstadisticas
 } from '../interfaces';
 import { RespuestaPaginada, RespuestaApi } from '../../usuarios/interfaces';
+import { OpcionesCatalogoService } from '../../../../core/services/opciones-catalogo.service';
 
 @Injectable({
     providedIn: 'root'
@@ -24,6 +21,7 @@ import { RespuestaPaginada, RespuestaApi } from '../../usuarios/interfaces';
 export class TiendasService {
     private readonly apiUrl = `${environment.apiUrl}/admin/tiendas`;
     private readonly http = inject(HttpClient);
+    private readonly opcionesCatalogo = inject(OpcionesCatalogoService);
 
     // Señales reactivas para el estado
     private cargando = signal(false);
@@ -88,7 +86,6 @@ export class TiendasService {
             }),
             catchError(error => {
                 this.cargando.set(false);
-                console.error('Error al obtener tiendas:', error);
                 return throwError(() => error);
             })
         );
@@ -101,7 +98,6 @@ export class TiendasService {
         return this.http.get<RespuestaApi<Tienda>>(`${this.apiUrl}/${id}`).pipe(
             map(respuesta => respuesta.datos),
             catchError(error => {
-                console.error(`Error al obtener tienda ${id}:`, error);
                 return throwError(() => error);
             })
         );
@@ -117,7 +113,6 @@ export class TiendasService {
             tap(() => this.cargando.set(false)),
             catchError(error => {
                 this.cargando.set(false);
-                console.error('Error al crear tienda:', error);
                 return throwError(() => error);
             })
         );
@@ -133,7 +128,6 @@ export class TiendasService {
             tap(() => this.cargando.set(false)),
             catchError(error => {
                 this.cargando.set(false);
-                console.error(`Error al actualizar tienda ${id}:`, error);
                 return throwError(() => error);
             })
         );
@@ -146,7 +140,6 @@ export class TiendasService {
         return this.http.patch<RespuestaApi<{ tienda: Tienda }>>(`${this.apiUrl}/${id}/estado`, { activa }).pipe(
             map(respuesta => respuesta.datos.tienda),
             catchError(error => {
-                console.error(`Error al cambiar estado de tienda ${id}:`, error);
                 return throwError(() => error);
             })
         );
@@ -159,7 +152,6 @@ export class TiendasService {
         return this.http.delete<RespuestaApi<{ mensaje: string }>>(`${this.apiUrl}/${id}`).pipe(
             map(respuesta => respuesta.datos),
             catchError(error => {
-                console.error(`Error al eliminar tienda ${id}:`, error);
                 return throwError(() => error);
             })
         );
@@ -172,7 +164,6 @@ export class TiendasService {
         return this.http.get<RespuestaApi<EstadisticasTienda>>(`${this.apiUrl}/${id}/estadisticas`).pipe(
             map(respuesta => respuesta.datos),
             catchError(error => {
-                console.error(`Error al obtener estadísticas de tienda ${id}:`, error);
                 return throwError(() => error);
             })
         );
@@ -186,7 +177,6 @@ export class TiendasService {
             map(respuesta => respuesta.datos),
             tap(estadisticas => this.estadisticasResumen.set(estadisticas)),
             catchError(error => {
-                console.error('Error al obtener resumen estadísticas:', error);
                 return throwError(() => error);
             })
         );
@@ -202,7 +192,6 @@ export class TiendasService {
         return this.http.post<RespuestaApi<{ logoUrl: string }>>(`${this.apiUrl}/${id}/logo`, formData).pipe(
             map(respuesta => respuesta.datos),
             catchError(error => {
-                console.error(`Error al subir logo de tienda ${id}:`, error);
                 return throwError(() => error);
             })
         );
@@ -220,7 +209,6 @@ export class TiendasService {
         return this.http.get<RespuestaApi<{ valido: boolean; mensaje?: string }>>(`${this.apiUrl}/validar-rtn`, { params }).pipe(
             map(respuesta => respuesta.datos),
             catchError(error => {
-                console.error('Error al validar RTN:', error);
                 return throwError(() => error);
             })
         );
@@ -238,7 +226,6 @@ export class TiendasService {
         return this.http.get<RespuestaApi<Tienda[]>>(`${this.apiUrl}/cercanas`, { params }).pipe(
             map(respuesta => respuesta.datos),
             catchError(error => {
-                console.error('Error al obtener tiendas cercanas:', error);
                 return throwError(() => error);
             })
         );
@@ -251,8 +238,6 @@ export class TiendasService {
         return this.http.get<RespuestaApi<OpcionesFormulario>>(`${this.apiUrl}/opciones-formulario`).pipe(
             map(respuesta => respuesta.datos),
             catchError(error => {
-                console.error('Error al obtener opciones formulario:', error);
-                // Retornar valores por defecto en caso de error
                 return throwError(() => error);
             })
         );
@@ -275,77 +260,28 @@ export class TiendasService {
         this.cargando.set(false);
     }
 
-    // Métodos de utilidad para opciones estáticas
+    // Opciones dinámicas desde catálogos
 
-    /**
-     * Obtiene las opciones de tipos de tienda
-     */
     obtenerTiposTienda(): OpcionSelect[] {
-        return [
-            { valor: TipoTienda.TIENDA_FISICA, etiqueta: 'Tienda Física', descripcion: 'Punto de venta físico' },
-            { valor: TipoTienda.TIENDA_VIRTUAL, etiqueta: 'Tienda Virtual', descripcion: 'Solo ventas online' },
-            { valor: TipoTienda.TIENDA_HIBRIDA, etiqueta: 'Tienda Híbrida', descripcion: 'Física y virtual' },
-            { valor: TipoTienda.QUIOSCO, etiqueta: 'Quiosco', descripcion: 'Punto de venta pequeño' },
-            { valor: TipoTienda.SUCURSAL, etiqueta: 'Sucursal', descripcion: 'Sucursal de empresa matriz' },
-            { valor: TipoTienda.FRANQUICIA, etiqueta: 'Franquicia', descripcion: 'Franquicia autorizada' },
-            { valor: TipoTienda.POPUP_STORE, etiqueta: 'Pop-up Store', descripcion: 'Tienda temporal' },
-            { valor: TipoTienda.OUTLET, etiqueta: 'Outlet', descripcion: 'Tienda de descuentos' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('tiposTienda');
     }
 
-    /**
-     * Obtiene las opciones de tipos de negocio
-     */
     obtenerTiposNegocio(): OpcionSelect[] {
-        return [
-            { valor: TipoNegocioTienda.TIENDA_ROPA, etiqueta: 'Tienda de Ropa', descripcion: 'Venta de vestimenta' },
-            { valor: TipoNegocioTienda.RESTAURANTE, etiqueta: 'Restaurante', descripcion: 'Comida y bebidas' },
-            { valor: TipoNegocioTienda.SUPERMERCADO, etiqueta: 'Supermercado', descripcion: 'Productos diversos' },
-            { valor: TipoNegocioTienda.FARMACIA, etiqueta: 'Farmacia', descripcion: 'Medicamentos y salud' },
-            { valor: TipoNegocioTienda.TECNOLOGIA, etiqueta: 'Tecnología', descripcion: 'Productos tecnológicos' },
-            { valor: TipoNegocioTienda.FERRETERIA, etiqueta: 'Ferretería', descripcion: 'Herramientas y construcción' },
-            { valor: TipoNegocioTienda.LIBRERIA, etiqueta: 'Librería', descripcion: 'Libros y papelería' },
-            { valor: TipoNegocioTienda.SERVICIOS, etiqueta: 'Servicios', descripcion: 'Prestación de servicios' },
-            { valor: TipoNegocioTienda.MAYORISTA, etiqueta: 'Mayorista', descripcion: 'Venta al por mayor' },
-            { valor: TipoNegocioTienda.OTRO, etiqueta: 'Otro', descripcion: 'Otro tipo de negocio' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('tiposNegocio');
     }
 
-    /**
-     * Obtiene las opciones de planes de suscripción
-     */
     obtenerPlanesSuscripcion(): OpcionSelect[] {
-        return [
-            { valor: PlanSuscripcionTienda.BASICO, etiqueta: 'Básico', descripcion: 'Funcionalidades básicas' },
-            { valor: PlanSuscripcionTienda.PROFESIONAL, etiqueta: 'Profesional', descripcion: 'Funcionalidades avanzadas' },
-            { valor: PlanSuscripcionTienda.EMPRESARIAL, etiqueta: 'Empresarial', descripcion: 'Para empresas grandes' },
-            { valor: PlanSuscripcionTienda.PREMIUM, etiqueta: 'Premium', descripcion: 'Todas las funcionalidades' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('planesSuscripcion');
     }
 
-    /**
-     * Obtiene las opciones de estados de tienda
-     */
     obtenerEstadosTienda(): OpcionSelect[] {
-        return [
-            { valor: EstadoTienda.ACTIVA, etiqueta: 'Activa', descripcion: 'Tienda operando normalmente' },
-            { valor: EstadoTienda.INACTIVA, etiqueta: 'Inactiva', descripcion: 'Tienda deshabilitada' },
-            { valor: EstadoTienda.EN_CONSTRUCCION, etiqueta: 'En Construcción', descripcion: 'En proceso de apertura' },
-            { valor: EstadoTienda.MANTENIMIENTO, etiqueta: 'Mantenimiento', descripcion: 'En mantenimiento temporal' },
-            { valor: EstadoTienda.CERRADA_TEMPORAL, etiqueta: 'Cerrada Temporal', descripcion: 'Cerrada temporalmente' }
-        ];
+        return this.opcionesCatalogo.obtenerGrupo('estadosTienda');
     }
 
-    /**
-     * Obtiene una opción por su valor
-     */
     obtenerOpcionPorValor<T>(opciones: OpcionSelect[], valor: T): OpcionSelect | undefined {
         return opciones.find(opcion => opcion.valor === valor);
     }
 
-    /**
-     * Formatea una dirección completa para mostrar
-     */
     formatearDireccionCompleta(tienda: Tienda): string {
         const { ubicacion } = tienda;
         const partes = [
@@ -358,26 +294,17 @@ export class TiendasService {
         return partes.join(', ');
     }
 
-    /**
-     * Obtiene el estado de la tienda como texto legible
-     */
-    obtenerEstadoTexto(estado: EstadoTienda): string {
+    obtenerEstadoTexto(estado: string): string {
         const opcion = this.obtenerOpcionPorValor(this.obtenerEstadosTienda(), estado);
         return opcion?.etiqueta || estado;
     }
 
-    /**
-     * Obtiene el tipo de negocio como texto legible
-     */
-    obtenerTipoNegocioTexto(tipoNegocio: TipoNegocioTienda): string {
+    obtenerTipoNegocioTexto(tipoNegocio: string): string {
         const opcion = this.obtenerOpcionPorValor(this.obtenerTiposNegocio(), tipoNegocio);
         return opcion?.etiqueta || tipoNegocio;
     }
 
-    /**
-     * Obtiene el plan de suscripción como texto legible
-     */
-    obtenerPlanTexto(plan: PlanSuscripcionTienda): string {
+    obtenerPlanTexto(plan: string): string {
         const opcion = this.obtenerOpcionPorValor(this.obtenerPlanesSuscripcion(), plan);
         return opcion?.etiqueta || plan;
     }

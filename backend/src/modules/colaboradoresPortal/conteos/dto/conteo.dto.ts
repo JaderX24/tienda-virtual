@@ -3,7 +3,6 @@ import {
     IsOptional,
     IsInt,
     IsPositive,
-    IsIn,
     IsArray,
     ValidateNested,
     Min,
@@ -13,6 +12,7 @@ import {
     IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class CrearConteoDto {
     @Type(() => Number)
@@ -21,7 +21,7 @@ export class CrearConteoDto {
     almacenId!: number;
 
     @IsString()
-    @IsIn(['parcial', 'completo'])
+    @EsCatalogoValido('tiposConteo')
     tipo!: string;
 
     @IsOptional()
@@ -53,12 +53,12 @@ export class ConsultarConteosDto {
 
     @IsOptional()
     @IsString()
-    @IsIn(['programado', 'en_progreso', 'completado', 'aprobado', 'rechazado', 'cancelado'])
+    @EsCatalogoValido('estadosConteo')
     estado?: string;
 
     @IsOptional()
     @IsString()
-    @IsIn(['parcial', 'completo'])
+    @EsCatalogoValido('tiposConteo')
     tipo?: string;
 
     @IsOptional()
@@ -111,7 +111,7 @@ export class RegistrarDetalleConteoDto {
 
     @IsOptional()
     @IsString()
-    @IsIn(['bueno', 'danado', 'vencido', 'defectuoso'])
+    @EsCatalogoValido('condicionesProducto')
     estadoProducto?: string;
 
     @IsOptional()
@@ -129,7 +129,7 @@ export class RegistrarDetallesLoteDto {
 
 export class ActualizarEstadoConteoDto {
     @IsString()
-    @IsIn(['en_progreso', 'completado', 'aprobado', 'rechazado', 'cancelado'])
+    @EsCatalogoValido('estadosConteo')
     estado!: string;
 
     @IsOptional()

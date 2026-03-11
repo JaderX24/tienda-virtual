@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authAdminGuard, noAuthAdminGuard } from './auth/guards';
+import { authAdminGuard, noAuthAdminGuard, permisoGuard } from './auth/guards';
 
 export const rutasAdmin: Routes = [
   {
@@ -24,76 +24,102 @@ export const rutasAdmin: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./dashboard/dashboard-admin.component')
           .then(m => m.DashboardAdminComponent),
-        title: 'Dashboard - Panel Administrativo'
+        title: 'Dashboard - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['admin:acceso'] }
       },
       {
         path: 'productos',
         loadChildren: () => import('./productos/productos.routes')
           .then(m => m.rutasProductos),
-        title: 'Productos - Panel Administrativo'
+        title: 'Productos - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['productos:ver'] }
       },
       {
         path: 'categorias',
         loadChildren: () => import('./categoria/categorias.routes')
           .then(m => m.rutasCategorias),
-        title: 'Categorías - Panel Administrativo'
+        title: 'Categorías - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['categorias:ver'] }
       },
       {
         path: 'marcas',
         loadChildren: () => import('./marcas/marcas.routes')
           .then(m => m.rutasMarcas),
-        title: 'Marcas - Panel Administrativo'
+        title: 'Marcas - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['marcas:ver'] }
       },
       {
         path: 'pedidos',
         loadComponent: () => import('./dashboard/dashboard-admin.component')
           .then(m => m.DashboardAdminComponent),
-        title: 'Pedidos - Panel Administrativo'
+        title: 'Pedidos - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['pedidos:ver'] }
       },
       {
         path: 'clientes',
         loadComponent: () => import('./dashboard/dashboard-admin.component')
           .then(m => m.DashboardAdminComponent),
-        title: 'Clientes - Panel Administrativo'
+        title: 'Clientes - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['clientes:ver'] }
       },
       {
         path: 'inventario',
         loadChildren: () => import('./inventario/inventario.routes')
           .then(m => m.rutasInventario),
-        title: 'Inventario - Panel Administrativo'
+        title: 'Inventario - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['inventario:ver'] }
       },
       {
         path: 'empresas',
         loadChildren: () => import('./empresas/empresas.routes')
           .then(m => m.rutasEmpresas),
-        title: 'Empresas - Panel Administrativo'
+        title: 'Empresas - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['empresas:ver'] }
       },
       {
         path: 'usuarios',
         loadChildren: () => import('./usuarios/usuarios.routes')
           .then(m => m.rutasUsuarios),
-        title: 'Usuarios - Panel Administrativo'
+        title: 'Usuarios - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['usuarios:ver'] }
       },
       {
         path: 'roles',
         loadChildren: () => import('./roles/roles.routes')
           .then(m => m.rutasRoles),
-        title: 'Roles - Panel Administrativo'
+        title: 'Roles - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['roles:ver'] }
       },
       {
         path: 'roles-permisos',
         loadChildren: () => import('./rolesypermisos/rolesypermisos.routes')
           .then(m => m.ROLES_PERMISOS_ROUTES),
-        title: 'Asignar Permisos - Panel Administrativo'
+        title: 'Asignar Permisos - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['roles:ver'] }
       },
       {
         path: 'colaboradores',
         loadChildren: () => import('./colaboradores/colaboradores.routes')
           .then(m => m.rutasColaboradores),
-        title: 'Colaboradores - Panel Administrativo'
+        title: 'Colaboradores - Panel Administrativo',
+        canActivate: [permisoGuard],
+        data: { permisos: ['colaboradores:ver'] }
       },
       {
         path: 'configuracion',
+        canActivate: [permisoGuard],
+        data: { permisos: ['configuracion:ver'] },
         children: [
           {
             path: '',
@@ -102,9 +128,9 @@ export const rutasAdmin: Routes = [
           },
           {
             path: 'general',
-            loadChildren: () => import('./general/general.routes')
-              .then(m => m.rutasGeneral),
-            title: 'Configuración General - Panel Administrativo'
+            loadChildren: () => import('./parametrosForAdminMantenimiento/parametros-mantenimiento.routes')
+              .then(m => m.rutasParametrosMantenimiento),
+            title: 'Parámetros del Sistema - Panel Administrativo'
           },
           {
             path: 'tienda',

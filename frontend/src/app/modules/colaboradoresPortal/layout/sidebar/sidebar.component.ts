@@ -6,6 +6,7 @@ import { AuthColaboradorService } from '../../auth/services/auth-colaborador.ser
 import { MENU_COLABORADOR, ItemMenuColab, SeccionMenuColab } from './menu.config';
 import { IdiomaService } from '../../../../core/services/idioma.service';
 import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { OpcionesCatalogoService } from '../../../../core/services';
 
 @Component({
     selector: 'app-sidebar-colab',
@@ -18,6 +19,7 @@ export class SidebarColabComponent {
     private authService = inject(AuthColaboradorService);
     private router = inject(Router);
     private idiomaService = inject(IdiomaService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     @Input() colapsado = false;
     @Input() mostrarMobile = false;
@@ -42,10 +44,10 @@ export class SidebarColabComponent {
     }
 
     private construirMenu(rolUsuario: string, permisos: string[]): void {
-        const rolesConAccesoTotal = ['jefe_bodega'];
+        const rolesAccesoTotal = this.opcionesCatalogo.obtenerGrupo('rolesColabAccesoTotal').map(o => o.valor);
         const tienePermisosColab = permisos.some(p => p.startsWith('colab_'));
 
-        if (rolesConAccesoTotal.includes(rolUsuario) || !tienePermisosColab) {
+        if (rolesAccesoTotal.includes(rolUsuario) || !tienePermisosColab) {
             this.menuCompleto.set(structuredClone(MENU_COLABORADOR));
         } else {
             const menuFiltrado = this.filtrarMenuPorPermisos(structuredClone(MENU_COLABORADOR));
@@ -98,17 +100,10 @@ export class SidebarColabComponent {
     get nombreUsuario(): string { return this.usuario?.nombre || 'Colaborador'; }
     get rolUsuario(): string {
         const codigo = this.usuario?.rol?.codigo || '';
-        const mapeoClaves: Record<string, string> = {
-            'jefe_bodega': 'rol.jefeBodega',
-            'supervisor': 'rol.supervisor',
-            'inventarista': 'rol.inventarista',
-            'recepcionista': 'rol.recepcionista',
-            'despachador': 'rol.despachador',
-            'auxiliar': 'rol.auxiliar',
-            'consulta': 'rol.consulta',
-        };
-        const clave = mapeoClaves[codigo];
-        return clave ? this.idiomaService.t(clave) : this.usuario?.rol?.nombre || this.idiomaService.t('rol.colaborador');
+        if (!codigo) return this.usuario?.rol?.nombre || this.idiomaService.t('rol.colaborador');
+        const clave = 'rol.' + codigo.replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase());
+        const traduccion = this.idiomaService.t(clave);
+        return traduccion !== clave ? traduccion : (this.usuario?.rol?.nombre || this.idiomaService.t('rol.colaborador'));
     }
 
     cerrarSesion(): void {

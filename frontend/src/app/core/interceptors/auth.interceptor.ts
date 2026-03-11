@@ -1,11 +1,12 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { AuthAdminService } from '../../modules/admin/auth/services/auth-admin.service';
 import { AuthColaboradorService } from '../../modules/colaboradoresPortal/auth/services/auth-colaborador.service';
 
 let estaRefrescando = false;
+const tokenRefrescado$ = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
     const authAdminService = inject(AuthAdminService);
@@ -32,16 +33,18 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     return next(peticion).pipe(
         catchError((error: HttpErrorResponse) => {
             if (error.status === 401 && !req.url.includes('/auth/')) {
+                const servicioAuth = esRutaColaborador ? authColabService : authAdminService;
+                const rutaLogin = esRutaColaborador ? '/colaborador/inicio-sesion' : '/admin/inicio-sesion';
+
                 if (!estaRefrescando) {
                     estaRefrescando = true;
-
-                    const servicioAuth = esRutaColaborador ? authColabService : authAdminService;
-                    const rutaLogin = esRutaColaborador ? '/colaborador/inicio-sesion' : '/admin/inicio-sesion';
+                    tokenRefrescado$.next(null);
 
                     return servicioAuth.refrescarToken().pipe(
                         switchMap(() => {
                             estaRefrescando = false;
                             const nuevoToken = servicioAuth.obtenerToken();
+                            tokenRefrescado$.next(nuevoToken);
                             const nuevaPeticion = req.clone({
                                 setHeaders: {
                                     Authorization: `Bearer ${nuevoToken}`,
@@ -51,11 +54,25 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
                         }),
                         catchError((refreshError) => {
                             estaRefrescando = false;
+                            tokenRefrescado$.next(null);
                             router.navigate([rutaLogin]);
                             return throwError(() => refreshError);
                         }),
                     );
                 }
+
+                return tokenRefrescado$.pipe(
+                    filter((nuevoToken) => nuevoToken !== null),
+                    take(1),
+                    switchMap((nuevoToken) => {
+                        const nuevaPeticion = req.clone({
+                            setHeaders: {
+                                Authorization: `Bearer ${nuevoToken}`,
+                            },
+                        });
+                        return next(nuevaPeticion);
+                    }),
+                );
             }
 
             return throwError(() => error);

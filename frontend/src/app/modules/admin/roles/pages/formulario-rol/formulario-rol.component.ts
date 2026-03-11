@@ -4,6 +4,7 @@ import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RolesService } from '../../services';
 import { Rol, CrearRolDto, ActualizarRolDto } from '../../interfaces';
+import { OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-formulario-rol',
@@ -17,6 +18,7 @@ export class FormularioRolComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private rolesService = inject(RolesService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     formulario!: FormGroup;
     modoEdicion = signal(false);
@@ -154,7 +156,7 @@ export class FormularioRolComponent implements OnInit {
     esRolProtegido(): boolean {
         const rol = this.rolActual();
         if (!rol) return false;
-        const rolesProtegidos = ['super_admin', 'admin'];
+        const rolesProtegidos = this.opcionesCatalogo.obtenerGrupo('rolesProtegidos').map(o => o.valor);
         return rolesProtegidos.includes(rol.codigo);
     }
 }

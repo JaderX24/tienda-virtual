@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { ColaboradoresService } from '../../services';
 import { Colaborador, ColaboradorRol, CrearColaboradorDto, ActualizarColaboradorDto } from '../../interfaces';
 import { ToastService } from '../../../../../core/services';
+import { OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-formulario-colaborador',
@@ -19,6 +20,7 @@ export class FormularioColaboradorComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private colaboradoresService = inject(ColaboradoresService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     formulario!: FormGroup;
     empresas = signal<{ id: number; nombre: string }[]>([]);
@@ -42,26 +44,9 @@ export class FormularioColaboradorComponent implements OnInit {
         new Date().getDate()
     ).toISOString().split('T')[0];
 
-    tiposContrato = [
-        { valor: 'permanente', etiqueta: 'Permanente' },
-        { valor: 'temporal', etiqueta: 'Temporal' },
-        { valor: 'medio_tiempo', etiqueta: 'Medio Tiempo' },
-        { valor: 'practicante', etiqueta: 'Practicante' }
-    ];
-
-    generos = [
-        { valor: 'masculino', etiqueta: 'Masculino' },
-        { valor: 'femenino', etiqueta: 'Femenino' },
-        { valor: 'otro', etiqueta: 'Otro' },
-        { valor: 'no_especificado', etiqueta: 'Prefiero no decir' }
-    ];
-
-    metodos2fa = [
-        { valor: 'ninguno', etiqueta: 'Ninguno' },
-        { valor: 'app', etiqueta: 'Aplicación Autenticadora' },
-        { valor: 'sms', etiqueta: 'SMS' },
-        { valor: 'correo', etiqueta: 'Correo Electrónico' }
-    ];
+    get tiposContrato() { return this.opcionesCatalogo.obtenerGrupo('tiposContrato'); }
+    get generos() { return this.opcionesCatalogo.obtenerGrupo('generos'); }
+    get metodos2fa() { return this.opcionesCatalogo.obtenerGrupo('metodos2fa'); }
 
     paises = [
         { codigo: '+504', pais: 'Honduras', bandera: '🇭🇳', digitos: 8 },

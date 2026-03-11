@@ -100,7 +100,7 @@
                                     </td>
                                     <td class="text-center text-muted">{{ producto.stockMinimo }}</td>
                                     <td class="text-center">
-                                        <span class="badge rounded-pill" [ngClass]="obtenerClaseEstado(producto.estadoStock)">
+                                        <span class="badge rounded-pill" [ngClass]="producto.estadoStock | claseEstado:'stock'">
                                             {{ obtenerEtiquetaEstado(producto.estadoStock) }}
                                         </span>
                                     </td>

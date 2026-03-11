@@ -46,7 +46,7 @@
             <div class="flex-grow-1">
               <div class="d-flex align-items-center mb-2">
                 <h1 class="display-6 fw-bold mb-0 me-3">{{ datosTienda()!.nombre }}</h1>
-                <span class="badge bg-{{ obtenerClaseEstado(datosTienda()!.estado) }} fs-6">
+                <span class="badge fs-6" [ngClass]="datosTienda()!.estado | claseEstado:'tienda'">
                   {{ obtenerEstadoTexto(datosTienda()!.estado) }}
                 </span>
               </div>
@@ -159,7 +159,7 @@
                   <div class="info-item mb-0">
                     <label class="form-label">Estado:</label>
                     <p class="form-control-plaintext">
-                      <span class="badge bg-{{ obtenerClaseEstado(datosTienda()!.estado) }}">
+                      <span class="badge" [ngClass]="datosTienda()!.estado | claseEstado:'tienda'">
                         {{ obtenerEstadoTexto(datosTienda()!.estado) }}
                       </span>
                     </p>

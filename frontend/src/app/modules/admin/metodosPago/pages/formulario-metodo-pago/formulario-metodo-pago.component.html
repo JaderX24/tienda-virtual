@@ -405,13 +405,13 @@
                                 Monedas Soportadas
                             </h6>
                             <div class="monedas-grid">
-                                @for (moneda of monedasDisponibles; track moneda.codigo) {
+                                @for (moneda of monedasDisponibles; track moneda.valor) {
                                     <div
                                         class="moneda-chip"
-                                        [class.seleccionada]="tieneMoneda(moneda.codigo)"
-                                        (click)="toggleMoneda(moneda.codigo)">
-                                        <i class="bi" [ngClass]="tieneMoneda(moneda.codigo) ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                                        <span>{{ moneda.nombre }}</span>
+                                        [class.seleccionada]="tieneMoneda(moneda.valor)"
+                                        (click)="toggleMoneda(moneda.valor)">
+                                        <i class="bi" [ngClass]="tieneMoneda(moneda.valor) ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                                        <span>{{ moneda.etiqueta }}</span>
                                     </div>
                                 }
                             </div>

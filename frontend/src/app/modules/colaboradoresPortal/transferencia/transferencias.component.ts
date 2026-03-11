@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { ClaseEstadoPipe, IconoEstadoPipe } from '../../../core/pipes/global';
 import {
     TransferenciaService,
     Transferencia,
@@ -16,7 +17,7 @@ import { IdiomaService } from '../../../core/services/idioma.service';
 @Component({
     selector: 'app-transferencias',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe, IconoEstadoPipe],
     templateUrl: './transferencias.component.html',
     styleUrl: './transferencias.component.scss',
 })
@@ -320,16 +321,6 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
         });
     }
 
-    obtenerClaseEstado(estado: string): string {
-        const clases: Record<string, string> = {
-            pendiente: 'bg-warning-subtle text-warning',
-            en_transito: 'bg-info-subtle text-info',
-            completada: 'bg-success-subtle text-success',
-            cancelada: 'bg-danger-subtle text-danger',
-        };
-        return clases[estado] || 'bg-secondary-subtle text-secondary';
-    }
-
     obtenerEtiquetaEstado(estado: string): string {
         const etiquetas: Record<string, string> = {
             pendiente: this.idiomaService.t('comun.pendiente'),
@@ -338,16 +329,6 @@ export class TransferenciasComponent implements OnInit, OnDestroy {
             cancelada: this.idiomaService.t('comun.cancelada'),
         };
         return etiquetas[estado] || estado;
-    }
-
-    obtenerIconoEstado(estado: string): string {
-        const iconos: Record<string, string> = {
-            pendiente: 'bi-clock',
-            en_transito: 'bi-truck',
-            completada: 'bi-check-circle',
-            cancelada: 'bi-x-circle',
-        };
-        return iconos[estado] || 'bi-question-circle';
     }
 
     obtenerEtiquetaNuevoEstado(): string {

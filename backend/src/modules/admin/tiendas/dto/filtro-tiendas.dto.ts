@@ -2,25 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, IsBoolean, Min, Max, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 import { VALIDACIONES } from '../../../../common/constants';
-
-const ESTADOS_TIENDA = [
-    'activa', 'inactiva', 'en_construccion', 'mantenimiento', 'cerrada_temporal',
-] as const;
-
-const TIPOS_NEGOCIO = [
-    'tienda_ropa', 'restaurante', 'supermercado', 'farmacia',
-    'tecnologia', 'ferreteria', 'libreria', 'servicios',
-    'mayorista', 'otro',
-] as const;
-
-const TIPOS_TIENDA = [
-    'tienda_fisica', 'tienda_virtual', 'tienda_hibrida',
-    'quiosco', 'sucursal', 'franquicia', 'popup_store', 'outlet',
-] as const;
-
-const PLANES_SUSCRIPCION = [
-    'basico', 'profesional', 'empresarial', 'premium',
-] as const;
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class FiltroTiendasDto {
     @ApiPropertyOptional({ description: 'Buscar por nombre, correo o RTN' })
@@ -28,22 +10,22 @@ export class FiltroTiendasDto {
     @IsString()
     busqueda?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por tipo de negocio', enum: TIPOS_NEGOCIO })
+    @ApiPropertyOptional({ description: 'Filtrar por tipo de negocio' })
     @IsOptional()
     @IsString()
-    @IsIn([...TIPOS_NEGOCIO], { message: 'Tipo de negocio no válido' })
+    @EsCatalogoValido('tiposNegocio', { message: 'Tipo de negocio no válido' })
     tipoNegocio?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por tipo de tienda', enum: TIPOS_TIENDA })
+    @ApiPropertyOptional({ description: 'Filtrar por tipo de tienda' })
     @IsOptional()
     @IsString()
-    @IsIn([...TIPOS_TIENDA], { message: 'Tipo de tienda no válido' })
+    @EsCatalogoValido('tiposTienda', { message: 'Tipo de tienda no válido' })
     tipoTienda?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por estado', enum: ESTADOS_TIENDA })
+    @ApiPropertyOptional({ description: 'Filtrar por estado' })
     @IsOptional()
     @IsString()
-    @IsIn([...ESTADOS_TIENDA], { message: 'Estado no válido' })
+    @EsCatalogoValido('estadosTienda', { message: 'Estado no válido' })
     estado?: string;
 
     @ApiPropertyOptional({ description: 'Filtrar por departamento' })
@@ -56,10 +38,10 @@ export class FiltroTiendasDto {
     @IsString()
     ciudad?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por plan de suscripción', enum: PLANES_SUSCRIPCION })
+    @ApiPropertyOptional({ description: 'Filtrar por plan de suscripción' })
     @IsOptional()
     @IsString()
-    @IsIn([...PLANES_SUSCRIPCION], { message: 'Plan de suscripción no válido' })
+    @EsCatalogoValido('planesSuscripcion', { message: 'Plan de suscripción no válido' })
     planSuscripcion?: string;
 
     @ApiPropertyOptional({ description: 'Filtrar solo activas' })

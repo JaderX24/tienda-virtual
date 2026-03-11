@@ -32,6 +32,7 @@ import {
     RegistroPeticionAdminMiddleware,
     RegistroPeticionColabMiddleware,
 } from './common/middlewares';
+import { EsCatalogoValidoConstraint } from './common/decorators';
 
 
 import { AdminModule } from './modules/admin';
@@ -88,6 +89,7 @@ import { MiPerfilColaboradorModule } from './modules/colaboradoresPortal/miperfi
         MiPerfilColaboradorModule,
     ],
     providers: [
+        EsCatalogoValidoConstraint,
         ManejadorExcepcionesAdmin,
         ManejadorExcepcionesColab,
         {

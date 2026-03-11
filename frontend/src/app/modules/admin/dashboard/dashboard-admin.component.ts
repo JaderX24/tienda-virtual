@@ -269,27 +269,7 @@ export class DashboardAdminComponent implements OnInit {
         return 'Buenas noches';
     }
     
-    obtenerClaseEstado(estado: string): string {
-        const clases: Record<string, string> = {
-            'pendiente': 'bg-warning text-dark',
-            'procesando': 'bg-info text-white',
-            'enviado': 'bg-primary text-white',
-            'entregado': 'bg-success text-white',
-            'cancelado': 'bg-danger text-white'
-        };
-        return clases[estado] || 'bg-secondary text-white';
-    }
-    
-    obtenerTextoEstado(estado: string): string {
-        const textos: Record<string, string> = {
-            'pendiente': 'Pendiente',
-            'procesando': 'Procesando',
-            'enviado': 'Enviado',
-            'entregado': 'Entregado',
-            'cancelado': 'Cancelado'
-        };
-        return textos[estado] || estado;
-    }
+
     
     formatearValorTarjeta(tarjeta: TarjetaEstadistica): string {
         const valor = tarjeta.valor;

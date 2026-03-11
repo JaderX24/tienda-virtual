@@ -5,13 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { ProveedoresEnvioService } from '../../services';
 import {
     ProveedorEnvio,
-    FiltrosProveedorEnvio,
-    TipoProveedor,
-    EstadoProveedor,
-    TipoServicio,
-    ZonaCobertura
+    FiltrosProveedorEnvio
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { EstadoVisualizacionService } from '../../../../../core/services/estado-visualizacion.service';
 
 @Component({
     selector: 'app-lista-proveedores-envio',
@@ -23,15 +20,16 @@ import { ToastService } from '../../../../../core/services/toast.service';
 export class ListaProveedoresEnvioComponent implements OnInit {
     private proveedoresService = inject(ProveedoresEnvioService);
     private toastService = inject(ToastService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
 
     proveedores = signal<ProveedorEnvio[]>([]);
     cargando = signal(true);
     errorCarga = signal<string | null>(null);
 
     busqueda = signal('');
-    tipoSeleccionado = signal<TipoProveedor | null>(null);
+    tipoSeleccionado = signal<string | null>(null);
     estadoSeleccionado = signal<boolean | null>(null);
-    zonaSeleccionada = signal<ZonaCobertura | null>(null);
+    zonaSeleccionada = signal<string | null>(null);
 
     paginaActual = signal(1);
     limite = signal(10);
@@ -169,36 +167,36 @@ export class ListaProveedoresEnvioComponent implements OnInit {
         this.proveedorSeleccionado.set(null);
     }
 
-    obtenerTipoTexto(tipo: TipoProveedor): string {
+    obtenerTipoTexto(tipo: string): string {
         return this.proveedoresService.obtenerTipoTexto(tipo);
     }
 
-    obtenerIconoTipo(tipo: TipoProveedor): string {
+    obtenerIconoTipo(tipo: string): string {
         return this.proveedoresService.obtenerIconoTipo(tipo);
     }
 
-    obtenerServicioTexto(servicio: TipoServicio): string {
+    obtenerServicioTexto(servicio: string): string {
         return this.proveedoresService.obtenerServicioTexto(servicio);
     }
 
-    obtenerIconoServicio(servicio: TipoServicio): string {
+    obtenerIconoServicio(servicio: string): string {
         return this.proveedoresService.obtenerIconoServicio(servicio);
     }
 
-    obtenerZonaTexto(zona: ZonaCobertura): string {
+    obtenerZonaTexto(zona: string): string {
         return this.proveedoresService.obtenerZonaTexto(zona);
     }
 
     obtenerClasesEstado(esActivo: boolean): string {
-        return esActivo ? 'badge-estado activo' : 'badge-estado inactivo';
+        return this.estadoVisualizacion.obtenerClase('activo_inactivo', String(esActivo));
     }
 
     obtenerIconoEstado(esActivo: boolean): string {
-        return esActivo ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+        return this.estadoVisualizacion.obtenerIcono('activo_inactivo', String(esActivo));
     }
 
     obtenerTextoEstado(esActivo: boolean): string {
-        return esActivo ? 'Activo' : 'Inactivo';
+        return this.estadoVisualizacion.obtenerEtiqueta('activo_inactivo', String(esActivo));
     }
 
     obtenerCapacidades(proveedor: ProveedorEnvio): string[] {

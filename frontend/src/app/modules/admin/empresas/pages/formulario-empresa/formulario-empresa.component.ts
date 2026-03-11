@@ -8,6 +8,7 @@ import {
     TipoNegocio, PlanSuscripcion, RangoEmpleados
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-formulario-empresa',
@@ -22,6 +23,7 @@ export class FormularioEmpresaComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private empresasService = inject(EmpresasService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     formulario!: FormGroup;
     cargando = signal(true);
@@ -33,61 +35,13 @@ export class FormularioEmpresaComponent implements OnInit {
     esEdicion = computed(() => this.empresaId() !== null);
     titulo = computed(() => this.esEdicion() ? 'Editar Empresa' : 'Nueva Empresa');
 
-    tiposNegocio = [
-        { valor: TipoNegocio.TIENDA_ROPA, etiqueta: 'Tienda de Ropa' },
-        { valor: TipoNegocio.RESTAURANTE, etiqueta: 'Restaurante' },
-        { valor: TipoNegocio.SUPERMERCADO, etiqueta: 'Supermercado' },
-        { valor: TipoNegocio.FARMACIA, etiqueta: 'Farmacia' },
-        { valor: TipoNegocio.TECNOLOGIA, etiqueta: 'Tecnologia' },
-        { valor: TipoNegocio.FERRETERIA, etiqueta: 'Ferreteria' },
-        { valor: TipoNegocio.LIBRERIA, etiqueta: 'Libreria' },
-        { valor: TipoNegocio.SERVICIOS, etiqueta: 'Servicios' },
-        { valor: TipoNegocio.MAYORISTA, etiqueta: 'Mayorista' },
-        { valor: TipoNegocio.OTRO, etiqueta: 'Otro' }
-    ];
-
-    planesSuscripcion = [
-        { valor: PlanSuscripcion.BASICO, etiqueta: 'Basico' },
-        { valor: PlanSuscripcion.PROFESIONAL, etiqueta: 'Profesional' },
-        { valor: PlanSuscripcion.EMPRESARIAL, etiqueta: 'Empresarial' },
-        { valor: PlanSuscripcion.PREMIUM, etiqueta: 'Premium' }
-    ];
-
-    rangosEmpleados = [
-        { valor: RangoEmpleados.UNO_CINCO, etiqueta: '1-5 empleados' },
-        { valor: RangoEmpleados.SEIS_VEINTE, etiqueta: '6-20 empleados' },
-        { valor: RangoEmpleados.VEINTIUNO_CINCUENTA, etiqueta: '21-50 empleados' },
-        { valor: RangoEmpleados.CINCUENTA_UNO_CIEN, etiqueta: '51-100 empleados' },
-        { valor: RangoEmpleados.CIEN_UNO_QUINIENTOS, etiqueta: '101-500 empleados' },
-        { valor: RangoEmpleados.MAS_QUINIENTOS, etiqueta: '500+ empleados' }
-    ];
-
-    monedas = [
-        { codigo: 'HNL', nombre: 'Lempira (HNL)' },
-        { codigo: 'USD', nombre: 'Dolar (USD)' },
-        { codigo: 'EUR', nombre: 'Euro (EUR)' },
-        { codigo: 'MXN', nombre: 'Peso Mexicano (MXN)' },
-        { codigo: 'GTQ', nombre: 'Quetzal (GTQ)' }
-    ];
-
-    zonasHorarias = [
-        { valor: 'America/Tegucigalpa', etiqueta: 'Honduras (UTC-6)' },
-        { valor: 'America/Guatemala', etiqueta: 'Guatemala (UTC-6)' },
-        { valor: 'America/El_Salvador', etiqueta: 'El Salvador (UTC-6)' },
-        { valor: 'America/Mexico_City', etiqueta: 'Mexico (UTC-6)' },
-        { valor: 'America/New_York', etiqueta: 'Este EEUU (UTC-5)' },
-        { valor: 'America/Chicago', etiqueta: 'Centro EEUU (UTC-6)' },
-        { valor: 'America/Bogota', etiqueta: 'Colombia (UTC-5)' },
-        { valor: 'America/Lima', etiqueta: 'Peru (UTC-5)' },
-        { valor: 'Europe/Madrid', etiqueta: 'Espana (UTC+1)' }
-    ];
-
-    departamentosHN = [
-        'Atlantida', 'Choluteca', 'Colon', 'Comayagua', 'Copan', 'Cortes',
-        'El Paraiso', 'Francisco Morazan', 'Gracias a Dios', 'Intibuca',
-        'Islas de la Bahia', 'La Paz', 'Lempira', 'Ocotepeque', 'Olancho',
-        'Santa Barbara', 'Valle', 'Yoro'
-    ];
+    get tiposNegocio() { return this.opcionesCatalogo.obtenerGrupo('tiposNegocio'); }
+    get planesSuscripcion() { return this.opcionesCatalogo.obtenerGrupo('planesSuscripcion'); }
+    get rangosEmpleados() { return this.opcionesCatalogo.obtenerGrupo('rangosEmpleados'); }
+    get monedas() { return this.opcionesCatalogo.obtenerGrupo('monedas'); }
+    get zonasHorarias() { return this.opcionesCatalogo.obtenerGrupo('zonasHorarias'); }
+    get departamentosHN() { return this.opcionesCatalogo.obtenerGrupo('departamentos'); }
+    get paises() { return this.opcionesCatalogo.obtenerGrupo('paises'); }
 
     ngOnInit(): void {
         this.inicializarFormulario();

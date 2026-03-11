@@ -2,9 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsNumber, IsBoolean, IsIn, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { VALIDACIONES } from '../../../../common/constants';
-
-const TIPOS_PROVEEDOR = ['interno', 'externo', 'freelance', 'empresa_courier'] as const;
-const ZONAS_COBERTURA = ['local', 'regional', 'nacional', 'internacional'] as const;
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class FiltroProveedoresEnvioDto {
     @ApiPropertyOptional({ description: 'Buscar por nombre, código o correo' })
@@ -12,13 +10,13 @@ export class FiltroProveedoresEnvioDto {
     @IsString()
     busqueda?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por tipo de proveedor', enum: TIPOS_PROVEEDOR })
+    @ApiPropertyOptional({ description: 'Filtrar por tipo de proveedor' })
     @IsOptional()
     @IsString()
-    @IsIn([...TIPOS_PROVEEDOR], { message: 'Tipo de proveedor no válido' })
+    @EsCatalogoValido('tiposProveedorEnvio', { message: 'Tipo de proveedor no válido' })
     tipo?: string;
 
-    @ApiPropertyOptional({ description: 'Filtrar por zona de cobertura', enum: ZONAS_COBERTURA })
+    @ApiPropertyOptional({ description: 'Filtrar por zona de cobertura' })
     @IsOptional()
     @IsString()
     cobertura?: string;

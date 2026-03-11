@@ -5,7 +5,7 @@ import { InicioSesionAdministrativoModule } from './auth/inicio-sesion-administr
 import { UsuariosModule } from './usuarios';
 import { RolesModule } from './roles';
 import { PermisosModule } from './permisos';
-import { ParametrosAdminModule } from './parametrosforadmin';
+import { ParametrosMantenimientoModule } from './parametrosForAdminMantenimiento';
 import { EmpresasModule } from './empresas/empresas.module';
 import { TiendasModule } from './tiendas/tiendas.module';
 import { MetodosPagoModule } from './metodosPago/metodos-pago.module';
@@ -16,6 +16,7 @@ import { ProductosAdminModule } from './productos/productos-admin.module';
 import { InventarioAdminModule } from './inventario/inventario-admin.module';
 import { CategoriasAdminModule } from './categoria/categorias-admin.module';
 import { MarcasAdminModule } from './marcas/marcas-admin.module';
+import { OpcionesModule } from './opciones';
 
 @Module({
     imports: [
@@ -23,7 +24,7 @@ import { MarcasAdminModule } from './marcas/marcas-admin.module';
         UsuariosModule,
         RolesModule,
         PermisosModule,
-        ParametrosAdminModule,
+        ParametrosMantenimientoModule,
         EmpresasModule,
         TiendasModule,
         MetodosPagoModule,
@@ -34,6 +35,7 @@ import { MarcasAdminModule } from './marcas/marcas-admin.module';
         InventarioAdminModule,
         CategoriasAdminModule,
         MarcasAdminModule,
+        OpcionesModule,
     ],
     controllers: [AdminController],
     providers: [AdminService],

@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError, finalize } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import {
@@ -28,6 +28,8 @@ export class AuthAdminService {
     private usuarioActual = signal<UsuarioAdmin | null>(null);
     private cargando = signal(false);
     private autenticado = signal(false);
+    private ultimoRefrescoPermisos = 0;
+    private readonly INTERVALO_REFRESCO_MS = 5 * 60 * 1000;
 
     readonly usuario = this.usuarioActual.asReadonly();
     readonly estaCargando = this.cargando.asReadonly();
@@ -147,6 +149,29 @@ export class AuthAdminService {
         return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     }
 
+    refrescarPermisos(): Observable<void> {
+        if (!this.estaAutenticado()) {
+            return of(undefined);
+        }
+
+        const ahora = Date.now();
+        if (ahora - this.ultimoRefrescoPermisos < this.INTERVALO_REFRESCO_MS) {
+            return of(undefined);
+        }
+
+        this.ultimoRefrescoPermisos = ahora;
+
+        return this.http.get<{ exito: boolean; usuario: UsuarioAdmin }>(`${this.apiUrl}/perfil`).pipe(
+            tap((respuesta) => {
+                if (respuesta.exito && respuesta.usuario) {
+                    this.usuarioActual.set(respuesta.usuario);
+                    localStorage.setItem(STORAGE_KEYS.USUARIO, JSON.stringify(respuesta.usuario));
+                }
+            }),
+            catchError(() => of(undefined)),
+        ) as Observable<void>;
+    }
+
     private guardarSesion(respuesta: RespuestaLoginAdmin): void {
         if (!respuesta.accessToken || !respuesta.refreshToken || !respuesta.usuario) {
             return;
@@ -204,11 +229,6 @@ export class AuthAdminService {
             mensajeError = error.error?.mensaje || 'Demasiados intentos. Espere unos minutos';
         } else if (error.status === 400) {
             mensajeError = error.error?.mensaje || 'Datos de entrada inválidos';
-        }
-
-        // Solo loguear errores inesperados (no errores de autenticación normales)
-        if (error.status !== 401 && error.status !== 403 && error.status !== 400) {
-            console.error('Error inesperado:', error);
         }
 
         return throwError(() => ({ mensaje: mensajeError, status: error.status, errores: error.error?.errores }));

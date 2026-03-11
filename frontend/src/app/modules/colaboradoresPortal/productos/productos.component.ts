@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { ClaseEstadoPipe, IconoEstadoPipe } from '../../../core/pipes/global';
 import {
     ProductoConsultaService,
     ProductoLista,
@@ -21,7 +22,7 @@ type VistaActiva = 'lista' | 'detalle';
 @Component({
     selector: 'app-productos',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe, IconoEstadoPipe],
     templateUrl: './productos.component.html',
     styleUrl: './productos.component.scss',
 })
@@ -266,15 +267,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
         });
     }
 
-    obtenerClaseEstadoStock(estado: string): string {
-        const mapa: Record<string, string> = {
-            disponible: 'text-bg-success',
-            bajo: 'text-bg-warning',
-            agotado: 'text-bg-danger',
-        };
-        return mapa[estado] || 'text-bg-secondary';
-    }
-
     obtenerEtiquetaEstadoStock(estado: string): string {
         const mapa: Record<string, string> = {
             disponible: this.idiomaService.t('etiqueta.disponible'),
@@ -282,28 +274,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
             agotado: this.idiomaService.t('reportes.agotado'),
         };
         return mapa[estado] || estado;
-    }
-
-    obtenerClaseTipoMovimiento(tipo: string): string {
-        const mapa: Record<string, string> = {
-            entrada: 'text-bg-success',
-            salida: 'text-bg-danger',
-            ajuste: 'text-bg-info',
-            transferencia: 'text-bg-primary',
-            devolucion: 'text-bg-warning',
-        };
-        return mapa[tipo] || 'text-bg-secondary';
-    }
-
-    obtenerIconoTipoMovimiento(tipo: string): string {
-        const mapa: Record<string, string> = {
-            entrada: 'bi-box-arrow-in-down',
-            salida: 'bi-box-arrow-up',
-            ajuste: 'bi-sliders',
-            transferencia: 'bi-arrow-left-right',
-            devolucion: 'bi-arrow-return-left',
-        };
-        return mapa[tipo] || 'bi-circle';
     }
 
     obtenerDiferenciaMovimiento(mov: MovimientoProducto): number {

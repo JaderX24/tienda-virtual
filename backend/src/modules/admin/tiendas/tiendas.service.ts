@@ -355,66 +355,28 @@ export class TiendasService {
     }
 
     async obtenerOpcionesFormulario() {
+        const registros = await this.prisma.catalogo.findMany({
+            where: {
+                activo: true,
+                grupo: { in: ['tiposTienda', 'tiposNegocio', 'planesSuscripcion', 'rangosEmpleados', 'departamentos', 'paises'] },
+            },
+            orderBy: [{ grupo: 'asc' }, { orden: 'asc' }],
+            select: { grupo: true, valor: true, etiqueta: true, descripcion: true },
+        });
+
+        const agrupado: Record<string, { valor: string; etiqueta: string; descripcion?: string }[]> = {};
+        for (const reg of registros) {
+            if (!agrupado[reg.grupo]) agrupado[reg.grupo] = [];
+            agrupado[reg.grupo].push({ valor: reg.valor, etiqueta: reg.etiqueta, descripcion: reg.descripcion ?? undefined });
+        }
+
         return {
-            tiposTienda: [
-                { valor: 'tienda_fisica', etiqueta: 'Tienda Física' },
-                { valor: 'tienda_virtual', etiqueta: 'Tienda Virtual' },
-                { valor: 'tienda_hibrida', etiqueta: 'Tienda Híbrida' },
-                { valor: 'quiosco', etiqueta: 'Quiosco' },
-                { valor: 'sucursal', etiqueta: 'Sucursal' },
-                { valor: 'franquicia', etiqueta: 'Franquicia' },
-                { valor: 'popup_store', etiqueta: 'Pop-up Store' },
-                { valor: 'outlet', etiqueta: 'Outlet' },
-            ],
-            tiposNegocio: [
-                { valor: 'tienda_ropa', etiqueta: 'Tienda de Ropa' },
-                { valor: 'restaurante', etiqueta: 'Restaurante' },
-                { valor: 'supermercado', etiqueta: 'Supermercado' },
-                { valor: 'farmacia', etiqueta: 'Farmacia' },
-                { valor: 'tecnologia', etiqueta: 'Tecnología' },
-                { valor: 'ferreteria', etiqueta: 'Ferretería' },
-                { valor: 'libreria', etiqueta: 'Librería' },
-                { valor: 'servicios', etiqueta: 'Servicios' },
-                { valor: 'mayorista', etiqueta: 'Mayorista' },
-                { valor: 'otro', etiqueta: 'Otro' },
-            ],
-            planes: [
-                { valor: 'basico', etiqueta: 'Básico' },
-                { valor: 'profesional', etiqueta: 'Profesional' },
-                { valor: 'empresarial', etiqueta: 'Empresarial' },
-                { valor: 'premium', etiqueta: 'Premium' },
-            ],
-            rangoEmpleados: [
-                { valor: '1-5', etiqueta: '1-5 empleados' },
-                { valor: '6-20', etiqueta: '6-20 empleados' },
-                { valor: '21-50', etiqueta: '21-50 empleados' },
-                { valor: '51-100', etiqueta: '51-100 empleados' },
-                { valor: '101-500', etiqueta: '101-500 empleados' },
-                { valor: '500+', etiqueta: 'Más de 500 empleados' },
-            ],
-            departamentos: [
-                { valor: 'Francisco Morazán', etiqueta: 'Francisco Morazán' },
-                { valor: 'Cortés', etiqueta: 'Cortés' },
-                { valor: 'Atlántida', etiqueta: 'Atlántida' },
-                { valor: 'Choluteca', etiqueta: 'Choluteca' },
-                { valor: 'Comayagua', etiqueta: 'Comayagua' },
-                { valor: 'Copán', etiqueta: 'Copán' },
-                { valor: 'El Paraíso', etiqueta: 'El Paraíso' },
-                { valor: 'Gracias a Dios', etiqueta: 'Gracias a Dios' },
-                { valor: 'Intibucá', etiqueta: 'Intibucá' },
-                { valor: 'Islas de la Bahía', etiqueta: 'Islas de la Bahía' },
-                { valor: 'La Paz', etiqueta: 'La Paz' },
-                { valor: 'Lempira', etiqueta: 'Lempira' },
-                { valor: 'Ocotepeque', etiqueta: 'Ocotepeque' },
-                { valor: 'Olancho', etiqueta: 'Olancho' },
-                { valor: 'Santa Bárbara', etiqueta: 'Santa Bárbara' },
-                { valor: 'Valle', etiqueta: 'Valle' },
-                { valor: 'Yoro', etiqueta: 'Yoro' },
-                { valor: 'Colón', etiqueta: 'Colón' },
-            ],
-            paises: [
-                { valor: 'HN', etiqueta: 'Honduras' },
-            ],
+            tiposTienda: agrupado['tiposTienda'] || [],
+            tiposNegocio: agrupado['tiposNegocio'] || [],
+            planes: agrupado['planesSuscripcion'] || [],
+            rangoEmpleados: agrupado['rangosEmpleados'] || [],
+            departamentos: agrupado['departamentos'] || [],
+            paises: agrupado['paises'] || [],
         };
     }
 

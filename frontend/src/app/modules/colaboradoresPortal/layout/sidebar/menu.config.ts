@@ -1,5 +1,3 @@
-import { PERMISOS_COLAB } from './permisos.config';
-
 export interface ItemMenuColab {
     id: string;
     titulo: string;
@@ -21,38 +19,38 @@ export const MENU_COLABORADOR: SeccionMenuColab[] = [
     {
         titulo: 'menu.principal',
         items: [
-            { id: 'inicio', titulo: 'menu.inicio', icono: 'bi-speedometer2', ruta: '/colaborador/dashboard', permisos: [PERMISOS_COLAB.ACCESO] },
-            { id: 'mi-turno', titulo: 'menu.miTurno', icono: 'bi-clock-history', ruta: '/colaborador/mi-turno', permisos: [PERMISOS_COLAB.TURNO_VER] },
+            { id: 'inicio', titulo: 'menu.inicio', icono: 'bi-speedometer2', ruta: '/colaborador/dashboard', permisos: ['colab_dashboard.ver'] },
+            { id: 'mi-turno', titulo: 'menu.miTurno', icono: 'bi-clock-history', ruta: '/colaborador/mi-turno', permisos: ['colab_turno.ver'] },
         ],
     },
     {
         titulo: 'menu.operaciones',
         items: [
             {
-                id: 'inventario', titulo: 'menu.inventario', icono: 'bi-boxes', permisos: [PERMISOS_COLAB.INVENTARIO_VER],
+                id: 'inventario', titulo: 'menu.inventario', icono: 'bi-boxes', permisos: ['colab_inventario.ver'],
                 hijos: [
-                    { id: 'inventario-general', titulo: 'menu.stockGeneral', icono: 'bi-list-ul', ruta: '/colaborador/inventario', permisos: [PERMISOS_COLAB.INVENTARIO_VER] },
-                    { id: 'entradas', titulo: 'menu.entradas', icono: 'bi-box-arrow-in-down', ruta: '/colaborador/inventario/entradas', permisos: [PERMISOS_COLAB.ENTRADAS_VER] },
-                    { id: 'salidas', titulo: 'menu.salidas', icono: 'bi-box-arrow-up', ruta: '/colaborador/inventario/salidas', permisos: [PERMISOS_COLAB.SALIDAS_VER] },
+                    { id: 'inventario-general', titulo: 'menu.stockGeneral', icono: 'bi-list-ul', ruta: '/colaborador/inventario', permisos: ['colab_inventario.ver'] },
+                    { id: 'entradas', titulo: 'menu.entradas', icono: 'bi-box-arrow-in-down', ruta: '/colaborador/inventario/entradas', permisos: ['colab_entradas.ver'] },
+                    { id: 'salidas', titulo: 'menu.salidas', icono: 'bi-box-arrow-up', ruta: '/colaborador/inventario/salidas', permisos: ['colab_salidas.ver'] },
                 ],
             },
-            { id: 'transferencias', titulo: 'menu.transferencias', icono: 'bi-arrow-left-right', ruta: '/colaborador/transferencias', permisos: [PERMISOS_COLAB.TRANSFERENCIAS_VER] },
-            { id: 'conteos', titulo: 'menu.conteos', icono: 'bi-clipboard-check', ruta: '/colaborador/conteos', permisos: [PERMISOS_COLAB.CONTEOS_VER] },
+            { id: 'transferencias', titulo: 'menu.transferencias', icono: 'bi-arrow-left-right', ruta: '/colaborador/transferencias', permisos: ['colab_transferencias.ver'] },
+            { id: 'conteos', titulo: 'menu.conteos', icono: 'bi-clipboard-check', ruta: '/colaborador/conteos', permisos: ['colab_conteos.ver'] },
         ],
     },
     {
         titulo: 'menu.consultas',
         items: [
-            { id: 'productos', titulo: 'menu.productos', icono: 'bi-grid-3x3-gap', ruta: '/colaborador/productos', permisos: [PERMISOS_COLAB.PRODUCTOS_VER] },
-            { id: 'reportes', titulo: 'menu.reportes', icono: 'bi-bar-chart-line', ruta: '/colaborador/reportes', permisos: [PERMISOS_COLAB.REPORTES_VER] },
-            { id: 'mi-actividad', titulo: 'menu.miActividad', icono: 'bi-journal-text', ruta: '/colaborador/mi-actividad', permisos: [PERMISOS_COLAB.ACTIVIDAD_VER] },
+            { id: 'productos', titulo: 'menu.productos', icono: 'bi-grid-3x3-gap', ruta: '/colaborador/productos', permisos: ['colab_productos.ver'] },
+            { id: 'reportes', titulo: 'menu.reportes', icono: 'bi-bar-chart-line', ruta: '/colaborador/reportes', permisos: ['colab_reportes.ver'] },
+            { id: 'mi-actividad', titulo: 'menu.miActividad', icono: 'bi-journal-text', ruta: '/colaborador/mi-actividad', permisos: ['colab_actividad.ver'] },
         ],
     },
     {
         titulo: 'menu.personal',
         items: [
-            { id: 'notificaciones', titulo: 'menu.notificaciones', icono: 'bi-bell', ruta: '/colaborador/notificaciones', permisos: [PERMISOS_COLAB.NOTIFICACIONES_VER] },
-            { id: 'mi-perfil', titulo: 'menu.miPerfil', icono: 'bi-person-circle', ruta: '/colaborador/mi-perfil', permisos: [PERMISOS_COLAB.PERFIL_VER] },
+            { id: 'notificaciones', titulo: 'menu.notificaciones', icono: 'bi-bell', ruta: '/colaborador/notificaciones', permisos: ['colab_notificaciones.ver'] },
+            { id: 'mi-perfil', titulo: 'menu.miPerfil', icono: 'bi-person-circle', ruta: '/colaborador/mi-perfil', permisos: ['colab_perfil.ver'] },
         ],
     },
 ];

@@ -10,6 +10,7 @@ import {
     IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class ConsultarProductosDto {
     @IsOptional()
@@ -31,7 +32,7 @@ export class ConsultarProductosDto {
 
     @IsOptional()
     @IsString()
-    @IsIn(['todos', 'activo', 'inactivo', 'stock_bajo', 'agotado'])
+    @EsCatalogoValido('filtrosEstadoProducto')
     estado?: string;
 
     @IsOptional()
@@ -86,6 +87,6 @@ export class ConsultarMovimientosProductoDto {
 
     @IsOptional()
     @IsString()
-    @IsIn(['entrada', 'salida', 'ajuste', 'transferencia', 'devolucion'])
+    @EsCatalogoValido('tiposMovimiento')
     tipoMovimiento?: string;
 }

@@ -423,13 +423,13 @@
                                     <tr>
                                         <td class="ps-3 small text-nowrap">{{ formatearFecha(evento.fecha) }}</td>
                                         <td>
-                                            <span class="badge rounded-pill {{ obtenerClaseSeveridad(evento.severidad) }}">
+                                            <span class="badge rounded-pill" [ngClass]="evento.severidad | claseEstado:'severidad'">
                                                 {{ evento.tipoEventoTexto }}
                                             </span>
                                         </td>
                                         <td>
                                             <span class="d-flex align-items-center gap-1 small">
-                                                <i class="bi {{ obtenerIconoSeveridad(evento.severidad) }}"></i>
+                                                <i class="bi" [ngClass]="evento.severidad | iconoEstado:'severidad'"></i>
                                                 {{ evento.severidadTexto }}
                                             </span>
                                         </td>
@@ -452,11 +452,11 @@
                         @for (evento of eventosBitacora(); track evento.id) {
                             <div class="lista-movil-item">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="badge rounded-pill {{ obtenerClaseSeveridad(evento.severidad) }}">
+                                    <span class="badge rounded-pill" [ngClass]="evento.severidad | claseEstado:'severidad'">
                                         {{ evento.tipoEventoTexto }}
                                     </span>
                                     <span class="d-flex align-items-center gap-1 small">
-                                        <i class="bi {{ obtenerIconoSeveridad(evento.severidad) }}"></i>
+                                        <i class="bi" [ngClass]="evento.severidad | iconoEstado:'severidad'"></i>
                                         {{ evento.severidadTexto }}
                                     </span>
                                 </div>
@@ -572,7 +572,7 @@
                                     <tr>
                                         <td class="ps-3 small text-nowrap">{{ formatearFecha(op.fecha) }}</td>
                                         <td>
-                                            <span class="badge rounded-pill {{ obtenerClaseTipoOperacion(op.tipoOperacion) }}">
+                                            <span class="badge rounded-pill" [ngClass]="op.tipoOperacion | claseEstado:'tipo_operacion'">
                                                 {{ op.tipoOperacionTexto }}
                                             </span>
                                         </td>
@@ -598,7 +598,7 @@
                             <div class="lista-movil-item">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <span class="fw-medium small">{{ op.producto }}</span>
-                                    <span class="badge rounded-pill {{ obtenerClaseTipoOperacion(op.tipoOperacion) }}">
+                                    <span class="badge rounded-pill" [ngClass]="op.tipoOperacion | claseEstado:'tipo_operacion'">
                                         {{ op.tipoOperacionTexto }}
                                     </span>
                                 </div>

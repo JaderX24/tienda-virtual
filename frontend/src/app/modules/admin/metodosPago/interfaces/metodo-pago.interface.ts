@@ -1,39 +1,12 @@
-export enum TipoPasarela {
-    TARJETA = 'tarjeta',
-    TRANSFERENCIA = 'transferencia',
-    WALLET_DIGITAL = 'wallet_digital',
-    EFECTIVO = 'efectivo',
-    CRIPTOMONEDA = 'criptomoneda',
-    BNPL = 'bnpl',
-    OTRO = 'otro'
-}
+export type TipoPasarela = string;
 
-export enum ModoIntegracion {
-    API = 'api',
-    REDIRECT = 'redirect',
-    IFRAME = 'iframe',
-    SDK = 'sdk',
-    WEBHOOK = 'webhook'
-}
+export type ModoIntegracion = string;
 
-export enum AmbientePasarela {
-    SANDBOX = 'sandbox',
-    PRODUCCION = 'produccion'
-}
+export type AmbientePasarela = string;
 
-export enum TipoComision {
-    PORCENTAJE = 'porcentaje',
-    FIJO = 'fijo',
-    MIXTO = 'mixto'
-}
+export type TipoComision = string;
 
-export enum TipoTransaccionComision {
-    VENTA = 'venta',
-    REEMBOLSO = 'reembolso',
-    SUSCRIPCION = 'suscripcion',
-    TRANSFERENCIA = 'transferencia',
-    TODOS = 'todos'
-}
+export type TipoTransaccionComision = string;
 
 export interface PasarelaPago {
     id: number;

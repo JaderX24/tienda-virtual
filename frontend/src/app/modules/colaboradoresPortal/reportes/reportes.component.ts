@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
+import { ClaseEstadoPipe } from '../../../core/pipes/global';
 import { IdiomaService } from '../../../core/services/idioma.service';
 import {
     ReportesService,
@@ -21,7 +22,7 @@ type TabActiva = 'resumen' | 'movimientos' | 'stock-critico' | 'mi-actividad';
 @Component({
     selector: 'app-reportes',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe],
     templateUrl: './reportes.component.html',
     styleUrl: './reportes.component.scss',
 })
@@ -279,23 +280,6 @@ export class ReportesComponent implements OnInit, OnDestroy {
     }
 
     // Utilidades de presentación
-    obtenerClaseTipoOperacion(tipo: string): string {
-        const clases: Record<string, string> = {
-            entrada: 'bg-success',
-            recepcion: 'bg-success',
-            ajuste_positivo: 'bg-info',
-            salida: 'bg-danger',
-            despacho: 'bg-danger',
-            ajuste_negativo: 'bg-warning',
-            transferencia: 'bg-primary',
-        };
-        return clases[tipo] || 'bg-secondary';
-    }
-
-    obtenerClaseEstadoStock(estado: string): string {
-        return estado === 'agotado' ? 'badge bg-danger' : 'badge bg-warning text-dark';
-    }
-
     formatearMoneda(valor: number): string {
         return `L ${valor.toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }

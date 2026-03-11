@@ -1,1 +1,1 @@
-export { authColaboradorGuard, noAuthColaboradorGuard } from './auth-colaborador.guard';
+export { authColaboradorGuard, noAuthColaboradorGuard, permisoColabGuard } from './auth-colaborador.guard';

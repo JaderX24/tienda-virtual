@@ -5,13 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { TiendasService } from '../../services';
 import { 
     Tienda, 
-    FiltrosTienda, 
-    TipoNegocioTienda, 
-    TipoTienda, 
-    PlanSuscripcionTienda, 
-    EstadoTienda 
+    FiltrosTienda 
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { OpcionesCatalogoService } from '../../../../../core/services';
+import { EstadoVisualizacionService } from '../../../../../core/services/estado-visualizacion.service';
 
 @Component({
     selector: 'app-lista-tiendas',
@@ -23,6 +21,8 @@ import { ToastService } from '../../../../../core/services/toast.service';
 export class ListaTiendasComponent implements OnInit {
     private tiendasService = inject(TiendasService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
 
     // Señales para el estado del componente
     tiendas = signal<Tienda[]>([]);
@@ -31,10 +31,10 @@ export class ListaTiendasComponent implements OnInit {
 
     // Señales para filtros
     busqueda = signal('');
-    tipoNegocioSeleccionado = signal<TipoNegocioTienda | null>(null);
-    tipoTiendaSeleccionado = signal<TipoTienda | null>(null);
-    estadoSeleccionado = signal<EstadoTienda | null>(null);
-    planSeleccionado = signal<PlanSuscripcionTienda | null>(null);
+    tipoNegocioSeleccionado = signal<string | null>(null);
+    tipoTiendaSeleccionado = signal<string | null>(null);
+    estadoSeleccionado = signal<string | null>(null);
+    planSeleccionado = signal<string | null>(null);
     departamentoSeleccionado = signal<string>('');
 
     // Señales para paginación
@@ -48,52 +48,12 @@ export class ListaTiendasComponent implements OnInit {
     mostrarModalEstado = signal(false);
     procesando = signal(false);
 
-    // Opciones estáticas para selects
-    tiposNegocio = [
-        { valor: TipoNegocioTienda.TIENDA_ROPA, etiqueta: 'Tienda de Ropa' },
-        { valor: TipoNegocioTienda.RESTAURANTE, etiqueta: 'Restaurante' },
-        { valor: TipoNegocioTienda.SUPERMERCADO, etiqueta: 'Supermercado' },
-        { valor: TipoNegocioTienda.FARMACIA, etiqueta: 'Farmacia' },
-        { valor: TipoNegocioTienda.TECNOLOGIA, etiqueta: 'Tecnología' },
-        { valor: TipoNegocioTienda.FERRETERIA, etiqueta: 'Ferretería' },
-        { valor: TipoNegocioTienda.LIBRERIA, etiqueta: 'Librería' },
-        { valor: TipoNegocioTienda.SERVICIOS, etiqueta: 'Servicios' },
-        { valor: TipoNegocioTienda.MAYORISTA, etiqueta: 'Mayorista' },
-        { valor: TipoNegocioTienda.OTRO, etiqueta: 'Otro' }
-    ];
-
-    tiposTienda = [
-        { valor: TipoTienda.TIENDA_FISICA, etiqueta: 'Tienda Física' },
-        { valor: TipoTienda.TIENDA_VIRTUAL, etiqueta: 'Tienda Virtual' },
-        { valor: TipoTienda.TIENDA_HIBRIDA, etiqueta: 'Tienda Híbrida' },
-        { valor: TipoTienda.QUIOSCO, etiqueta: 'Quiosco' },
-        { valor: TipoTienda.SUCURSAL, etiqueta: 'Sucursal' },
-        { valor: TipoTienda.FRANQUICIA, etiqueta: 'Franquicia' },
-        { valor: TipoTienda.POPUP_STORE, etiqueta: 'Pop-up Store' },
-        { valor: TipoTienda.OUTLET, etiqueta: 'Outlet' }
-    ];
-
-    planesSuscripcion = [
-        { valor: PlanSuscripcionTienda.BASICO, etiqueta: 'Básico' },
-        { valor: PlanSuscripcionTienda.PROFESIONAL, etiqueta: 'Profesional' },
-        { valor: PlanSuscripcionTienda.EMPRESARIAL, etiqueta: 'Empresarial' },
-        { valor: PlanSuscripcionTienda.PREMIUM, etiqueta: 'Premium' }
-    ];
-
-    estadosTienda = [
-        { valor: EstadoTienda.ACTIVA, etiqueta: 'Activa' },
-        { valor: EstadoTienda.INACTIVA, etiqueta: 'Inactiva' },
-        { valor: EstadoTienda.EN_CONSTRUCCION, etiqueta: 'En Construcción' },
-        { valor: EstadoTienda.MANTENIMIENTO, etiqueta: 'Mantenimiento' },
-        { valor: EstadoTienda.CERRADA_TEMPORAL, etiqueta: 'Cerrada Temporal' }
-    ];
-
-    departamentos = [
-        'Francisco Morazán', 'Cortés', 'Atlántida', 'Choluteca', 'Comayagua',
-        'Copán', 'El Paraíso', 'Gracias a Dios', 'Intibucá', 'Islas de la Bahía',
-        'La Paz', 'Lempira', 'Ocotepeque', 'Olancho', 'Santa Bárbara',
-        'Valle', 'Yoro', 'Colon'
-    ];
+    // Opciones dinámicas para selects
+    get tiposNegocio() { return this.opcionesCatalogo.obtenerGrupo('tiposNegocio'); }
+    get tiposTienda() { return this.opcionesCatalogo.obtenerGrupo('tiposTienda'); }
+    get planesSuscripcion() { return this.opcionesCatalogo.obtenerGrupo('planesSuscripcion'); }
+    get estadosTienda() { return this.opcionesCatalogo.obtenerGrupo('estadosTienda'); }
+    get departamentos() { return this.opcionesCatalogo.obtenerGrupo('departamentos'); }
 
     ngOnInit(): void {
         this.cargarTiendas();
@@ -211,63 +171,30 @@ export class ListaTiendasComponent implements OnInit {
         return this.tiendasService.formatearDireccionCompleta(tienda);
     }
 
-    obtenerEtiquetaTipoNegocio(tipo: TipoNegocioTienda): string {
+    obtenerEtiquetaTipoNegocio(tipo: string): string {
         return this.tiendasService.obtenerTipoNegocioTexto(tipo);
     }
 
-    obtenerEtiquetaTipoTienda(tipo?: TipoTienda): string {
+    obtenerEtiquetaTipoTienda(tipo?: string): string {
         if (!tipo) return 'No especificado';
         const encontrado = this.tiposTienda.find(t => t.valor === tipo);
         return encontrado ? encontrado.etiqueta : tipo;
     }
 
-    obtenerEtiquetaPlan(plan: PlanSuscripcionTienda): string {
+    obtenerEtiquetaPlan(plan: string): string {
         return this.tiendasService.obtenerPlanTexto(plan);
     }
 
-    obtenerEtiquetaEstado(estado: EstadoTienda): string {
+    obtenerEtiquetaEstado(estado: string): string {
         return this.tiendasService.obtenerEstadoTexto(estado);
     }
 
-    obtenerClasesEstado(estado: EstadoTienda): string[] {
-        const clases = ['badge-estado'];
-        switch (estado) {
-            case EstadoTienda.ACTIVA:
-                clases.push('activo');
-                break;
-            case EstadoTienda.INACTIVA:
-                clases.push('inactivo');
-                break;
-            case EstadoTienda.EN_CONSTRUCCION:
-                clases.push('construccion');
-                break;
-            case EstadoTienda.MANTENIMIENTO:
-                clases.push('mantenimiento');
-                break;
-            case EstadoTienda.CERRADA_TEMPORAL:
-                clases.push('cerrada');
-                break;
-            default:
-                clases.push('inactivo');
-        }
-        return clases;
+    obtenerClasesEstado(estado: string): string[] {
+        return this.estadoVisualizacion.obtenerClase('tienda_badge', estado).split(' ');
     }
 
-    obtenerIconoEstado(estado: EstadoTienda): string {
-        switch (estado) {
-            case EstadoTienda.ACTIVA:
-                return 'bi-check-circle-fill';
-            case EstadoTienda.INACTIVA:
-                return 'bi-x-circle-fill';
-            case EstadoTienda.EN_CONSTRUCCION:
-                return 'bi-tools';
-            case EstadoTienda.MANTENIMIENTO:
-                return 'bi-gear-fill';
-            case EstadoTienda.CERRADA_TEMPORAL:
-                return 'bi-pause-circle-fill';
-            default:
-                return 'bi-question-circle-fill';
-        }
+    obtenerIconoEstado(estado: string): string {
+        return this.estadoVisualizacion.obtenerIcono('tienda_badge', estado);
     }
 
     obtenerPaginas(): number[] {
@@ -285,75 +212,4 @@ export class ListaTiendasComponent implements OnInit {
         }
         return paginas;
     }
-
-    // Mock de datos para desarrollo - se puede remover cuando esté el backend
-    private tiendasMock: Tienda[] = [
-        {
-            id: 1,
-            nombre: 'Boutique Eleganza',
-            rtn: '0801-2024-001001',
-            correo: 'info@eleganza.hn',
-            telefono: '2233-4455',
-            celular: '9988-7766',
-            tipoNegocio: TipoNegocioTienda.TIENDA_ROPA,
-            tipoTienda: TipoTienda.TIENDA_FISICA,
-            estado: EstadoTienda.ACTIVA,
-            ubicacion: {
-                direccion: 'CC City Mall, Local 201',
-                departamento: 'Francisco Morazán',
-                ciudad: 'Tegucigalpa',
-                pais: 'HN'
-            },
-            planSuscripcion: PlanSuscripcionTienda.PROFESIONAL,
-            moneda: 'HNL',
-            zonaHoraria: 'America/Tegucigalpa',
-            activa: true,
-            creadoEn: '2024-01-15T10:00:00Z',
-            actualizadoEn: '2024-01-15T10:00:00Z'
-        },
-        {
-            id: 2,
-            nombre: 'TecnoPlaza',
-            rtn: '0501-2024-002002',
-            correo: 'ventas@tecnoplaza.hn',
-            telefono: '2255-6677',
-            tipoNegocio: TipoNegocioTienda.TECNOLOGIA,
-            tipoTienda: TipoTienda.TIENDA_HIBRIDA,
-            estado: EstadoTienda.ACTIVA,
-            ubicacion: {
-                direccion: 'Boulevard Los Próceres',
-                departamento: 'Cortés',
-                ciudad: 'San Pedro Sula',
-                pais: 'HN'
-            },
-            planSuscripcion: PlanSuscripcionTienda.EMPRESARIAL,
-            moneda: 'HNL',
-            zonaHoraria: 'America/Tegucigalpa',
-            activa: true,
-            creadoEn: '2024-03-20T14:30:00Z',
-            actualizadoEn: '2024-03-20T14:30:00Z'
-        },
-        {
-            id: 3,
-            nombre: 'Farmacia Salud Total',
-            rtn: '0801-2024-003003',
-            correo: 'farmacia@saludtotal.hn',
-            telefono: '2244-5566',
-            tipoNegocio: TipoNegocioTienda.FARMACIA,
-            tipoTienda: TipoTienda.SUCURSAL,
-            estado: EstadoTienda.EN_CONSTRUCCION,
-            ubicacion: {
-                direccion: 'Col. Kennedy, 3ra Ave',
-                departamento: 'Atlántida',
-                ciudad: 'La Ceiba',
-                pais: 'HN'
-            },
-            planSuscripcion: PlanSuscripcionTienda.BASICO,
-            moneda: 'HNL',
-            zonaHoraria: 'America/Tegucigalpa',
-            activa: false,
-            creadoEn: '2024-06-10T09:15:00Z',
-            actualizadoEn: '2024-06-10T09:15:00Z'
-        }
-    ];
 }

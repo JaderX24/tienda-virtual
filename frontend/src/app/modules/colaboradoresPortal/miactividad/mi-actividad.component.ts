@@ -16,13 +16,15 @@ import {
 } from './services/mi-actividad.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { IdiomaService } from '../../../core/services/idioma.service';
+import { ClaseEstadoPipe, IconoEstadoPipe } from '../../../core/pipes';
+import { EstadoVisualizacionService } from '../../../core/services/estado-visualizacion.service';
 
 type TabActiva = 'resumen' | 'bitacora' | 'operaciones' | 'sesiones' | 'timeline';
 
 @Component({
     selector: 'app-mi-actividad',
     standalone: true,
-    imports: [CommonModule, FormsModule, TraducirPipe],
+    imports: [CommonModule, FormsModule, TraducirPipe, ClaseEstadoPipe, IconoEstadoPipe],
     templateUrl: './mi-actividad.component.html',
     styleUrl: './mi-actividad.component.scss',
 })
@@ -30,6 +32,7 @@ export class MiActividadComponent implements OnInit, OnDestroy {
     private miActividadService = inject(MiActividadService);
     private toastService = inject(ToastService);
     private idiomaService = inject(IdiomaService);
+    private estadoVisualizacion = inject(EstadoVisualizacionService);
     private destruir$ = new Subject<void>();
 
     cargando = signal(false);
@@ -306,46 +309,10 @@ export class MiActividadComponent implements OnInit, OnDestroy {
 
     // --- Utilidades de presentación ---
 
-    obtenerClaseSeveridad(severidad: string): string {
-        const clases: Record<string, string> = {
-            info: 'bg-success',
-            warn: 'bg-warning text-dark',
-            error: 'bg-danger',
-            critical: 'bg-danger',
-        };
-        return clases[severidad] || 'bg-secondary';
-    }
 
-    obtenerIconoSeveridad(severidad: string): string {
-        const iconos: Record<string, string> = {
-            info: 'bi-info-circle',
-            warn: 'bi-exclamation-triangle',
-            error: 'bi-x-octagon',
-            critical: 'bi-radioactive',
-        };
-        return iconos[severidad] || 'bi-circle';
-    }
-
-    obtenerClaseTipoOperacion(tipo: string): string {
-        const clases: Record<string, string> = {
-            entrada: 'bg-success',
-            recepcion: 'bg-success',
-            ajuste_positivo: 'bg-info',
-            salida: 'bg-danger',
-            despacho: 'bg-danger',
-            ajuste_negativo: 'bg-warning text-dark',
-            transferencia: 'bg-primary',
-        };
-        return clases[tipo] || 'bg-secondary';
-    }
 
     obtenerClaseOrigenTimeline(origen: string): string {
-        const clases: Record<string, string> = {
-            bitacora: 'timeline-bitacora',
-            inventario: 'timeline-inventario',
-            conteo: 'timeline-conteo',
-        };
-        return clases[origen] || '';
+        return this.estadoVisualizacion.obtenerClase('origen_timeline', origen);
     }
 
     formatearFecha(fecha: string): string {

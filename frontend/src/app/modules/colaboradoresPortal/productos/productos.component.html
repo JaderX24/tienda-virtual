@@ -223,7 +223,7 @@
                                             <small class="text-muted d-block">{{ 'productos.min' | traducir }} {{ producto.stockMinimo }}</small>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge rounded-pill" [ngClass]="obtenerClaseEstadoStock(producto.estadoStock)">
+                                            <span class="badge rounded-pill" [ngClass]="producto.estadoStock | claseEstado:'stock'">
                                                 {{ obtenerEtiquetaEstadoStock(producto.estadoStock) }}
                                             </span>
                                         </td>
@@ -422,7 +422,7 @@
                                 <div class="col-auto">
                                     <div class="detalle-item">
                                         <label>{{ 'productos.estadoStock' | traducir }}</label>
-                                        <span class="badge rounded-pill" [ngClass]="obtenerClaseEstadoStock(producto.estadoStock)">
+                                        <span class="badge rounded-pill" [ngClass]="producto.estadoStock | claseEstado:'stock'">
                                             {{ obtenerEtiquetaEstadoStock(producto.estadoStock) }}
                                         </span>
                                     </div>
@@ -533,8 +533,8 @@
                                         @for (mov of movimientos(); track mov.id) {
                                             <tr>
                                                 <td>
-                                                    <span class="badge" [ngClass]="obtenerClaseTipoMovimiento(mov.tipo)">
-                                                        <i class="bi me-1" [ngClass]="obtenerIconoTipoMovimiento(mov.tipo)"></i>
+                                                    <span class="badge" [ngClass]="mov.tipo | claseEstado:'tipo_movimiento'">
+                                                        <i class="bi me-1" [ngClass]="mov.tipo | iconoEstado:'tipo_movimiento'"></i>
                                                         {{ mov.tipo | titlecase }}
                                                     </span>
                                                 </td>

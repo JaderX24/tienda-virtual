@@ -12,6 +12,7 @@ export interface Permiso {
     nombre: string;
     descripcion?: string;
     modulo: string;
+    nombreModulo?: string;
 }
 
 export interface PermisoAgrupado {
@@ -33,20 +34,3 @@ export interface RespuestaApi<T> {
     mensaje?: string;
     datos: T;
 }
-
-export const MODULOS_NOMBRES: Record<string, string> = {
-    'admin': 'Administración',
-    'usuarios': 'Usuarios',
-    'roles': 'Roles',
-    'productos': 'Productos',
-    'categorias': 'Categorías',
-    'marcas': 'Marcas',
-    'inventario': 'Inventario',
-    'pedidos': 'Pedidos',
-    'clientes': 'Clientes',
-    'cupones': 'Cupones y Promociones',
-    'envios': 'Envíos',
-    'pagos': 'Pagos',
-    'reportes': 'Reportes',
-    'configuracion': 'Configuración'
-};

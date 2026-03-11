@@ -5,25 +5,11 @@ import {
     IsOptional,
     IsBoolean,
     IsObject,
-    IsIn,
     MinLength,
     MaxLength,
     Matches,
 } from 'class-validator';
-
-const TIPOS_NEGOCIO = [
-    'tienda_ropa', 'restaurante', 'supermercado', 'farmacia',
-    'tecnologia', 'ferreteria', 'libreria', 'servicios',
-    'mayorista', 'otro',
-] as const;
-
-const PLANES_SUSCRIPCION = [
-    'basico', 'profesional', 'empresarial', 'premium',
-] as const;
-
-const RANGOS_EMPLEADOS = [
-    '1-5', '6-20', '21-50', '51-100', '101-500', '500+',
-] as const;
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class ActualizarEmpresaDto {
     @ApiPropertyOptional({ description: 'Nombre de la empresa' })
@@ -64,10 +50,10 @@ export class ActualizarEmpresaDto {
     @MaxLength(20, { message: 'El celular no puede exceder 20 caracteres' })
     celular?: string;
 
-    @ApiPropertyOptional({ description: 'Tipo de negocio', enum: TIPOS_NEGOCIO })
+    @ApiPropertyOptional({ description: 'Tipo de negocio' })
     @IsOptional()
     @IsString({ message: 'El tipo de negocio debe ser texto' })
-    @IsIn([...TIPOS_NEGOCIO], { message: 'Tipo de negocio no válido' })
+    @EsCatalogoValido('tiposNegocio', { message: 'Tipo de negocio no válido' })
     tipoNegocio?: string;
 
     @ApiPropertyOptional({ description: 'Descripción de la empresa' })
@@ -130,10 +116,10 @@ export class ActualizarEmpresaDto {
     @MaxLength(200, { message: 'El representante legal no puede exceder 200 caracteres' })
     representanteLegal?: string;
 
-    @ApiPropertyOptional({ description: 'Plan de suscripción', enum: PLANES_SUSCRIPCION })
+    @ApiPropertyOptional({ description: 'Plan de suscripción' })
     @IsOptional()
     @IsString({ message: 'El plan de suscripción debe ser texto' })
-    @IsIn([...PLANES_SUSCRIPCION], { message: 'Plan de suscripción no válido' })
+    @EsCatalogoValido('planesSuscripcion', { message: 'Plan de suscripción no válido' })
     planSuscripcion?: string;
 
     @ApiPropertyOptional({ description: 'Moneda (código ISO)' })
@@ -148,10 +134,10 @@ export class ActualizarEmpresaDto {
     @MaxLength(50, { message: 'La zona horaria no puede exceder 50 caracteres' })
     zonaHoraria?: string;
 
-    @ApiPropertyOptional({ description: 'Rango de cantidad de empleados', enum: RANGOS_EMPLEADOS })
+    @ApiPropertyOptional({ description: 'Rango de cantidad de empleados' })
     @IsOptional()
     @IsString({ message: 'La cantidad de empleados debe ser texto' })
-    @IsIn([...RANGOS_EMPLEADOS], { message: 'Rango de empleados no válido' })
+    @EsCatalogoValido('rangosEmpleados', { message: 'Rango de empleados no válido' })
     cantidadEmpleados?: string;
 
     @ApiPropertyOptional({ description: 'Estado activo de la empresa' })

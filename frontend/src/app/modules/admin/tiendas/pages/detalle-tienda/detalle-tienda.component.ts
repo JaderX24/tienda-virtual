@@ -6,12 +6,10 @@ import { catchError, EMPTY, tap, of, finalize } from 'rxjs';
 
 import { TiendasService } from '../../services/tiendas.service';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { EstadoVisualizacionService } from '../../../../../core/services/estado-visualizacion.service';
+import { ClaseEstadoPipe } from '../../../../../core/pipes';
 import {
     Tienda,
-    EstadoTienda,
-    TipoTienda,
-    TipoNegocioTienda,
-    PlanSuscripcionTienda,
     EstadisticasTienda,
     HorarioDia,
     HorarioAtencion
@@ -26,7 +24,7 @@ interface TabDetalle {
 @Component({
     selector: 'app-detalle-tienda',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, ClaseEstadoPipe],
     templateUrl: './detalle-tienda.component.html',
     styleUrl: './detalle-tienda.component.scss'
 })
@@ -35,6 +33,7 @@ export class DetalleTiendaComponent implements OnInit {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly toastService = inject(ToastService);
+    private readonly estadoVisualizacion = inject(EstadoVisualizacionService);
 
     // Parámetro de entrada para el ID
     readonly tiendaId = input<number>();
@@ -48,7 +47,7 @@ export class DetalleTiendaComponent implements OnInit {
     private readonly estadisticas = signal<EstadisticasTienda | null>(null);
     private readonly mostrarModalLogo = signal(false);
     private readonly mostrarModalCambiarEstado = signal(false);
-    private readonly nuevoEstado = signal<EstadoTienda | null>(null);
+    private readonly nuevoEstado = signal<string | null>(null);
 
     // Señales readonly para el template
     readonly estaCargando = this.cargando.asReadonly();
@@ -73,11 +72,11 @@ export class DetalleTiendaComponent implements OnInit {
 
     // Estados para cambio de estado
     readonly estadosDisponibles = [
-        { valor: EstadoTienda.ACTIVA, texto: 'Activa', clase: 'success' },
-        { valor: EstadoTienda.INACTIVA, texto: 'Inactiva', clase: 'secondary' },
-        { valor: EstadoTienda.EN_CONSTRUCCION, texto: 'En Construcción', clase: 'warning' },
-        { valor: EstadoTienda.MANTENIMIENTO, texto: 'Mantenimiento', clase: 'info' },
-        { valor: EstadoTienda.CERRADA_TEMPORAL, texto: 'Cerrada Temporal', clase: 'danger' }
+        { valor: 'activa', texto: 'Activa', clase: 'success' },
+        { valor: 'inactiva', texto: 'Inactiva', clase: 'secondary' },
+        { valor: 'en_construccion', texto: 'En Construcción', clase: 'warning' },
+        { valor: 'mantenimiento', texto: 'Mantenimiento', clase: 'info' },
+        { valor: 'cerrada_temporal', texto: 'Cerrada Temporal', clase: 'danger' }
     ];
 
     // Días de la semana para horarios
@@ -153,7 +152,7 @@ export class DetalleTiendaComponent implements OnInit {
         this.nuevoEstado.set(null);
     }
 
-    seleccionarNuevoEstado(estado: EstadoTienda): void {
+    seleccionarNuevoEstado(estado: string): void {
         this.nuevoEstado.set(estado);
     }
 
@@ -165,7 +164,7 @@ export class DetalleTiendaComponent implements OnInit {
 
         this.cargandoOperacion.set(true);
 
-        const activa = estado === EstadoTienda.ACTIVA;
+        const activa = estado === 'activa';
 
         this.tiendasService.cambiarEstadoTienda(tienda.id, activa).pipe(
             tap(tiendaActualizada => {
@@ -234,35 +233,26 @@ export class DetalleTiendaComponent implements OnInit {
     }
 
     // Métodos de utilidad para el template
-    obtenerTipoNegocioTexto(tipo: TipoNegocioTienda): string {
+    obtenerTipoNegocioTexto(tipo: string): string {
         return this.tiendasService.obtenerTipoNegocioTexto(tipo);
     }
 
-    obtenerTipoTiendaTexto(tipo: TipoTienda): string {
+    obtenerTipoTiendaTexto(tipo: string): string {
         const opcion = this.tiendasService.obtenerOpcionPorValor(
             this.tiendasService.obtenerTiposTienda(), tipo
         );
         return opcion?.etiqueta || tipo;
     }
 
-    obtenerPlanTexto(plan: PlanSuscripcionTienda): string {
+    obtenerPlanTexto(plan: string): string {
         return this.tiendasService.obtenerPlanTexto(plan);
     }
 
-    obtenerEstadoTexto(estado: EstadoTienda): string {
+    obtenerEstadoTexto(estado: string): string {
         return this.tiendasService.obtenerEstadoTexto(estado);
     }
 
-    obtenerClaseEstado(estado: EstadoTienda): string {
-        const clases: Record<string, string> = {
-            [EstadoTienda.ACTIVA]: 'success',
-            [EstadoTienda.INACTIVA]: 'secondary',
-            [EstadoTienda.EN_CONSTRUCCION]: 'warning',
-            [EstadoTienda.MANTENIMIENTO]: 'info',
-            [EstadoTienda.CERRADA_TEMPORAL]: 'danger'
-        };
-        return clases[estado] || 'secondary';
-    }
+
 
     estaAbiertaAhora(): boolean {
         const tienda = this.tienda();
@@ -329,24 +319,12 @@ export class DetalleTiendaComponent implements OnInit {
         return tienda?.logo || '/assets/img/tienda-placeholder.png';
     }
 
-    obtenerColorPlan(plan: PlanSuscripcionTienda): string {
-        const colores: Record<string, string> = {
-            [PlanSuscripcionTienda.BASICO]: '#6c757d',
-            [PlanSuscripcionTienda.PROFESIONAL]: '#0d6efd',
-            [PlanSuscripcionTienda.EMPRESARIAL]: '#198754',
-            [PlanSuscripcionTienda.PREMIUM]: '#dc3545'
-        };
-        return colores[plan] || '#6c757d';
+    obtenerColorPlan(plan: string): string {
+        return this.estadoVisualizacion.obtenerClase('plan_suscripcion', plan);
     }
 
-    obtenerIconoPlan(plan: PlanSuscripcionTienda): string {
-        const iconos: Record<string, string> = {
-            [PlanSuscripcionTienda.BASICO]: 'bi-star',
-            [PlanSuscripcionTienda.PROFESIONAL]: 'bi-star-fill',
-            [PlanSuscripcionTienda.EMPRESARIAL]: 'bi-award',
-            [PlanSuscripcionTienda.PREMIUM]: 'bi-gem'
-        };
-        return iconos[plan] || 'bi-star';
+    obtenerIconoPlan(plan: string): string {
+        return this.estadoVisualizacion.obtenerIcono('plan_suscripcion', plan);
     }
 
     private convertirHoraAMinutos(hora: string): number {

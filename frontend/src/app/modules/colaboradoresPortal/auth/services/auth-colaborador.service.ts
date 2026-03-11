@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { tap, catchError, finalize } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import {
@@ -33,6 +33,8 @@ export class AuthColaboradorService {
     private usuarioActual = signal<UsuarioAdmin | null>(null);
     private cargando = signal(false);
     private autenticado = signal(false);
+    private ultimoRefrescoPermisos = 0;
+    private readonly INTERVALO_REFRESCO_MS = 5 * 60 * 1000;
 
     readonly usuario = this.usuarioActual.asReadonly();
     readonly estaCargando = this.cargando.asReadonly();
@@ -150,6 +152,29 @@ export class AuthColaboradorService {
 
     tieneAlgunPermiso(permisos: string[]): boolean {
         return permisos.some((p) => this.tienePermiso(p));
+    }
+
+    refrescarPermisos(): Observable<void> {
+        if (!this.estaAutenticado()) {
+            return of(undefined);
+        }
+
+        const ahora = Date.now();
+        if (ahora - this.ultimoRefrescoPermisos < this.INTERVALO_REFRESCO_MS) {
+            return of(undefined);
+        }
+
+        this.ultimoRefrescoPermisos = ahora;
+
+        return this.http.get<{ exito: boolean; usuario: UsuarioAdmin }>(`${this.apiUrl}/perfil`).pipe(
+            tap((respuesta) => {
+                if (respuesta.exito && respuesta.usuario) {
+                    this.usuarioActual.set(respuesta.usuario);
+                    localStorage.setItem(STORAGE_KEYS.USUARIO, JSON.stringify(respuesta.usuario));
+                }
+            }),
+            catchError(() => of(undefined)),
+        ) as Observable<void>;
     }
 
     private guardarSesion(respuesta: RespuestaLoginAdmin): void {

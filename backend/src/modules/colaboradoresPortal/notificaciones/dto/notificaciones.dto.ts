@@ -6,15 +6,15 @@ import {
     Min,
     Max,
     MaxLength,
-    IsIn,
     IsBoolean,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 export class FiltrosNotificacionesDto {
     @IsOptional()
     @IsString()
-    @IsIn(['info', 'success', 'warning', 'danger', 'sistema'])
+    @EsCatalogoValido('tiposNotificacion')
     tipo?: string;
 
     @IsOptional()

@@ -135,16 +135,9 @@ export class HeaderColabComponent implements OnInit, OnDestroy {
 
     get rolUsuario(): string {
         const codigo = this.usuario()?.rol?.codigo || '';
-        const mapeoClaves: Record<string, string> = {
-            'jefe_bodega': 'rol.jefeBodega',
-            'supervisor': 'rol.supervisor',
-            'inventarista': 'rol.inventarista',
-            'recepcionista': 'rol.recepcionista',
-            'despachador': 'rol.despachador',
-            'auxiliar': 'rol.auxiliar',
-            'consulta': 'rol.consulta',
-        };
-        const clave = mapeoClaves[codigo];
-        return clave ? this.idiomaService.t(clave) : this.usuario()?.rol?.nombre || this.idiomaService.t('rol.colaborador');
+        if (!codigo) return this.usuario()?.rol?.nombre || this.idiomaService.t('rol.colaborador');
+        const clave = 'rol.' + codigo.replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase());
+        const traduccion = this.idiomaService.t(clave);
+        return traduccion !== clave ? traduccion : this.usuario()?.rol?.nombre || this.idiomaService.t('rol.colaborador');
     }
 }

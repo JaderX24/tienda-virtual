@@ -44,7 +44,7 @@ export const inventario: Record<string, string> = {
     'transferencias.seleccioneDestino': 'Select destination',
     'transferencias.soloAsignados': 'Assigned warehouses only',
     'transferencias.todosActivos': 'All active warehouses',
-    'transferencias.pendienteInfo': 'The transfer will remain <strong>Pending</strong> until approved. Stock will not change until marked as <strong>Completed</strong>.',
+    'transferencias.pendienteInfo': 'The transfer will remain Pending until approved. Stock will not change until marked as Completed.',
     'transferencias.marcarEnTransito': 'Mark In Transit',
     'transferencias.completar': 'Complete Transfer',
     'transferencias.cancelar': 'Cancel Transfer',

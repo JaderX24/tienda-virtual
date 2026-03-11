@@ -7,14 +7,14 @@ import {
     Tienda, 
     CrearTiendaDto, 
     ActualizarTiendaDto,
-    TipoNegocioTienda, 
+    RedesSocialesTienda,
     TipoTienda,
-    PlanSuscripcionTienda, 
-    RangoEmpleadosTienda,
-    EstadoTienda,
-    RedesSocialesTienda
+    TipoNegocioTienda,
+    PlanSuscripcionTienda,
+    RangoEmpleadosTienda
 } from '../../interfaces';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { OpcionesCatalogoService } from '../../../../../core/services';
 
 @Component({
     selector: 'app-formulario-tienda',
@@ -29,6 +29,7 @@ export class FormularioTiendaComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private tiendasService = inject(TiendasService);
     private toastService = inject(ToastService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     formulario!: FormGroup;
     cargando = signal(true);
@@ -41,73 +42,14 @@ export class FormularioTiendaComponent implements OnInit {
     esEdicion = computed(() => this.tiendaId() !== null);
     titulo = computed(() => this.esEdicion() ? 'Editar Tienda' : 'Nueva Tienda');
 
-    // Opciones para selects
-    tiposNegocio = [
-        { valor: TipoNegocioTienda.TIENDA_ROPA, etiqueta: 'Tienda de Ropa' },
-        { valor: TipoNegocioTienda.RESTAURANTE, etiqueta: 'Restaurante' },
-        { valor: TipoNegocioTienda.SUPERMERCADO, etiqueta: 'Supermercado' },
-        { valor: TipoNegocioTienda.FARMACIA, etiqueta: 'Farmacia' },
-        { valor: TipoNegocioTienda.TECNOLOGIA, etiqueta: 'Tecnología' },
-        { valor: TipoNegocioTienda.FERRETERIA, etiqueta: 'Ferretería' },
-        { valor: TipoNegocioTienda.LIBRERIA, etiqueta: 'Librería' },
-        { valor: TipoNegocioTienda.SERVICIOS, etiqueta: 'Servicios' },
-        { valor: TipoNegocioTienda.MAYORISTA, etiqueta: 'Mayorista' },
-        { valor: TipoNegocioTienda.OTRO, etiqueta: 'Otro' }
-    ];
-
-    tiposTienda = [
-        { valor: TipoTienda.TIENDA_FISICA, etiqueta: 'Tienda Física' },
-        { valor: TipoTienda.TIENDA_VIRTUAL, etiqueta: 'Tienda Virtual' },
-        { valor: TipoTienda.TIENDA_HIBRIDA, etiqueta: 'Tienda Híbrida' },
-        { valor: TipoTienda.QUIOSCO, etiqueta: 'Quiosco' },
-        { valor: TipoTienda.SUCURSAL, etiqueta: 'Sucursal' },
-        { valor: TipoTienda.FRANQUICIA, etiqueta: 'Franquicia' },
-        { valor: TipoTienda.POPUP_STORE, etiqueta: 'Pop-up Store' },
-        { valor: TipoTienda.OUTLET, etiqueta: 'Outlet' }
-    ];
-
-    planesSuscripcion = [
-        { valor: PlanSuscripcionTienda.BASICO, etiqueta: 'Básico', descripcion: 'Funcionalidades básicas' },
-        { valor: PlanSuscripcionTienda.PROFESIONAL, etiqueta: 'Profesional', descripcion: 'Funcionalidades avanzadas' },
-        { valor: PlanSuscripcionTienda.EMPRESARIAL, etiqueta: 'Empresarial', descripcion: 'Para empresas grandes' },
-        { valor: PlanSuscripcionTienda.PREMIUM, etiqueta: 'Premium', descripcion: 'Todas las funcionalidades' }
-    ];
-
-    rangosEmpleados = [
-        { valor: RangoEmpleadosTienda.UNO_CINCO, etiqueta: '1-5 empleados' },
-        { valor: RangoEmpleadosTienda.SEIS_VEINTE, etiqueta: '6-20 empleados' },
-        { valor: RangoEmpleadosTienda.VEINTIUNO_CINCUENTA, etiqueta: '21-50 empleados' },
-        { valor: RangoEmpleadosTienda.CINCUENTA_UNO_CIEN, etiqueta: '51-100 empleados' },
-        { valor: RangoEmpleadosTienda.CIEN_UNO_QUINIENTOS, etiqueta: '101-500 empleados' },
-        { valor: RangoEmpleadosTienda.MAS_QUINIENTOS, etiqueta: '500+ empleados' }
-    ];
-
-    monedas = [
-        { codigo: 'HNL', nombre: 'Lempira (HNL)' },
-        { codigo: 'USD', nombre: 'Dólar (USD)' },
-        { codigo: 'EUR', nombre: 'Euro (EUR)' },
-        { codigo: 'MXN', nombre: 'Peso Mexicano (MXN)' },
-        { codigo: 'GTQ', nombre: 'Quetzal (GTQ)' }
-    ];
-
-    zonasHorarias = [
-        { valor: 'America/Tegucigalpa', etiqueta: 'Honduras (UTC-6)' },
-        { valor: 'America/Guatemala', etiqueta: 'Guatemala (UTC-6)' },
-        { valor: 'America/El_Salvador', etiqueta: 'El Salvador (UTC-6)' },
-        { valor: 'America/Mexico_City', etiqueta: 'México (UTC-6)' },
-        { valor: 'America/New_York', etiqueta: 'Este EEUU (UTC-5)' },
-        { valor: 'America/Chicago', etiqueta: 'Centro EEUU (UTC-6)' },
-        { valor: 'America/Bogota', etiqueta: 'Colombia (UTC-5)' },
-        { valor: 'America/Lima', etiqueta: 'Perú (UTC-5)' },
-        { valor: 'Europe/Madrid', etiqueta: 'España (UTC+1)' }
-    ];
-
-    departamentosHN = [
-        'Francisco Morazán', 'Cortés', 'Atlántida', 'Choluteca', 'Comayagua',
-        'Copán', 'El Paraíso', 'Gracias a Dios', 'Intibucá', 'Islas de la Bahía',
-        'La Paz', 'Lempira', 'Ocotepeque', 'Olancho', 'Santa Bárbara',
-        'Valle', 'Yoro', 'Colón'
-    ];
+    get tiposNegocio() { return this.opcionesCatalogo.obtenerGrupo('tiposNegocio'); }
+    get tiposTienda() { return this.opcionesCatalogo.obtenerGrupo('tiposTienda'); }
+    get planesSuscripcion() { return this.opcionesCatalogo.obtenerGrupo('planesSuscripcion'); }
+    get rangosEmpleados() { return this.opcionesCatalogo.obtenerGrupo('rangosEmpleados'); }
+    get monedas() { return this.opcionesCatalogo.obtenerGrupo('monedas'); }
+    get zonasHorarias() { return this.opcionesCatalogo.obtenerGrupo('zonasHorarias'); }
+    get departamentosHN() { return this.opcionesCatalogo.obtenerGrupo('departamentos'); }
+    get paises() { return this.opcionesCatalogo.obtenerGrupo('paises'); }
 
     ngOnInit(): void {
         this.inicializarFormulario();
@@ -128,7 +70,7 @@ export class FormularioTiendaComponent implements OnInit {
             rtn: ['', [Validators.required, this.rtnValidator()], [this.rtnUnicoValidator()]],
             nit: ['', [Validators.maxLength(50)]],
             tipoNegocio: ['', [Validators.required]],
-            tipoTienda: [TipoTienda.TIENDA_FISICA, [Validators.required]],
+            tipoTienda: ['tienda_fisica', [Validators.required]],
             descripcion: ['', [Validators.maxLength(500)]],
 
             // Contacto
@@ -154,7 +96,7 @@ export class FormularioTiendaComponent implements OnInit {
 
             // Configuración empresarial
             representanteLegal: ['', [Validators.maxLength(200)]],
-            planSuscripcion: [PlanSuscripcionTienda.BASICO, [Validators.required]],
+            planSuscripcion: ['basico', [Validators.required]],
             moneda: ['HNL', [Validators.required]],
             zonaHoraria: ['America/Tegucigalpa', [Validators.required]],
             cantidadEmpleados: [''],
@@ -194,7 +136,7 @@ export class FormularioTiendaComponent implements OnInit {
                     rtn: tienda.rtn,
                     nit: tienda.nit || '',
                     tipoNegocio: tienda.tipoNegocio,
-                    tipoTienda: tienda.tipoTienda || TipoTienda.TIENDA_FISICA,
+                    tipoTienda: tienda.tipoTienda || 'tienda_fisica',
                     descripcion: tienda.descripcion || '',
                     
                     correo: tienda.correo,
@@ -216,7 +158,7 @@ export class FormularioTiendaComponent implements OnInit {
                     tiktok: tienda.redesSociales?.tiktok || '',
 
                     representanteLegal: tienda.representanteLegal || '',
-                    planSuscripcion: tienda.planSuscripcion || PlanSuscripcionTienda.BASICO,
+                    planSuscripcion: tienda.planSuscripcion || 'basico',
                     moneda: tienda.moneda || 'HNL',
                     zonaHoraria: tienda.zonaHoraria || 'America/Tegucigalpa',
                     cantidadEmpleados: tienda.cantidadEmpleados || '',
