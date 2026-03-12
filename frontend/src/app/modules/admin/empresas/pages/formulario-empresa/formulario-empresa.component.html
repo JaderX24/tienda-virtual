@@ -149,7 +149,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Departamento <span class="required">*</span></label>
-                                    @if (formulario.get('pais')?.value === 'HN') {
+                                    @if (departamentosHN.length > 0) {
                                         <select class="form-select" formControlName="departamento"
                                             [class.is-invalid]="tieneError('departamento')">
                                             <option value="">Seleccionar...</option>

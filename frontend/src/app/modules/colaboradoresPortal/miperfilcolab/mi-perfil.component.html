@@ -743,7 +743,7 @@
                                         <label class="form-label fw-semibold">{{ 'preferencias.zonaHoraria' | traducir }}</label>
                                         <select class="form-select" [(ngModel)]="formPreferencias.zonaHoraria"
                                             (ngModelChange)="cambiarZonaHoraria($event)">
-                                            @for (zona of zonasHorarias; track zona.valor) {
+                                            @for (zona of zonasHorarias(); track zona.valor) {
                                                 <option [value]="zona.valor">{{ zona.etiqueta }} ({{ zona.utc }})</option>
                                             }
                                         </select>

@@ -47,7 +47,7 @@ export const permisoGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
             if (authService.tieneAlgunPermiso(permisosRequeridos)) {
                 return true;
             }
-            router.navigate(['/admin/sin-permisos']);
+            router.navigate(['/admin/inicio-sesion']);
             return false;
         }),
     );

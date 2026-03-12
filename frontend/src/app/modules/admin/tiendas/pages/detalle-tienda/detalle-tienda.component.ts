@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { catchError, EMPTY, tap, of, finalize } from 'rxjs';
 
 import { TiendasService } from '../../services/tiendas.service';
+import { OpcionesCatalogoService } from '../../../../../core/services/opciones-catalogo.service';
 import { ToastService } from '../../../../../core/services/toast.service';
 import { EstadoVisualizacionService } from '../../../../../core/services/estado-visualizacion.service';
 import { ClaseEstadoPipe } from '../../../../../core/pipes';
@@ -34,6 +35,7 @@ export class DetalleTiendaComponent implements OnInit {
     private readonly route = inject(ActivatedRoute);
     private readonly toastService = inject(ToastService);
     private readonly estadoVisualizacion = inject(EstadoVisualizacionService);
+    private readonly opcionesCatalogo = inject(OpcionesCatalogoService);
 
     // Parámetro de entrada para el ID
     readonly tiendaId = input<number>();
@@ -308,9 +310,16 @@ export class DetalleTiendaComponent implements OnInit {
     }
 
     formatearMoneda(valor: number): string {
+        const moneda = this.opcionesCatalogo.obtenerGrupo('monedas')[0]?.valor;
+        if (!moneda) {
+            return new Intl.NumberFormat('es-HN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(valor);
+        }
         return new Intl.NumberFormat('es-HN', {
             style: 'currency',
-            currency: 'HNL'
+            currency: moneda
         }).format(valor);
     }
 

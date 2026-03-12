@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthAdminService } from '../../auth/services/auth-admin.service';
-import { MENU_ADMIN, ItemMenu, SeccionMenu } from './menu.config';
-import { OpcionesCatalogoService } from '../../../../core/services';
+import { ItemMenu } from './menu.config';
+import { MenuAdminService } from './menu-admin.service';
 
 interface UsuarioSidebar {
     nombre: string;
@@ -24,8 +24,8 @@ interface UsuarioSidebar {
 })
 export class SidebarComponent {
     private authService = inject(AuthAdminService);
+    private menuService = inject(MenuAdminService);
     private router = inject(Router);
-    private opcionesCatalogo = inject(OpcionesCatalogoService);
     
     @Input() colapsado = false;
     @Input() mostrarMobile = false;
@@ -34,26 +34,13 @@ export class SidebarComponent {
     @Output() toggleColapsado = new EventEmitter<void>();
     @Output() cerrarMobile = new EventEmitter<void>();
 
-    menuCompleto = signal<SeccionMenu[]>([]);
+    menuCompleto = this.menuService.menu;
     rutaActual = signal<string>('');
 
     readonly anioActual = new Date().getFullYear();
 
     constructor() {
-        this.inicializarMenu();
         this.escucharCambiosRuta();
-    }
-
-    private inicializarMenu(): void {
-        const rolUsuario = this.authService.rol();
-        const rolesAccesoTotal = this.opcionesCatalogo.obtenerGrupo('rolesAdminAccesoTotal').map(o => o.valor);
-        
-        if (rolesAccesoTotal.includes(rolUsuario)) {
-            this.menuCompleto.set(MENU_ADMIN);
-        } else {
-            const menuFiltrado = this.filtrarMenuPorPermisos(MENU_ADMIN);
-            this.menuCompleto.set(menuFiltrado);
-        }
     }
 
     private escucharCambiosRuta(): void {
@@ -66,35 +53,9 @@ export class SidebarComponent {
             });
     }
 
-    private filtrarMenuPorPermisos(secciones: SeccionMenu[]): SeccionMenu[] {
-        return secciones
-            .map((seccion) => ({
-                ...seccion,
-                items: this.filtrarItemsPorPermisos(seccion.items),
-            }))
-            .filter((seccion) => seccion.items.length > 0);
-    }
-
-    private filtrarItemsPorPermisos(items: ItemMenu[]): ItemMenu[] {
-        return items
-            .filter((item) => this.tienePermisoParaItem(item))
-            .map((item) => ({
-                ...item,
-                hijos: item.hijos ? this.filtrarItemsPorPermisos(item.hijos) : undefined,
-            }))
-            .filter((item) => !item.hijos || item.hijos.length > 0 || item.ruta);
-    }
-
-    private tienePermisoParaItem(item: ItemMenu): boolean {
-        if (!item.permisos || item.permisos.length === 0) {
-            return true;
-        }
-        return this.authService.tieneAlgunPermiso(item.permisos);
-    }
-
     toggleSubmenu(item: ItemMenu): void {
         if (item.hijos && item.hijos.length > 0) {
-            item.expandido = !item.expandido;
+            this.menuService.toggleExpandido(item.id);
         }
     }
 

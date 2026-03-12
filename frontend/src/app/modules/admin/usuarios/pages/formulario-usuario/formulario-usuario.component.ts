@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -6,10 +6,12 @@ import { UsuariosService } from '../../services';
 import { Usuario, Rol, CrearUsuarioDto, ActualizarUsuarioDto } from '../../interfaces';
 import { OpcionesCatalogoService } from '../../../../../core/services/opciones-catalogo.service';
 import { ToastService } from '../../../../../core/services/toast.service';
-import {
-    PAISES_REFERENCIA, ESTADOS_POR_PAIS, CODIGOS_TELEFONICOS,
-    PaisReferencia, CodigoTelefonicoPais
-} from '../../../../../core/data/datos-geograficos';
+
+interface OpcionCatalogoLocal {
+    valor: string;
+    etiqueta: string;
+    descripcion?: string;
+}
 
 @Component({
     selector: 'app-formulario-usuario',
@@ -49,16 +51,46 @@ export class FormularioUsuarioComponent implements OnInit {
 
     generos = computed(() => this.opcionesCatalogo.obtenerGrupo('generos'));
 
-    paisesLista = PAISES_REFERENCIA;
+    paisActual = signal('');
+    paisesLista = computed(() => this.opcionesCatalogo.obtenerGrupo('paises'));
+    private readonly codigoPaisDefecto = computed(() => this.paisesLista()[0]?.valor ?? '');
+    private readonly codigoTelefonicoPorDefecto = computed(() => {
+        const pais = this.paisesLista().find(p => p.valor === this.paisActual());
+        return pais?.descripcion ?? '';
+    });
+    departamentosDisponibles = computed(() => {
+        const departamentos = this.opcionesCatalogo.obtenerGrupo('departamentos');
+        const mapa = new Map<string, OpcionCatalogoLocal>();
 
-    estadosPorPais = ESTADOS_POR_PAIS;
+        for (const departamento of departamentos) {
+            const clave = this.normalizarClaveCatalogo(departamento.etiqueta);
+            const actual = mapa.get(clave);
+            if (!actual || this.esEtiquetaMasLegible(departamento.etiqueta, actual.etiqueta)) {
+                mapa.set(clave, departamento);
+            }
+        }
 
-    paisSeleccionado = signal<PaisReferencia>(PAISES_REFERENCIA[0]);
-    estadosDisponibles = signal<string[]>(ESTADOS_POR_PAIS['HN'] || []);
+        return Array.from(mapa.values()).map((departamento) => departamento.etiqueta);
+    });
+    estadosDisponibles = computed(() => this.departamentosDisponibles());
+    nombrePaisSeleccionado = computed(() => this.paisesLista().find((pais) => pais.valor === this.paisActual())?.etiqueta || this.paisActual());
 
-    paises = CODIGOS_TELEFONICOS;
-    paisSeleccionadoTelefono = signal<CodigoTelefonicoPais>(CODIGOS_TELEFONICOS[0]);
-    paisSeleccionadoCelular = signal<CodigoTelefonicoPais>(CODIGOS_TELEFONICOS[0]);
+    constructor() {
+        effect(() => {
+            const paisDefault = this.codigoPaisDefecto();
+            untracked(() => {
+                if (paisDefault && !this.paisActual()) {
+                    this.paisActual.set(paisDefault);
+                    const telefonico = this.paisesLista().find(p => p.valor === paisDefault)?.descripcion ?? '';
+                    this.formulario?.get('pais')?.setValue(paisDefault);
+                    if (telefonico) {
+                        this.formulario?.get('codigoPaisCelular')?.setValue(telefonico);
+                        this.formulario?.get('codigoPaisTelefono')?.setValue(telefonico);
+                    }
+                }
+            });
+        });
+    }
 
     ngOnInit(): void {
         this.inicializarFormulario();
@@ -81,9 +113,9 @@ export class FormularioUsuarioComponent implements OnInit {
             nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), this.soloLetrasValidator()]],
             apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), this.soloLetrasValidator()]],
             correo: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
-            codigoPaisCelular: ['+504'],
+            codigoPaisCelular: [''],
             celular: ['', [Validators.required, this.validarTelefonoInternacional('celular')]],
-            codigoPaisTelefono: ['+504'],
+            codigoPaisTelefono: [''],
             telefono: ['', [this.validarTelefonoInternacional('telefono')]],
             
             tipoDocumento: ['', [Validators.required]],
@@ -93,7 +125,7 @@ export class FormularioUsuarioComponent implements OnInit {
             departamento: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), this.soloLetrasConEspaciosValidator()]],
             fechaIngreso: ['', [this.fechaNoFuturaValidator()]],
             
-            pais: ['HN', [Validators.required]],
+            pais: ['', [Validators.required]],
             direccion: ['', [this.direccionValidator()]],
             ciudad: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), this.soloLetrasConEspaciosValidator()]],
             estado: ['', [Validators.required]],
@@ -221,11 +253,7 @@ export class FormularioUsuarioComponent implements OnInit {
 
     seleccionarPais(codigoPais: string): void {
         this.formulario.patchValue({ pais: codigoPais, estado: '' });
-        const pais = this.paisesLista.find(p => p.codigo === codigoPais);
-        if (pais) {
-            this.paisSeleccionado.set(pais);
-        }
-        this.estadosDisponibles.set(this.estadosPorPais[codigoPais] || []);
+        this.paisActual.set(codigoPais);
     }
 
     private validarTelefonoInternacional(tipo: 'telefono' | 'celular'): (control: AbstractControl) => ValidationErrors | null {
@@ -236,53 +264,39 @@ export class FormularioUsuarioComponent implements OnInit {
             }
             
             const soloNumeros = valor.replace(/\D/g, '');
-            const pais = tipo === 'telefono' ? this.paisSeleccionadoTelefono() : this.paisSeleccionadoCelular();
             
-            if (soloNumeros.length !== pais.digitos) {
-                return { telefonoInvalido: { digitosRequeridos: pais.digitos, digitosActuales: soloNumeros.length } };
+            if (soloNumeros.length < 7 || soloNumeros.length > 15) {
+                return { telefonoInvalido: { digitosRequeridos: '7 a 15', digitosActuales: soloNumeros.length, tipo } };
             }
             
             return null;
         };
     }
 
-    seleccionarPaisTelefono(indicePais: number): void {
-        this.paisSeleccionadoTelefono.set(this.paises[indicePais]);
-        this.formulario.patchValue({ codigoPaisTelefono: this.paises[indicePais]?.codigo });
+    actualizarCodigoPaisTelefono(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const codigo = this.normalizarCodigoPais(input.value);
+        this.formulario.patchValue({ codigoPaisTelefono: codigo }, { emitEvent: false });
         this.formulario.get('telefono')?.updateValueAndValidity();
     }
 
-    seleccionarPaisCelular(indicePais: number): void {
-        this.paisSeleccionadoCelular.set(this.paises[indicePais]);
-        this.formulario.patchValue({ codigoPaisCelular: this.paises[indicePais]?.codigo });
+    actualizarCodigoPaisCelular(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const codigo = this.normalizarCodigoPais(input.value);
+        this.formulario.patchValue({ codigoPaisCelular: codigo }, { emitEvent: false });
         this.formulario.get('celular')?.updateValueAndValidity();
     }
 
     formatearNumeroTelefono(event: Event, tipo: 'telefono' | 'celular'): void {
         const input = event.target as HTMLInputElement;
         let valor = input.value.replace(/\D/g, '');
-        const pais = tipo === 'telefono' ? this.paisSeleccionadoTelefono() : this.paisSeleccionadoCelular();
-        
-        valor = valor.substring(0, pais.digitos);
+        valor = valor.substring(0, 15);
         
         this.formulario.patchValue({ [tipo]: valor });
     }
 
-    obtenerPlaceholder(tipo: 'telefono' | 'celular'): string {
-        const pais = tipo === 'telefono' ? this.paisSeleccionadoTelefono() : this.paisSeleccionadoCelular();
-        return pais.formato.replace(/#/g, '0');
-    }
-
-    private validarTelefonoHonduras(control: AbstractControl): ValidationErrors | null {
-        const valor = control.value;
-        if (!valor || valor.trim() === '') {
-            return null;
-        }
-        const regex = /^(\+504)?[2389]\d{7}$/;
-        if (!regex.test(valor.trim())) {
-            return { telefonoInvalido: true };
-        }
-        return null;
+    obtenerPlaceholder(_tipo: 'telefono' | 'celular'): string {
+        return '123456789';
     }
 
     private cargarRoles(): void {
@@ -303,14 +317,7 @@ export class FormularioUsuarioComponent implements OnInit {
                 const telefonoParseado = this.parsearTelefonoConCodigo(usuario.telefono);
                 const celularParseado = this.parsearTelefonoConCodigo(usuario.celular);
                 
-                if (telefonoParseado.indicePais >= 0) {
-                    this.paisSeleccionadoTelefono.set(this.paises[telefonoParseado.indicePais]);
-                }
-                if (celularParseado.indicePais >= 0) {
-                    this.paisSeleccionadoCelular.set(this.paises[celularParseado.indicePais]);
-                }
-
-                const paisUsuario = usuario.pais || 'HN';
+                const paisUsuario = usuario.pais || '';
                 this.seleccionarPais(paisUsuario);
                 
                 this.formulario.patchValue({
@@ -345,23 +352,22 @@ export class FormularioUsuarioComponent implements OnInit {
         });
     }
 
-    private parsearTelefonoConCodigo(telefono?: string): { codigo: string; numero: string; indicePais: number } {
+    private parsearTelefonoConCodigo(telefono?: string): { codigo: string; numero: string } {
+        const codigoDefecto = this.codigoTelefonicoPorDefecto();
         if (!telefono) {
-            return { codigo: '+504', numero: '', indicePais: 0 };
+            return { codigo: codigoDefecto, numero: '' };
         }
-        
-        for (let i = 0; i < this.paises.length; i++) {
-            const pais = this.paises[i];
-            if (telefono.startsWith(pais.codigo)) {
-                return {
-                    codigo: pais.codigo,
-                    numero: telefono.substring(pais.codigo.length),
-                    indicePais: i
-                };
-            }
+
+        const coincidencia = telefono.match(/^(\+\d{1,3})(\d+)$/);
+
+        if (coincidencia) {
+            return {
+                codigo: coincidencia[1],
+                numero: coincidencia[2],
+            };
         }
-        
-        return { codigo: '+504', numero: telefono, indicePais: 0 };
+
+        return { codigo: codigoDefecto, numero: telefono.replace(/^\+/, '') };
     }
 
     private formatearFechaInput(fecha: Date | string): string {
@@ -553,10 +559,31 @@ export class FormularioUsuarioComponent implements OnInit {
     }
 
     obtenerTelefonoFormateado(tipo: 'telefono' | 'celular'): string {
-        const pais = tipo === 'telefono' ? this.paisSeleccionadoTelefono() : this.paisSeleccionadoCelular();
         const numero = this.formulario.get(tipo)?.value;
+        const codigo = this.formulario.get(tipo === 'telefono' ? 'codigoPaisTelefono' : 'codigoPaisCelular')?.value || this.codigoTelefonicoPorDefecto();
         if (!numero) return '';
-        return `${pais.bandera} ${pais.codigo} ${numero}`;
+        return `${codigo} ${numero}`;
+    }
+
+    private normalizarCodigoPais(valor: string): string {
+        const numerico = valor.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+        if (!numerico) {
+            return this.codigoTelefonicoPorDefecto();
+        }
+        return numerico.startsWith('+') ? numerico : `+${numerico}`;
+    }
+
+    private normalizarClaveCatalogo(texto: string): string {
+        return texto
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\?/g, '')
+            .trim()
+            .toLowerCase();
+    }
+
+    private esEtiquetaMasLegible(candidata: string, actual: string): boolean {
+        return !candidata.includes('?') && actual.includes('?');
     }
 
     obtenerIniciales(nombre: string, apellido?: string): string {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
@@ -14,11 +14,18 @@ import {
     DatosActualizarPreferencias,
 } from './services/mi-perfil.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { TemaService, ZONAS_HORARIAS, IDIOMAS_DISPONIBLES } from '../../../core/services/tema.service';
+import { TemaService, IDIOMAS_DISPONIBLES } from '../../../core/services/tema.service';
 import { IdiomaService } from '../../../core/services/idioma.service';
+import { OpcionesCatalogoService } from '../../../core/services/opciones-catalogo.service';
 import { TraducirPipe } from '../../../core/pipes/colaboradoresPortal/traducir.pipe';
 
 type SeccionActiva = 'general' | 'seguridad' | 'preferencias' | 'sesiones' | 'dispositivos';
+
+interface ZonaHorariaVista {
+    valor: string;
+    etiqueta: string;
+    utc: string;
+}
 
 @Component({
     selector: 'app-mi-perfil',
@@ -32,6 +39,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
     private toastService = inject(ToastService);
     private temaService = inject(TemaService);
     private idiomaService = inject(IdiomaService);
+    private opcionesCatalogo = inject(OpcionesCatalogoService);
     private destruir$ = new Subject<void>();
 
     cargando = signal(false);
@@ -92,7 +100,7 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
         { valor: 'rosa', nombre: 'Rosa', color: '#d63384' },
     ];
 
-    zonasHorarias = ZONAS_HORARIAS;
+    zonasHorarias = computed<ZonaHorariaVista[]>(() => this.opcionesCatalogo.obtenerGrupo('zonasHorarias').map((opcion) => this.mapearZonaHoraria(opcion)));
     idiomasDisponibles = IDIOMAS_DISPONIBLES;
 
     ngOnInit(): void {
@@ -486,6 +494,24 @@ export class MiPerfilComponent implements OnInit, OnDestroy {
 
     cambiarZonaHoraria(zona: string): void {
         this.temaService.aplicarZonaHoraria(zona);
+    }
+
+    private mapearZonaHoraria(opcion: { valor: string; etiqueta: string }): ZonaHorariaVista {
+        const coincidencia = opcion.etiqueta.match(/^(.*)\((UTC[+-]\d+)\)$/);
+
+        if (!coincidencia) {
+            return {
+                valor: opcion.valor,
+                etiqueta: opcion.etiqueta,
+                utc: 'UTC',
+            };
+        }
+
+        return {
+            valor: opcion.valor,
+            etiqueta: coincidencia[1].trim(),
+            utc: coincidencia[2].trim(),
+        };
     }
 
     guardarPreferencias(): void {

@@ -284,11 +284,14 @@ export class TiendasService {
 
     formatearDireccionCompleta(tienda: Tienda): string {
         const { ubicacion } = tienda;
+        const paisEtiqueta = this.opcionesCatalogo
+            .obtenerGrupo('paises')
+            .find((pais) => pais.valor === ubicacion.pais)?.etiqueta || ubicacion.pais;
         const partes = [
             ubicacion.direccion,
             ubicacion.ciudad,
             ubicacion.departamento,
-            ubicacion.pais === 'HN' ? 'Honduras' : ubicacion.pais
+            paisEtiqueta
         ].filter(Boolean);
         
         return partes.join(', ');

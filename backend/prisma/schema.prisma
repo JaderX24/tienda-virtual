@@ -37,17 +37,20 @@ model Usuario {
 }
 
 model Rol {
-  id          Int       @id @default(autoincrement())
-  codigo      String    @unique @db.VarChar(50)
-  nombre      String    @db.VarChar(100)
-  descripcion String?   @db.VarChar(255)
-  activo      Boolean   @default(true)
-  creadoEn    DateTime  @default(now()) @map("creado_en")
+  id                Int       @id @default(autoincrement())
+  codigo            String    @unique @db.VarChar(50)
+  nombre            String    @db.VarChar(100)
+  descripcion       String?   @db.VarChar(255)
+  activo            Boolean   @default(true)
+  esAdministrativo  Boolean   @default(false) @map("es_administrativo")
+  protegido         Boolean   @default(false)
+  creadoEn          DateTime  @default(now()) @map("creado_en")
 
   // Relaciones
   usuarios    Usuario[]
   permisos    RolPermiso[]
 
+  @@index([esAdministrativo])
   @@map("roles")
 }
 
@@ -57,12 +60,39 @@ model Permiso {
   nombre      String    @db.VarChar(100)
   descripcion String?   @db.VarChar(255)
   modulo      String    @db.VarChar(50)
+  adminModuloId Int?    @map("admin_modulo_id")
   creadoEn    DateTime  @default(now()) @map("creado_en")
 
   // Relaciones
-  roles       RolPermiso[]
+  roles         RolPermiso[]
+  adminModulo   AdminModulo?  @relation(fields: [adminModuloId], references: [id], onDelete: SetNull)
 
+  @@index([adminModuloId], map: "idx_permiso_admin_modulo")
   @@map("permisos")
+}
+
+model AdminModulo {
+  id              Int       @id @default(autoincrement())
+  codigo          String    @unique @db.VarChar(50)
+  nombre          String    @db.VarChar(100)
+  descripcion     String?   @db.Text
+  icono           String?   @db.VarChar(100)
+  ruta            String?   @db.VarChar(200)
+  moduloPadreId   Int?      @map("modulo_padre_id")
+  orden           Int       @default(0)
+  esMenu          Boolean   @default(true) @map("es_menu")
+  esActivo        Boolean   @default(true) @map("es_activo")
+  creadoEn        DateTime  @default(now()) @map("creado_en")
+  actualizadoEn   DateTime  @updatedAt @map("actualizado_en")
+
+  moduloPadre     AdminModulo?  @relation("AdminModuloHijos", fields: [moduloPadreId], references: [id], onDelete: SetNull)
+  hijos           AdminModulo[] @relation("AdminModuloHijos")
+  permisos        Permiso[]
+
+  @@index([moduloPadreId], map: "idx_admin_mod_padre")
+  @@index([orden], map: "idx_admin_mod_orden")
+  @@index([esActivo], map: "idx_admin_mod_activo")
+  @@map("admin_modulos")
 }
 
 model RolPermiso {

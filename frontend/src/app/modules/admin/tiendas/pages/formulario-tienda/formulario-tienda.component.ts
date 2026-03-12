@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -51,6 +51,24 @@ export class FormularioTiendaComponent implements OnInit {
     get departamentosHN() { return this.opcionesCatalogo.obtenerGrupo('departamentos'); }
     get paises() { return this.opcionesCatalogo.obtenerGrupo('paises'); }
 
+    constructor() {
+        effect(() => {
+            const paisDefault = this.paises[0]?.valor ?? '';
+            const tipoTiendaDefault = this.tiposTienda[0]?.valor ?? '';
+            const planSuscripcionDefault = this.planesSuscripcion[0]?.valor ?? '';
+            const monedaDefault = this.opcionesCatalogo.obtenerGrupo('monedas')[0]?.valor ?? '';
+            const zonaDefault = this.opcionesCatalogo.obtenerGrupo('zonasHorarias')[0]?.valor ?? '';
+            if (!paisDefault && !tipoTiendaDefault && !planSuscripcionDefault && !monedaDefault && !zonaDefault) return;
+            const form = this.formulario;
+            if (!form) return;
+            if (paisDefault && !form.get('pais')?.value) form.patchValue({ pais: paisDefault });
+            if (tipoTiendaDefault && !form.get('tipoTienda')?.value) form.patchValue({ tipoTienda: tipoTiendaDefault });
+            if (planSuscripcionDefault && !form.get('planSuscripcion')?.value) form.patchValue({ planSuscripcion: planSuscripcionDefault });
+            if (monedaDefault && !form.get('moneda')?.value) form.patchValue({ moneda: monedaDefault });
+            if (zonaDefault && !form.get('zonaHoraria')?.value) form.patchValue({ zonaHoraria: zonaDefault });
+        });
+    }
+
     ngOnInit(): void {
         this.inicializarFormulario();
         const id = this.route.snapshot.paramMap.get('id');
@@ -70,7 +88,7 @@ export class FormularioTiendaComponent implements OnInit {
             rtn: ['', [Validators.required, this.rtnValidator()], [this.rtnUnicoValidator()]],
             nit: ['', [Validators.maxLength(50)]],
             tipoNegocio: ['', [Validators.required]],
-            tipoTienda: ['tienda_fisica', [Validators.required]],
+            tipoTienda: ['', [Validators.required]],
             descripcion: ['', [Validators.maxLength(500)]],
 
             // Contacto
@@ -80,7 +98,7 @@ export class FormularioTiendaComponent implements OnInit {
             sitioWeb: ['', [this.urlValidator()]],
 
             // Ubicación
-            pais: ['HN', [Validators.required]],
+            pais: ['', [Validators.required]],
             departamento: ['', [Validators.required]],
             ciudad: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
             codigoPostal: ['', [Validators.maxLength(15)]],
@@ -96,9 +114,9 @@ export class FormularioTiendaComponent implements OnInit {
 
             // Configuración empresarial
             representanteLegal: ['', [Validators.maxLength(200)]],
-            planSuscripcion: ['basico', [Validators.required]],
-            moneda: ['HNL', [Validators.required]],
-            zonaHoraria: ['America/Tegucigalpa', [Validators.required]],
+            planSuscripcion: ['', [Validators.required]],
+            moneda: ['', [Validators.required]],
+            zonaHoraria: ['', [Validators.required]],
             cantidadEmpleados: [''],
 
             // Configuración operativa
@@ -136,7 +154,7 @@ export class FormularioTiendaComponent implements OnInit {
                     rtn: tienda.rtn,
                     nit: tienda.nit || '',
                     tipoNegocio: tienda.tipoNegocio,
-                    tipoTienda: tienda.tipoTienda || 'tienda_fisica',
+                    tipoTienda: tienda.tipoTienda || '',
                     descripcion: tienda.descripcion || '',
                     
                     correo: tienda.correo,
@@ -144,7 +162,7 @@ export class FormularioTiendaComponent implements OnInit {
                     celular: tienda.celular || '',
                     sitioWeb: tienda.sitioWeb || '',
 
-                    pais: tienda.ubicacion.pais || 'HN',
+                    pais: tienda.ubicacion.pais || '',
                     departamento: tienda.ubicacion.departamento || '',
                     ciudad: tienda.ubicacion.ciudad || '',
                     codigoPostal: tienda.ubicacion.codigoPostal || '',
@@ -158,9 +176,9 @@ export class FormularioTiendaComponent implements OnInit {
                     tiktok: tienda.redesSociales?.tiktok || '',
 
                     representanteLegal: tienda.representanteLegal || '',
-                    planSuscripcion: tienda.planSuscripcion || 'basico',
-                    moneda: tienda.moneda || 'HNL',
-                    zonaHoraria: tienda.zonaHoraria || 'America/Tegucigalpa',
+                    planSuscripcion: tienda.planSuscripcion || '',
+                    moneda: tienda.moneda || '',
+                    zonaHoraria: tienda.zonaHoraria || '',
                     cantidadEmpleados: tienda.cantidadEmpleados || '',
 
                     permitePedidosOnline: tienda.configuracion?.permitePedidosOnline || false,
@@ -267,7 +285,7 @@ export class FormularioTiendaComponent implements OnInit {
             departamento: v['departamento'],
             ciudad: v['ciudad'],
             codigoPostal: v['codigoPostal'] || undefined,
-            pais: v['pais'] || 'HN',
+            pais: v['pais'] || '',
             referenciasUbicacion: v['referenciasUbicacion'] || undefined
         };
 
@@ -431,8 +449,8 @@ export class FormularioTiendaComponent implements OnInit {
             const valor = control.value;
             if (!valor || valor.trim() === '') return null;
             
-            // Permitir formato +504XXXXXXXX o solo números
-            const regex = /^(\+504)?[0-9]{8,9}$/;
+            // Permitir código internacional opcional (+NN...)
+            const regex = /^(\+\d{1,4})?[0-9]{7,15}$/;
             if (!regex.test(valor.replace(/\s/g, ''))) {
                 return { whatsappInvalido: true };
             }

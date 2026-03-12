@@ -363,7 +363,7 @@ export class MiPerfilColaboradorService {
 
         const preferencias: Record<string, any> = {
             idioma: usuario?.idioma || 'es',
-            zonaHoraria: usuario?.zonaHoraria || 'America/Tegucigalpa',
+            zonaHoraria: usuario?.zonaHoraria || '',
             temaColor: 'teal',
             sidebarCompacto: false,
             notificacionesSonido: true,

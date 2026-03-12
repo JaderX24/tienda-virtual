@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -47,19 +47,42 @@ export class FormularioColaboradorComponent implements OnInit {
     get tiposContrato() { return this.opcionesCatalogo.obtenerGrupo('tiposContrato'); }
     get generos() { return this.opcionesCatalogo.obtenerGrupo('generos'); }
     get metodos2fa() { return this.opcionesCatalogo.obtenerGrupo('metodos2fa'); }
+    get paises() { return this.opcionesCatalogo.obtenerGrupo('paises'); }
 
-    paises = [
-        { codigo: '+504', pais: 'Honduras', bandera: '🇭🇳', digitos: 8 },
-        { codigo: '+502', pais: 'Guatemala', bandera: '🇬🇹', digitos: 8 },
-        { codigo: '+503', pais: 'El Salvador', bandera: '🇸🇻', digitos: 8 },
-        { codigo: '+505', pais: 'Nicaragua', bandera: '🇳🇮', digitos: 8 },
-        { codigo: '+506', pais: 'Costa Rica', bandera: '🇨🇷', digitos: 8 },
-        { codigo: '+52', pais: 'México', bandera: '🇲🇽', digitos: 10 },
-        { codigo: '+1', pais: 'Estados Unidos', bandera: '🇺🇸', digitos: 10 }
-    ];
+    paisSeleccionadoTelefono = signal<{ valor: string; etiqueta: string; descripcion?: string } | null>(null);
+    paisSeleccionadoEmergencia = signal<{ valor: string; etiqueta: string; descripcion?: string } | null>(null);
 
-    paisSeleccionadoTelefono = signal(this.paises[0]);
-    paisSeleccionadoEmergencia = signal(this.paises[0]);
+    obtenerBandera(codigoIso: string): string {
+        if (!codigoIso || codigoIso.length < 2) return '🏳️';
+        return Array.from(codigoIso.toUpperCase().substring(0, 2))
+            .map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65))
+            .join('');
+    }
+
+    constructor() {
+        effect(() => {
+            const lista = this.paises;
+            const generoDefault = this.generos[0]?.valor ?? '';
+            const metodo2faDefault = this.metodos2fa[0]?.valor ?? '';
+            const formulario = this.formulario;
+            if (lista.length > 0 && !this.paisSeleccionadoTelefono()) {
+                const primero = lista[0];
+                this.paisSeleccionadoTelefono.set(primero);
+                formulario?.patchValue({ codigoPaisTelefono: primero.descripcion || '' });
+            }
+            if (lista.length > 0 && !this.paisSeleccionadoEmergencia()) {
+                const primero = lista[0];
+                this.paisSeleccionadoEmergencia.set(primero);
+                formulario?.patchValue({ codigoPaisEmergencia: primero.descripcion || '' });
+            }
+            if (generoDefault && !formulario?.get('genero')?.value) {
+                formulario.patchValue({ genero: generoDefault });
+            }
+            if (metodo2faDefault && !formulario?.get('metodo2fa')?.value) {
+                formulario.patchValue({ metodo2fa: metodo2faDefault });
+            }
+        });
+    }
 
     ngOnInit(): void {
         this.inicializarFormulario();
@@ -82,11 +105,11 @@ export class FormularioColaboradorComponent implements OnInit {
             codigoColaborador: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
             numeroIdentidad: ['', [Validators.maxLength(20)]],
             fechaNacimiento: ['', [this.fechaNacimientoValidator()]],
-            genero: ['no_especificado'],
+            genero: [''],
 
-            codigoPaisTelefono: ['+504'],
+            codigoPaisTelefono: [''],
             telefono: [''],
-            codigoPaisEmergencia: ['+504'],
+            codigoPaisEmergencia: [''],
             telefonoEmergencia: [''],
             contactoEmergenciaNombre: ['', [Validators.maxLength(200)]],
 
@@ -96,7 +119,7 @@ export class FormularioColaboradorComponent implements OnInit {
             empresaId: [null],
 
             requiere2fa: [false],
-            metodo2fa: ['ninguno'],
+            metodo2fa: [''],
             accesoSoloHorarioTurno: [false],
             maxSesionesSimultaneas: [1, [Validators.min(1), Validators.max(5)]]
         });
@@ -146,13 +169,17 @@ export class FormularioColaboradorComponent implements OnInit {
     }
 
     seleccionarPaisTelefono(indicePais: number): void {
-        this.paisSeleccionadoTelefono.set(this.paises[indicePais]);
-        this.formulario.patchValue({ codigoPaisTelefono: this.paises[indicePais].codigo });
+        const pais = this.paises[indicePais];
+        if (!pais) return;
+        this.paisSeleccionadoTelefono.set(pais);
+        this.formulario.patchValue({ codigoPaisTelefono: pais.descripcion || '' });
     }
 
     seleccionarPaisEmergencia(indicePais: number): void {
-        this.paisSeleccionadoEmergencia.set(this.paises[indicePais]);
-        this.formulario.patchValue({ codigoPaisEmergencia: this.paises[indicePais].codigo });
+        const pais = this.paises[indicePais];
+        if (!pais) return;
+        this.paisSeleccionadoEmergencia.set(pais);
+        this.formulario.patchValue({ codigoPaisEmergencia: pais.descripcion || '' });
     }
 
     private cargarEmpresas(): void {
@@ -180,7 +207,7 @@ export class FormularioColaboradorComponent implements OnInit {
                     fechaNacimiento: colaborador.fechaNacimiento
                         ? new Date(colaborador.fechaNacimiento).toISOString().split('T')[0]
                         : '',
-                    genero: colaborador.genero || 'no_especificado',
+                    genero: colaborador.genero || '',
                     telefono: colaborador.telefono || '',
                     telefonoEmergencia: colaborador.telefonoEmergencia || '',
                     contactoEmergenciaNombre: colaborador.contactoEmergenciaNombre || '',
@@ -191,7 +218,7 @@ export class FormularioColaboradorComponent implements OnInit {
                     tipoContrato: colaborador.tipoContrato,
                     empresaId: colaborador.empresaId,
                     requiere2fa: colaborador.requiere2fa,
-                    metodo2fa: colaborador.metodo2fa || 'ninguno',
+                    metodo2fa: colaborador.metodo2fa || '',
                     accesoSoloHorarioTurno: colaborador.accesoSoloHorarioTurno,
                     maxSesionesSimultaneas: colaborador.maxSesionesSimultaneas
                 });

@@ -85,7 +85,7 @@ export class FormularioMetodoPagoComponent implements OnInit {
             soportaCapturaDiferida: [false],
 
             // Paso 3: Configuración operativa
-            monedasSoportadas: [['HNL']],
+            monedasSoportadas: [[]],
             montoMinimo: [1.00, [Validators.required, Validators.min(0.01), Validators.max(999999.99)]],
             montoMaximo: [999999.99, [Validators.required, Validators.min(0.01), Validators.max(999999999.99)]],
             ordenPrioridad: [0, [Validators.required, Validators.min(0), Validators.max(1000)]],
@@ -122,7 +122,7 @@ export class FormularioMetodoPagoComponent implements OnInit {
                     soportaSplitPayment: pasarela.soportaSplitPayment,
                     soportaPreautorizacion: pasarela.soportaPreautorizacion,
                     soportaCapturaDiferida: pasarela.soportaCapturaDiferida,
-                    monedasSoportadas: pasarela.monedasSoportadas || ['HNL'],
+                    monedasSoportadas: pasarela.monedasSoportadas || [],
                     montoMinimo: pasarela.montoMinimo,
                     montoMaximo: pasarela.montoMaximo,
                     ordenPrioridad: pasarela.ordenPrioridad,

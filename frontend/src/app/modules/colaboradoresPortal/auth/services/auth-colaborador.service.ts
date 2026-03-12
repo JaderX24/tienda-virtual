@@ -35,6 +35,7 @@ export class AuthColaboradorService {
     private autenticado = signal(false);
     private ultimoRefrescoPermisos = 0;
     private readonly INTERVALO_REFRESCO_MS = 5 * 60 * 1000;
+    private timerRefresco: ReturnType<typeof setInterval> | null = null;
 
     readonly usuario = this.usuarioActual.asReadonly();
     readonly estaCargando = this.cargando.asReadonly();
@@ -64,6 +65,7 @@ export class AuthColaboradorService {
                     const usuario = JSON.parse(usuarioGuardado) as UsuarioAdmin;
                     this.usuarioActual.set(usuario);
                     this.autenticado.set(true);
+                    this.iniciarTimerRefresco();
                 } catch {
                     this.limpiarSesion();
                 }
@@ -189,6 +191,7 @@ export class AuthColaboradorService {
 
         this.usuarioActual.set(respuesta.usuario);
         this.autenticado.set(true);
+        this.iniciarTimerRefresco();
     }
 
     private actualizarExpiracion(segundos: number): void {
@@ -198,6 +201,7 @@ export class AuthColaboradorService {
     }
 
     limpiarSesion(): void {
+        this.detenerTimerRefresco();
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.USUARIO);
@@ -205,6 +209,20 @@ export class AuthColaboradorService {
 
         this.usuarioActual.set(null);
         this.autenticado.set(false);
+    }
+
+    private iniciarTimerRefresco(): void {
+        this.detenerTimerRefresco();
+        this.timerRefresco = setInterval(() => {
+            this.refrescarPermisos().subscribe();
+        }, this.INTERVALO_REFRESCO_MS);
+    }
+
+    private detenerTimerRefresco(): void {
+        if (this.timerRefresco) {
+            clearInterval(this.timerRefresco);
+            this.timerRefresco = null;
+        }
     }
 
     private intentarRefrescarToken(): void {

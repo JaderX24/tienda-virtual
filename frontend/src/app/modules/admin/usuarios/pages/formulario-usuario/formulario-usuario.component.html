@@ -162,29 +162,12 @@
                                 <div class="col-md-6">
                                     <label class="form-label">Teléfono Fijo</label>
                                     <div class="input-group telefono-internacional">
-                                        <div class="dropdown">
-                                            <button 
-                                                class="btn btn-outline-secondary dropdown-toggle selector-pais" 
-                                                type="button" 
-                                                data-bs-toggle="dropdown">
-                                                <span class="bandera">{{ paisSeleccionadoTelefono().bandera }}</span>
-                                                <span class="codigo">{{ paisSeleccionadoTelefono().codigo }}</span>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-paises">
-                                                @for (pais of paises; track pais.codigo + pais.pais; let i = $index) {
-                                                    <li>
-                                                        <button 
-                                                            type="button"
-                                                            class="dropdown-item" 
-                                                            (click)="seleccionarPaisTelefono(i)">
-                                                            <span class="bandera">{{ pais.bandera }}</span>
-                                                            <span class="nombre-pais">{{ pais.pais }}</span>
-                                                            <span class="codigo-pais">{{ pais.codigo }}</span>
-                                                        </button>
-                                                    </li>
-                                                }
-                                            </ul>
-                                        </div>
+                                        <input 
+                                            type="text"
+                                            class="form-control" 
+                                            formControlName="codigoPaisTelefono"
+                                            placeholder="+504"
+                                            (input)="actualizarCodigoPaisTelefono($event)">
                                         <input 
                                             type="tel" 
                                             class="form-control" 
@@ -196,38 +179,19 @@
                                     @if (tieneError('telefono')) {
                                         <div class="text-danger small mt-1">{{ obtenerError('telefono') }}</div>
                                     }
-                                    <small class="text-muted">
-                                        Formato para {{ paisSeleccionadoTelefono().pais }}: {{ paisSeleccionadoTelefono().formato }}
-                                    </small>
+                                    <small class="text-muted">Usa formato internacional: código de país y número entre 7 y 15 dígitos.</small>
                                 </div>
 
                                 <!-- Teléfono Celular (Obligatorio y Único) -->
                                 <div class="col-md-6">
                                     <label class="form-label">Teléfono Celular <span class="text-danger">*</span></label>
                                     <div class="input-group telefono-internacional">
-                                        <div class="dropdown">
-                                            <button 
-                                                class="btn btn-outline-secondary dropdown-toggle selector-pais" 
-                                                type="button" 
-                                                data-bs-toggle="dropdown">
-                                                <span class="bandera">{{ paisSeleccionadoCelular().bandera }}</span>
-                                                <span class="codigo">{{ paisSeleccionadoCelular().codigo }}</span>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-paises">
-                                                @for (pais of paises; track pais.codigo + pais.pais; let i = $index) {
-                                                    <li>
-                                                        <button 
-                                                            type="button"
-                                                            class="dropdown-item" 
-                                                            (click)="seleccionarPaisCelular(i)">
-                                                            <span class="bandera">{{ pais.bandera }}</span>
-                                                            <span class="nombre-pais">{{ pais.pais }}</span>
-                                                            <span class="codigo-pais">{{ pais.codigo }}</span>
-                                                        </button>
-                                                    </li>
-                                                }
-                                            </ul>
-                                        </div>
+                                        <input 
+                                            type="text"
+                                            class="form-control" 
+                                            formControlName="codigoPaisCelular"
+                                            placeholder="+504"
+                                            (input)="actualizarCodigoPaisCelular($event)">
                                         <input 
                                             type="tel" 
                                             class="form-control" 
@@ -239,9 +203,7 @@
                                     @if (tieneError('celular')) {
                                         <div class="text-danger small mt-1">{{ obtenerError('celular') }}</div>
                                     }
-                                    <small class="text-muted">
-                                        Formato para {{ paisSeleccionadoCelular().pais }}: {{ paisSeleccionadoCelular().formato }}
-                                    </small>
+                                    <small class="text-muted">Usa formato internacional: código de país y número entre 7 y 15 dígitos.</small>
                                 </div>
                             </div>
                         </div>
@@ -307,28 +269,12 @@
                                 <!-- País -->
                                 <div class="col-md-6">
                                     <label class="form-label">País <span class="text-danger">*</span></label>
-                                    <div class="dropdown">
-                                        <button 
-                                            class="btn btn-outline-secondary dropdown-toggle selector-pais-direccion w-100" 
-                                            type="button" 
-                                            data-bs-toggle="dropdown">
-                                            <span class="bandera me-2">{{ paisSeleccionado().bandera }}</span>
-                                            <span>{{ paisSeleccionado().nombre }}</span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-paises w-100">
-                                            @for (pais of paisesLista; track pais.codigo) {
-                                                <li>
-                                                    <button 
-                                                        type="button"
-                                                        class="dropdown-item" 
-                                                        (click)="seleccionarPais(pais.codigo)">
-                                                        <span class="bandera me-2">{{ pais.bandera }}</span>
-                                                        <span>{{ pais.nombre }}</span>
-                                                    </button>
-                                                </li>
-                                            }
-                                        </ul>
-                                    </div>
+                                    <select class="form-select" formControlName="pais" (change)="seleccionarPais($any($event.target).value)">
+                                        <option value="">Seleccionar...</option>
+                                        @for (pais of paisesLista(); track pais.valor) {
+                                            <option [value]="pais.valor">{{ pais.etiqueta }}</option>
+                                        }
+                                    </select>
                                 </div>
 
                                 <!-- Estado/Provincia/Departamento -->
@@ -566,10 +512,9 @@
                                     {{ formulario.get('ciudad')?.value }}{{ formulario.get('ciudad')?.value && formulario.get('estado')?.value ? ', ' : '' }}{{ formulario.get('estado')?.value }}
                                 </p>
                             }
-                            @if (paisSeleccionado()) {
+                            @if (formulario.get('pais')?.value) {
                                 <p class="mb-0 small text-muted">
-                                    <span class="me-1">{{ paisSeleccionado().bandera }}</span>
-                                    {{ paisSeleccionado().nombre }}
+                                    {{ nombrePaisSeleccionado() }}
                                 </p>
                             }
                         </div>

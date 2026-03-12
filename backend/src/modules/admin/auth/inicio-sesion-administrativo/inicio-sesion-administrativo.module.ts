@@ -7,10 +7,12 @@ import { InicioSesionAdministrativoService } from './inicio-sesion-administrativ
 import { PrismaModule } from '../../../../prisma';
 import { JwtAdminStrategy } from '../../../../common/strategies';
 import { ParametrosSeguridadService } from '../../../../common/services';
+import { AdminModulosModule } from '../../layout/sidebar/admin-modulos.module';
 
 @Module({
     imports: [
         PrismaModule,
+        AdminModulosModule,
         PassportModule.register({ defaultStrategy: 'jwt-admin' }),
         JwtModule.registerAsync({
             imports: [ConfigModule],

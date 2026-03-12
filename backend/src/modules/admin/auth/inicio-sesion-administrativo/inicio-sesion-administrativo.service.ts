@@ -12,6 +12,7 @@ import { LoginAdminDto } from './dto';
 import { MENSAJES_ERROR, ROLES } from '../../../../common/constants';
 import { JwtPayload } from '../../../../common/strategies';
 import { ParametrosSeguridadService, CLAVES_PARAMETRO } from '../../../../common/services';
+import { AdminModulosService } from '../../layout/sidebar/admin-modulos.service';
 
 const ROLES_ADMINISTRATIVOS = [
     ROLES.SUPER_ADMIN,
@@ -37,6 +38,7 @@ export class InicioSesionAdministrativoService {
         private jwtService: JwtService,
         private configService: ConfigService,
         private parametrosSeguridad: ParametrosSeguridadService,
+        private adminModulosService: AdminModulosService,
     ) {}
 
     async login(loginDto: LoginAdminDto, ip?: string, userAgent?: string) {
@@ -103,6 +105,8 @@ export class InicioSesionAdministrativoService {
 
         this.logger.log(`Login administrativo exitoso: ${correo} - Rol: ${usuario.rol.codigo}`);
 
+        const menu = await this.adminModulosService.obtenerMenuPorPermisos(permisos);
+
         return {
             exito: true,
             mensaje: 'Inicio de sesión administrativo exitoso',
@@ -117,6 +121,7 @@ export class InicioSesionAdministrativoService {
                 },
                 permisos,
             },
+            menu,
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken,
             expiresIn: this.obtenerTiempoExpiracion(),
@@ -347,6 +352,50 @@ export class InicioSesionAdministrativoService {
 
     private limpiarIntentosFallidos(correo: string) {
         this.intentosFallidos.delete(correo);
+    }
+
+    async obtenerPerfil(usuarioId: number) {
+        const usuario = await this.prisma.usuario.findUnique({
+            where: { id: usuarioId },
+            include: {
+                rol: {
+                    include: {
+                        permisos: {
+                            include: {
+                                permiso: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!usuario) {
+            throw new UnauthorizedException(MENSAJES_ERROR.USUARIO_NO_ENCONTRADO);
+        }
+
+        if (!usuario.activo) {
+            throw new UnauthorizedException(MENSAJES_ERROR.CUENTA_INACTIVA);
+        }
+
+        const permisos = usuario.rol?.permisos?.map((rp) => rp.permiso.codigo) || [];
+        const menu = await this.adminModulosService.obtenerMenuPorPermisos(permisos);
+
+        return {
+            exito: true,
+            usuario: {
+                id: usuario.id,
+                nombre: usuario.nombre,
+                correo: usuario.correo,
+                avatar: usuario.avatar,
+                rol: usuario.rol ? {
+                    codigo: usuario.rol.codigo,
+                    nombre: usuario.rol.nombre,
+                } : null,
+                permisos,
+            },
+            menu,
+        };
     }
 
     private obtenerTiempoExpiracion(): number {

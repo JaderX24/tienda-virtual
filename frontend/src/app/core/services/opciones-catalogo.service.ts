@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -14,8 +14,10 @@ export class OpcionesCatalogoService {
     private cache = new Map<string, OpcionCatalogo[]>();
     private cargando = false;
     private cargado = false;
+    private versionCache = signal(0);
 
     obtenerGrupo(grupo: string): OpcionCatalogo[] {
+        this.versionCache();
         if (!this.cargado && !this.cargando) this.cargarTodos();
         return this.cache.get(grupo) ?? [];
     }
@@ -33,6 +35,7 @@ export class OpcionesCatalogoService {
                     }
                     this.cargado = true;
                     this.cargando = false;
+                    this.versionCache.update((version) => version + 1);
                 },
                 error: () => { this.cargando = false; },
             });
@@ -42,6 +45,7 @@ export class OpcionesCatalogoService {
         this.cache.clear();
         this.cargado = false;
         this.cargando = false;
+        this.versionCache.update((version) => version + 1);
         this.cargarTodos();
     }
 }

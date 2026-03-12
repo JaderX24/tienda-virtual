@@ -3,12 +3,11 @@ import { IdiomaService } from './idioma.service';
 import {
     TEMAS_PORTAL,
     TEMA_POR_DEFECTO,
-    ZONA_POR_DEFECTO,
     IDIOMA_POR_DEFECTO,
 } from './temas/colaboradoresPortal';
 
-export { ZONAS_HORARIAS, IDIOMAS_DISPONIBLES } from './temas/colaboradoresPortal';
-export type { ZonaHorariaOpcion, IdiomaOpcion } from './temas/colaboradoresPortal';
+export { IDIOMAS_DISPONIBLES } from './temas/colaboradoresPortal';
+export type { IdiomaOpcion } from './temas/colaboradoresPortal';
 
 const CLAVE_STORAGE = 'tema-color-portal';
 const CLAVE_SIDEBAR = 'sidebar-compacto-portal';
@@ -22,7 +21,7 @@ export class TemaService {
 
     sidebarCompacto = signal(false);
     idiomaActual = signal(IDIOMA_POR_DEFECTO);
-    zonaHorariaActual = signal(ZONA_POR_DEFECTO);
+    zonaHorariaActual = signal('');
 
     obtenerTemaActual(): string {
         return this.temaActual;
@@ -50,6 +49,7 @@ export class TemaService {
         if (zonaGuardada) {
             this.zonaHorariaActual.set(zonaGuardada);
         }
+        // Si no hay zona guardada se espera a que se cargue desde el perfil del usuario
     }
 
     aplicarSidebarCompacto(compacto: boolean): void {

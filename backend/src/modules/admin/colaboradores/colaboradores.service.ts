@@ -150,7 +150,7 @@ export class ColaboradoresService {
                 fechaNacimiento: crearColaboradorDto.fechaNacimiento
                     ? new Date(crearColaboradorDto.fechaNacimiento)
                     : undefined,
-                genero: crearColaboradorDto.genero || 'no_especificado',
+                genero: crearColaboradorDto.genero,
                 telefono: crearColaboradorDto.telefono,
                 telefonoEmergencia: crearColaboradorDto.telefonoEmergencia,
                 contactoEmergenciaNombre: crearColaboradorDto.contactoEmergenciaNombre,
@@ -163,7 +163,7 @@ export class ColaboradoresService {
                 contrasenaHash,
                 contrasenaTemporal: true,
                 requiere2fa: crearColaboradorDto.requiere2fa ?? false,
-                metodo2fa: crearColaboradorDto.metodo2fa || 'ninguno',
+                metodo2fa: crearColaboradorDto.metodo2fa,
                 accesoSoloHorarioTurno: crearColaboradorDto.accesoSoloHorarioTurno ?? false,
                 maxSesionesSimultaneas: crearColaboradorDto.maxSesionesSimultaneas ?? 1,
                 esActivo: true,

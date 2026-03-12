@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, catchError, throwError, map, forkJoin, of } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { OpcionesCatalogoService } from '../../../../core/services/opciones-catalogo.service';
 import {
     MovimientoInventario,
     ProductoInventario,
@@ -24,6 +25,7 @@ export class InventarioService {
     private readonly apiUrl = `${environment.apiUrl}/admin/inventario`;
     private readonly productosUrl = `${environment.apiUrl}/admin/productos`;
     private readonly http = inject(HttpClient);
+    private readonly opcionesCatalogo = inject(OpcionesCatalogoService);
 
     private cargando = signal(false);
     readonly estaCargando = this.cargando.asReadonly();
@@ -171,22 +173,39 @@ export class InventarioService {
     }
 
     formatearPrecio(monto: number): string {
+        const moneda = this.opcionesCatalogo.obtenerGrupo('monedas')[0]?.valor;
+        if (!moneda) {
+            return new Intl.NumberFormat('es-HN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(monto);
+        }
         return new Intl.NumberFormat('es-HN', {
             style: 'currency',
-            currency: 'HNL',
+            currency: moneda,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }).format(monto);
     }
 
     formatearFecha(fecha: string): string {
+        const zona = this.opcionesCatalogo.obtenerGrupo('zonasHorarias')[0]?.valor;
+        if (!zona) {
+            return new Date(fecha).toLocaleDateString('es-HN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        }
         return new Date(fecha).toLocaleDateString('es-HN', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            timeZone: 'America/Tegucigalpa'
+            timeZone: zona
         });
     }
 

@@ -17,6 +17,7 @@ import { InventarioAdminModule } from './inventario/inventario-admin.module';
 import { CategoriasAdminModule } from './categoria/categorias-admin.module';
 import { MarcasAdminModule } from './marcas/marcas-admin.module';
 import { OpcionesModule } from './opciones';
+import { AdminModulosModule } from './layout/sidebar/admin-modulos.module';
 
 @Module({
     imports: [
@@ -36,6 +37,7 @@ import { OpcionesModule } from './opciones';
         CategoriasAdminModule,
         MarcasAdminModule,
         OpcionesModule,
+        AdminModulosModule,
     ],
     controllers: [AdminController],
     providers: [AdminService],

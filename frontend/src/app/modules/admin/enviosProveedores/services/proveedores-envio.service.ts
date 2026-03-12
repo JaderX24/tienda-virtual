@@ -207,9 +207,16 @@ export class ProveedoresEnvioService {
     }
 
     formatearMonto(monto: number): string {
+        const moneda = this.opcionesCatalogo.obtenerGrupo('monedas')[0]?.valor;
+        if (!moneda) {
+            return new Intl.NumberFormat('es-HN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(monto);
+        }
         return new Intl.NumberFormat('es-HN', {
             style: 'currency',
-            currency: 'HNL',
+            currency: moneda,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }).format(monto);

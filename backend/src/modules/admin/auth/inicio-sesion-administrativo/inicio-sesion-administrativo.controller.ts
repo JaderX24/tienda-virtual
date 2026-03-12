@@ -102,6 +102,21 @@ export class InicioSesionAdministrativoController {
         return this.authService.cerrarSesion(usuarioId, token);
     }
 
+    @Get('perfil')
+    @UseGuards(JwtAdminGuard)
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Obtener perfil actualizado',
+        description: 'Retorna los datos del usuario, permisos actualizados y menú dinámico filtrado por permisos',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Perfil con permisos y menú actualizados',
+    })
+    async obtenerPerfil(@UsuarioActual('id') usuarioId: number) {
+        return this.authService.obtenerPerfil(usuarioId);
+    }
+
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({

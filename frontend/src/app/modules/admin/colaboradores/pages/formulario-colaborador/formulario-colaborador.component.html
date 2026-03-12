@@ -126,19 +126,19 @@
                                                 class="btn btn-outline-secondary dropdown-toggle selector-pais"
                                                 type="button"
                                                 data-bs-toggle="dropdown">
-                                                <span class="bandera">{{ paisSeleccionadoTelefono().bandera }}</span>
-                                                <span class="codigo">{{ paisSeleccionadoTelefono().codigo }}</span>
+                                                <span class="bandera">{{ obtenerBandera(paisSeleccionadoTelefono()?.valor || '') }}</span>
+                                                <span class="codigo">{{ paisSeleccionadoTelefono()?.descripcion || '' }}</span>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-paises">
-                                                @for (pais of paises; track pais.codigo + pais.pais; let i = $index) {
+                                                @for (pais of paises; track pais.valor; let i = $index) {
                                                     <li>
                                                         <button
                                                             type="button"
                                                             class="dropdown-item"
                                                             (click)="seleccionarPaisTelefono(i)">
-                                                            <span class="bandera">{{ pais.bandera }}</span>
-                                                            <span class="nombre-pais">{{ pais.pais }}</span>
-                                                            <span class="codigo-pais">{{ pais.codigo }}</span>
+                                                            <span class="bandera">{{ obtenerBandera(pais.valor) }}</span>
+                                                            <span class="nombre-pais">{{ pais.etiqueta }}</span>
+                                                            <span class="codigo-pais">{{ pais.descripcion }}</span>
                                                         </button>
                                                     </li>
                                                 }
@@ -171,19 +171,19 @@
                                                 class="btn btn-outline-secondary dropdown-toggle selector-pais"
                                                 type="button"
                                                 data-bs-toggle="dropdown">
-                                                <span class="bandera">{{ paisSeleccionadoEmergencia().bandera }}</span>
-                                                <span class="codigo">{{ paisSeleccionadoEmergencia().codigo }}</span>
+                                                <span class="bandera">{{ obtenerBandera(paisSeleccionadoEmergencia()?.valor || '') }}</span>
+                                                <span class="codigo">{{ paisSeleccionadoEmergencia()?.descripcion || '' }}</span>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-paises">
-                                                @for (pais of paises; track pais.codigo + pais.pais; let i = $index) {
+                                                @for (pais of paises; track pais.valor; let i = $index) {
                                                     <li>
                                                         <button
                                                             type="button"
                                                             class="dropdown-item"
                                                             (click)="seleccionarPaisEmergencia(i)">
-                                                            <span class="bandera">{{ pais.bandera }}</span>
-                                                            <span class="nombre-pais">{{ pais.pais }}</span>
-                                                            <span class="codigo-pais">{{ pais.codigo }}</span>
+                                                            <span class="bandera">{{ obtenerBandera(pais.valor) }}</span>
+                                                            <span class="nombre-pais">{{ pais.etiqueta }}</span>
+                                                            <span class="codigo-pais">{{ pais.descripcion }}</span>
                                                         </button>
                                                     </li>
                                                 }

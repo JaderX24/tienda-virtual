@@ -218,7 +218,7 @@ export class CrearProveedorEnvioDto {
     @Min(0, { message: 'El costo por kg adicional no puede ser negativo' })
     costoKgAdicional?: number;
 
-    @ApiPropertyOptional({ description: 'Moneda para los costos', default: 'HNL' })
+    @ApiPropertyOptional({ description: 'Moneda para los costos' })
     @IsOptional()
     @IsString({ message: 'La moneda debe ser una cadena de texto' })
     @MaxLength(10, { message: 'La moneda no puede exceder 10 caracteres' })

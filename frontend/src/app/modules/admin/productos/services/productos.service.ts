@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { OpcionesCatalogoService } from '../../../../core/services/opciones-catalogo.service';
 import {
     Producto,
     CategoriaResumen,
@@ -19,6 +20,7 @@ import {
 export class ProductosService {
     private readonly apiUrl = `${environment.apiUrl}/admin/productos`;
     private readonly http = inject(HttpClient);
+    private readonly opcionesCatalogo = inject(OpcionesCatalogoService);
 
     private cargando = signal(false);
     private productos = signal<Producto[]>([]);
@@ -156,9 +158,16 @@ export class ProductosService {
     }
 
     formatearPrecio(monto: number): string {
+        const moneda = this.opcionesCatalogo.obtenerGrupo('monedas')[0]?.valor;
+        if (!moneda) {
+            return new Intl.NumberFormat('es-HN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(monto);
+        }
         return new Intl.NumberFormat('es-HN', {
             style: 'currency',
-            currency: 'HNL',
+            currency: moneda,
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }).format(monto);

@@ -302,8 +302,14 @@ ON DUPLICATE KEY UPDATE etiqueta = VALUES(etiqueta), orden = VALUES(orden);
 
 -- Países
 INSERT INTO catalogos (grupo, valor, etiqueta, descripcion, orden, activo, creado_en, actualizado_en) VALUES
-('paises', 'HN', 'Honduras', NULL, 1, 1, NOW(), NOW())
-ON DUPLICATE KEY UPDATE etiqueta = VALUES(etiqueta), orden = VALUES(orden);
+('paises', 'HN', 'Honduras',       '+504', 1, 1, NOW(), NOW()),
+('paises', 'GT', 'Guatemala',      '+502', 2, 1, NOW(), NOW()),
+('paises', 'SV', 'El Salvador',    '+503', 3, 1, NOW(), NOW()),
+('paises', 'NI', 'Nicaragua',      '+505', 4, 1, NOW(), NOW()),
+('paises', 'CR', 'Costa Rica',     '+506', 5, 1, NOW(), NOW()),
+('paises', 'MX', 'México',         '+52',  6, 1, NOW(), NOW()),
+('paises', 'US', 'Estados Unidos', '+1',   7, 1, NOW(), NOW())
+ON DUPLICATE KEY UPDATE etiqueta = VALUES(etiqueta), descripcion = VALUES(descripcion), orden = VALUES(orden);
 
 -- Monedas
 INSERT INTO catalogos (grupo, valor, etiqueta, descripcion, orden, activo, creado_en, actualizado_en) VALUES

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
@@ -43,6 +43,20 @@ export class FormularioEmpresaComponent implements OnInit {
     get departamentosHN() { return this.opcionesCatalogo.obtenerGrupo('departamentos'); }
     get paises() { return this.opcionesCatalogo.obtenerGrupo('paises'); }
 
+    constructor() {
+        effect(() => {
+            const paisDefault = this.opcionesCatalogo.obtenerGrupo('paises')[0]?.valor ?? '';
+            const monedaDefault = this.opcionesCatalogo.obtenerGrupo('monedas')[0]?.valor ?? '';
+            const zonaDefault = this.opcionesCatalogo.obtenerGrupo('zonasHorarias')[0]?.valor ?? '';
+            if (!paisDefault && !monedaDefault && !zonaDefault) return;
+            const form = this.formulario;
+            if (!form) return;
+            if (paisDefault && !form.get('pais')?.value) form.patchValue({ pais: paisDefault });
+            if (monedaDefault && !form.get('moneda')?.value) form.patchValue({ moneda: monedaDefault });
+            if (zonaDefault && !form.get('zonaHoraria')?.value) form.patchValue({ zonaHoraria: zonaDefault });
+        });
+    }
+
     ngOnInit(): void {
         this.inicializarFormulario();
         const id = this.route.snapshot.paramMap.get('id');
@@ -67,7 +81,7 @@ export class FormularioEmpresaComponent implements OnInit {
             celular: ['', [Validators.maxLength(20)]],
             sitioWeb: ['', [this.urlValidator()]],
 
-            pais: ['HN', [Validators.required]],
+            pais: ['', [Validators.required]],
             departamento: ['', [Validators.required]],
             ciudad: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
             codigoPostal: ['', [Validators.maxLength(15)]],
@@ -79,8 +93,8 @@ export class FormularioEmpresaComponent implements OnInit {
 
             representanteLegal: ['', [Validators.maxLength(200)]],
             planSuscripcion: [''],
-            moneda: ['HNL'],
-            zonaHoraria: ['America/Tegucigalpa'],
+            moneda: [''],
+            zonaHoraria: [''],
             cantidadEmpleados: [''],
 
             activa: [true]
@@ -104,7 +118,7 @@ export class FormularioEmpresaComponent implements OnInit {
                     telefono: empresa.telefono,
                     celular: empresa.celular || '',
                     sitioWeb: empresa.sitioWeb || '',
-                    pais: empresa.pais || 'HN',
+                    pais: empresa.pais || '',
                     departamento: empresa.departamento || '',
                     ciudad: empresa.ciudad || '',
                     codigoPostal: empresa.codigoPostal || '',
@@ -114,8 +128,8 @@ export class FormularioEmpresaComponent implements OnInit {
                     whatsapp: empresa.redesSociales?.whatsapp || '',
                     representanteLegal: empresa.representanteLegal || '',
                     planSuscripcion: empresa.planSuscripcion || '',
-                    moneda: empresa.moneda || 'HNL',
-                    zonaHoraria: empresa.zonaHoraria || 'America/Tegucigalpa',
+                    moneda: empresa.moneda || '',
+                    zonaHoraria: empresa.zonaHoraria || '',
                     cantidadEmpleados: empresa.cantidadEmpleados || '',
                     activa: empresa.activa
                 });

@@ -5,9 +5,9 @@ import {
     MaxLength,
     IsEmail,
     Matches,
-    IsEnum,
     IsBoolean,
 } from 'class-validator';
+import { EsCatalogoValido } from '../../../../common/decorators';
 
 // Actualizar información personal básica
 export class ActualizarPerfilDto {
@@ -39,7 +39,7 @@ export class ActualizarPerfilDto {
     contactoEmergenciaNombre?: string;
 
     @IsOptional()
-    @IsEnum(['masculino', 'femenino', 'no_especificado'])
+    @EsCatalogoValido('generos', { message: 'El género no es válido' })
     genero?: string;
 }
 
@@ -99,7 +99,7 @@ export class ActualizarSeguridadDto {
     requiere2fa?: boolean;
 
     @IsOptional()
-    @IsEnum(['ninguno', 'correo', 'app'])
+    @EsCatalogoValido('metodos2fa', { message: 'El método 2FA no es válido' })
     metodo2fa?: string;
 }
 

@@ -1,12 +1,12 @@
-import { Component, Input, Output, EventEmitter, signal, inject, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthColaboradorService } from '../../auth/services/auth-colaborador.service';
-import { MENU_COLABORADOR, ItemMenuColab, SeccionMenuColab } from './menu.config';
+import { ItemMenuColab } from './menu.config';
+import { MenuColaboradorService } from './menu-colaborador.service';
 import { IdiomaService } from '../../../../core/services/idioma.service';
 import { TraducirPipe } from '../../../../core/pipes/colaboradoresPortal/traducir.pipe';
-import { OpcionesCatalogoService } from '../../../../core/services';
 
 @Component({
     selector: 'app-sidebar-colab',
@@ -17,9 +17,9 @@ import { OpcionesCatalogoService } from '../../../../core/services';
 })
 export class SidebarColabComponent {
     private authService = inject(AuthColaboradorService);
+    private menuService = inject(MenuColaboradorService);
     private router = inject(Router);
     private idiomaService = inject(IdiomaService);
-    private opcionesCatalogo = inject(OpcionesCatalogoService);
 
     @Input() colapsado = false;
     @Input() mostrarMobile = false;
@@ -28,31 +28,12 @@ export class SidebarColabComponent {
     @Output() toggleColapsado = new EventEmitter<void>();
     @Output() cerrarMobile = new EventEmitter<void>();
 
-    menuCompleto = signal<SeccionMenuColab[]>([]);
+    menuCompleto = this.menuService.menu;
     rutaActual = signal<string>('');
     readonly anioActual = new Date().getFullYear();
 
     constructor() {
         this.escucharCambiosRuta();
-
-        // Reaccionar a cambios en permisos/rol del usuario
-        effect(() => {
-            const rol = this.authService.rol();
-            const permisos = this.authService.permisos();
-            this.construirMenu(rol, permisos);
-        });
-    }
-
-    private construirMenu(rolUsuario: string, permisos: string[]): void {
-        const rolesAccesoTotal = this.opcionesCatalogo.obtenerGrupo('rolesColabAccesoTotal').map(o => o.valor);
-        const tienePermisosColab = permisos.some(p => p.startsWith('colab_'));
-
-        if (rolesAccesoTotal.includes(rolUsuario) || !tienePermisosColab) {
-            this.menuCompleto.set(structuredClone(MENU_COLABORADOR));
-        } else {
-            const menuFiltrado = this.filtrarMenuPorPermisos(structuredClone(MENU_COLABORADOR));
-            this.menuCompleto.set(menuFiltrado);
-        }
     }
 
     private escucharCambiosRuta(): void {
@@ -61,24 +42,8 @@ export class SidebarColabComponent {
             .subscribe((evento) => { this.rutaActual.set((evento as NavigationEnd).urlAfterRedirects); });
     }
 
-    private filtrarMenuPorPermisos(secciones: SeccionMenuColab[]): SeccionMenuColab[] {
-        return secciones.map((seccion) => ({ ...seccion, items: this.filtrarItemsPorPermisos(seccion.items) }))
-            .filter((seccion) => seccion.items.length > 0);
-    }
-
-    private filtrarItemsPorPermisos(items: ItemMenuColab[]): ItemMenuColab[] {
-        return items.filter((item) => this.tienePermisoParaItem(item))
-            .map((item) => ({ ...item, hijos: item.hijos ? this.filtrarItemsPorPermisos(item.hijos) : undefined }))
-            .filter((item) => !item.hijos || item.hijos.length > 0 || item.ruta);
-    }
-
-    private tienePermisoParaItem(item: ItemMenuColab): boolean {
-        if (!item.permisos || item.permisos.length === 0) return true;
-        return this.authService.tieneAlgunPermiso(item.permisos);
-    }
-
     toggleSubmenu(item: ItemMenuColab): void {
-        if (item.hijos && item.hijos.length > 0) item.expandido = !item.expandido;
+        if (item.hijos && item.hijos.length > 0) this.menuService.toggleExpandido(item.id);
     }
 
     estaActivo(item: ItemMenuColab): boolean {
